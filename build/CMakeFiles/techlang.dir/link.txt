@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/techlang.dir/link.d CMakeFiles/techlang.dir/src/CodeGen.cpp.o CMakeFiles/techlang.dir/src/ast_printer.cpp.o CMakeFiles/techlang.dir/src/lexer.cpp.o CMakeFiles/techlang.dir/src/main.cpp.o CMakeFiles/techlang.dir/src/parser.cpp.o CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o -o techlang

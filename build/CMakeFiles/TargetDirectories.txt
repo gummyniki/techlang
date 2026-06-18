@@ -1,0 +1,8 @@
+/home/gummy/projects/techlang/build/CMakeFiles/intrinsics_gen.dir
+/home/gummy/projects/techlang/build/CMakeFiles/vt_gen.dir
+/home/gummy/projects/techlang/build/CMakeFiles/omp_gen.dir
+/home/gummy/projects/techlang/build/CMakeFiles/acc_gen.dir
+/home/gummy/projects/techlang/build/CMakeFiles/target_parser_gen.dir
+/home/gummy/projects/techlang/build/CMakeFiles/techlang.dir
+/home/gummy/projects/techlang/build/CMakeFiles/edit_cache.dir
+/home/gummy/projects/techlang/build/CMakeFiles/rebuild_cache.dir

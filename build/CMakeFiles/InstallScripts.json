@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/gummy/projects/techlang/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
