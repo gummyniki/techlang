@@ -117,71 +117,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named intrinsics_gen
-
-# Build rule for target.
-intrinsics_gen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 intrinsics_gen
-.PHONY : intrinsics_gen
-
-# fast build rule for target.
-intrinsics_gen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/intrinsics_gen.dir/build.make CMakeFiles/intrinsics_gen.dir/build
-.PHONY : intrinsics_gen/fast
-
-#=============================================================================
-# Target rules for targets named vt_gen
-
-# Build rule for target.
-vt_gen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vt_gen
-.PHONY : vt_gen
-
-# fast build rule for target.
-vt_gen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/vt_gen.dir/build.make CMakeFiles/vt_gen.dir/build
-.PHONY : vt_gen/fast
-
-#=============================================================================
-# Target rules for targets named omp_gen
-
-# Build rule for target.
-omp_gen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 omp_gen
-.PHONY : omp_gen
-
-# fast build rule for target.
-omp_gen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/omp_gen.dir/build.make CMakeFiles/omp_gen.dir/build
-.PHONY : omp_gen/fast
-
-#=============================================================================
-# Target rules for targets named acc_gen
-
-# Build rule for target.
-acc_gen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 acc_gen
-.PHONY : acc_gen
-
-# fast build rule for target.
-acc_gen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/acc_gen.dir/build.make CMakeFiles/acc_gen.dir/build
-.PHONY : acc_gen/fast
-
-#=============================================================================
-# Target rules for targets named target_parser_gen
-
-# Build rule for target.
-target_parser_gen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 target_parser_gen
-.PHONY : target_parser_gen
-
-# fast build rule for target.
-target_parser_gen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/target_parser_gen.dir/build.make CMakeFiles/target_parser_gen.dir/build
-.PHONY : target_parser_gen/fast
-
-#=============================================================================
 # Target rules for targets named techlang
 
 # Build rule for target.
@@ -193,30 +128,6 @@ techlang: cmake_check_build_system
 techlang/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/build
 .PHONY : techlang/fast
-
-src/CodeGen.o: src/CodeGen.cpp.o
-.PHONY : src/CodeGen.o
-
-# target to build an object file
-src/CodeGen.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/CodeGen.cpp.o
-.PHONY : src/CodeGen.cpp.o
-
-src/CodeGen.i: src/CodeGen.cpp.i
-.PHONY : src/CodeGen.i
-
-# target to preprocess a source file
-src/CodeGen.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/CodeGen.cpp.i
-.PHONY : src/CodeGen.cpp.i
-
-src/CodeGen.s: src/CodeGen.cpp.s
-.PHONY : src/CodeGen.s
-
-# target to generate assembly for a file
-src/CodeGen.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/CodeGen.cpp.s
-.PHONY : src/CodeGen.cpp.s
 
 src/ast_printer.o: src/ast_printer.cpp.o
 .PHONY : src/ast_printer.o
@@ -241,6 +152,30 @@ src/ast_printer.s: src/ast_printer.cpp.s
 src/ast_printer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ast_printer.cpp.s
 .PHONY : src/ast_printer.cpp.s
+
+src/ir_generator.o: src/ir_generator.cpp.o
+.PHONY : src/ir_generator.o
+
+# target to build an object file
+src/ir_generator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.o
+.PHONY : src/ir_generator.cpp.o
+
+src/ir_generator.i: src/ir_generator.cpp.i
+.PHONY : src/ir_generator.i
+
+# target to preprocess a source file
+src/ir_generator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.i
+.PHONY : src/ir_generator.cpp.i
+
+src/ir_generator.s: src/ir_generator.cpp.s
+.PHONY : src/ir_generator.s
+
+# target to generate assembly for a file
+src/ir_generator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.s
+.PHONY : src/ir_generator.cpp.s
 
 src/lexer.o: src/lexer.cpp.o
 .PHONY : src/lexer.o
@@ -346,18 +281,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... acc_gen"
-	@echo "... intrinsics_gen"
-	@echo "... omp_gen"
-	@echo "... target_parser_gen"
-	@echo "... vt_gen"
 	@echo "... techlang"
-	@echo "... src/CodeGen.o"
-	@echo "... src/CodeGen.i"
-	@echo "... src/CodeGen.s"
 	@echo "... src/ast_printer.o"
 	@echo "... src/ast_printer.i"
 	@echo "... src/ast_printer.s"
+	@echo "... src/ir_generator.o"
+	@echo "... src/ir_generator.i"
+	@echo "... src/ir_generator.s"
 	@echo "... src/lexer.o"
 	@echo "... src/lexer.i"
 	@echo "... src/lexer.s"

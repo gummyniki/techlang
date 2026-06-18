@@ -72,24 +72,10 @@ include CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/codegen:
 .PHONY : CMakeFiles/techlang.dir/codegen
 
-CMakeFiles/techlang.dir/src/CodeGen.cpp.o: CMakeFiles/techlang.dir/flags.make
-CMakeFiles/techlang.dir/src/CodeGen.cpp.o: /home/gummy/projects/techlang/src/CodeGen.cpp
-CMakeFiles/techlang.dir/src/CodeGen.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/techlang.dir/src/CodeGen.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/CodeGen.cpp.o -MF CMakeFiles/techlang.dir/src/CodeGen.cpp.o.d -o CMakeFiles/techlang.dir/src/CodeGen.cpp.o -c /home/gummy/projects/techlang/src/CodeGen.cpp
-
-CMakeFiles/techlang.dir/src/CodeGen.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/techlang.dir/src/CodeGen.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gummy/projects/techlang/src/CodeGen.cpp > CMakeFiles/techlang.dir/src/CodeGen.cpp.i
-
-CMakeFiles/techlang.dir/src/CodeGen.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/techlang.dir/src/CodeGen.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gummy/projects/techlang/src/CodeGen.cpp -o CMakeFiles/techlang.dir/src/CodeGen.cpp.s
-
 CMakeFiles/techlang.dir/src/ast_printer.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/ast_printer.cpp.o: /home/gummy/projects/techlang/src/ast_printer.cpp
 CMakeFiles/techlang.dir/src/ast_printer.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/techlang.dir/src/ast_printer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/techlang.dir/src/ast_printer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/ast_printer.cpp.o -MF CMakeFiles/techlang.dir/src/ast_printer.cpp.o.d -o CMakeFiles/techlang.dir/src/ast_printer.cpp.o -c /home/gummy/projects/techlang/src/ast_printer.cpp
 
 CMakeFiles/techlang.dir/src/ast_printer.cpp.i: cmake_force
@@ -99,6 +85,20 @@ CMakeFiles/techlang.dir/src/ast_printer.cpp.i: cmake_force
 CMakeFiles/techlang.dir/src/ast_printer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/techlang.dir/src/ast_printer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gummy/projects/techlang/src/ast_printer.cpp -o CMakeFiles/techlang.dir/src/ast_printer.cpp.s
+
+CMakeFiles/techlang.dir/src/ir_generator.cpp.o: CMakeFiles/techlang.dir/flags.make
+CMakeFiles/techlang.dir/src/ir_generator.cpp.o: /home/gummy/projects/techlang/src/ir_generator.cpp
+CMakeFiles/techlang.dir/src/ir_generator.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/techlang.dir/src/ir_generator.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/ir_generator.cpp.o -MF CMakeFiles/techlang.dir/src/ir_generator.cpp.o.d -o CMakeFiles/techlang.dir/src/ir_generator.cpp.o -c /home/gummy/projects/techlang/src/ir_generator.cpp
+
+CMakeFiles/techlang.dir/src/ir_generator.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/techlang.dir/src/ir_generator.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gummy/projects/techlang/src/ir_generator.cpp > CMakeFiles/techlang.dir/src/ir_generator.cpp.i
+
+CMakeFiles/techlang.dir/src/ir_generator.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/techlang.dir/src/ir_generator.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gummy/projects/techlang/src/ir_generator.cpp -o CMakeFiles/techlang.dir/src/ir_generator.cpp.s
 
 CMakeFiles/techlang.dir/src/lexer.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/lexer.cpp.o: /home/gummy/projects/techlang/src/lexer.cpp
@@ -158,8 +158,8 @@ CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.s: cmake_force
 
 # Object files for target techlang
 techlang_OBJECTS = \
-"CMakeFiles/techlang.dir/src/CodeGen.cpp.o" \
 "CMakeFiles/techlang.dir/src/ast_printer.cpp.o" \
+"CMakeFiles/techlang.dir/src/ir_generator.cpp.o" \
 "CMakeFiles/techlang.dir/src/lexer.cpp.o" \
 "CMakeFiles/techlang.dir/src/main.cpp.o" \
 "CMakeFiles/techlang.dir/src/parser.cpp.o" \
@@ -168,8 +168,8 @@ techlang_OBJECTS = \
 # External object files for target techlang
 techlang_EXTERNAL_OBJECTS =
 
-techlang: CMakeFiles/techlang.dir/src/CodeGen.cpp.o
 techlang: CMakeFiles/techlang.dir/src/ast_printer.cpp.o
+techlang: CMakeFiles/techlang.dir/src/ir_generator.cpp.o
 techlang: CMakeFiles/techlang.dir/src/lexer.cpp.o
 techlang: CMakeFiles/techlang.dir/src/main.cpp.o
 techlang: CMakeFiles/techlang.dir/src/parser.cpp.o

@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/usr/lib/llvm/21/include -I/home/gummy/projects/techlang/src
+CXX_INCLUDES = -I/home/gummy/projects/techlang/src
 
-CXX_FLAGS = -O3 -DNDEBUG -std=gnu++17   -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -Wall -Wextra -Wpedantic
+CXX_FLAGS = -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 

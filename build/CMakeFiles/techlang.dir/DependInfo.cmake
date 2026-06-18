@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/gummy/projects/techlang/src/CodeGen.cpp" "CMakeFiles/techlang.dir/src/CodeGen.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/CodeGen.cpp.o.d"
   "/home/gummy/projects/techlang/src/ast_printer.cpp" "CMakeFiles/techlang.dir/src/ast_printer.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/ast_printer.cpp.o.d"
+  "/home/gummy/projects/techlang/src/ir_generator.cpp" "CMakeFiles/techlang.dir/src/ir_generator.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/ir_generator.cpp.o.d"
   "/home/gummy/projects/techlang/src/lexer.cpp" "CMakeFiles/techlang.dir/src/lexer.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/lexer.cpp.o.d"
   "/home/gummy/projects/techlang/src/main.cpp" "CMakeFiles/techlang.dir/src/main.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/main.cpp.o.d"
   "/home/gummy/projects/techlang/src/parser.cpp" "CMakeFiles/techlang.dir/src/parser.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/parser.cpp.o.d"

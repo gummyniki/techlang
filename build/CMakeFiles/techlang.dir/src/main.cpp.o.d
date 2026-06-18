@@ -29,8 +29,7 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/include/bits/types/mbstate_t.h \
  /usr/include/bits/types/__mbstate_t.h /usr/include/bits/types/__FILE.h \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/locale_t.h \
- /usr/include/bits/types/__locale_t.h /usr/include/bits/wchar2-decl.h \
- /usr/include/bits/wchar2.h \
+ /usr/include/bits/types/__locale_t.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/exception \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/exception.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/version.h \
@@ -124,18 +123,15 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/include/bits/stdint-intn.h /usr/include/endian.h \
  /usr/include/bits/byteswap.h /usr/include/bits/uintn-identity.h \
  /usr/include/sys/select.h /usr/include/bits/select.h \
- /usr/include/bits/types/sigset_t.h /usr/include/bits/select2.h \
- /usr/include/bits/select-decl.h /usr/include/alloca.h \
- /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
- /usr/include/bits/stdlib.h \
+ /usr/include/bits/types/sigset_t.h /usr/include/alloca.h \
+ /usr/include/bits/stdlib-float.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/std_abs.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdio \
  /usr/include/stdio.h /usr/include/bits/types/__fpos_t.h \
  /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
- /usr/include/bits/stdio_lim.h /usr/include/bits/stdio2-decl.h \
- /usr/include/bits/stdio.h /usr/include/bits/stdio2.h \
+ /usr/include/bits/stdio_lim.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cerrno \
  /usr/include/errno.h /usr/include/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/asm/errno.h \
@@ -191,14 +187,169 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_memory_defs.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/execution_defs.h \
  /usr/include/string.h /usr/include/strings.h \
- /usr/include/bits/strings_fortified.h \
- /usr/include/bits/string_fortified.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/vector \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
+ /home/gummy/projects/techlang/src/ir_generator.h \
+ /home/gummy/projects/techlang/src/symbol_table.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional \
+ /usr/lib/llvm/21/include/llvm/IR/IRBuilder.h \
+ /usr/lib/llvm/21/include/llvm-c/Types.h \
+ /usr/lib/llvm/21/include/llvm-c/DataTypes.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/bits/stdint-least.h \
+ /usr/lib/llvm/21/include/llvm-c/ExternC.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ArrayRef.h \
+ /usr/lib/llvm/21/include/llvm/ADT/Hashing.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ADL.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iterator \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stream_iterator.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/utility \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_relops.h \
+ /usr/lib/llvm/21/include/llvm/Config/abi-breaking.h \
+ /usr/lib/llvm/21/include/llvm/Support/DataTypes.h \
+ /usr/lib/llvm/21/include/llvm/Support/ErrorHandling.h \
+ /usr/lib/llvm/21/include/llvm/Support/Compiler.h \
+ /usr/lib/llvm/21/include/llvm/Config/llvm-config.h \
+ /usr/lib/llvm/21/include/x86_64-pc-linux-gnu/llvm/Config/llvm-config.h \
+ /usr/lib/llvm/21/include/llvm/Support/SwapByteOrder.h \
+ /usr/lib/llvm/21/include/llvm/ADT/STLForwardCompat.h \
+ /usr/lib/llvm/21/include/llvm/ADT/bit.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/limits \
+ /usr/lib/llvm/21/include/llvm/Support/type_traits.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/algorithm \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_algo.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/algorithmfwd.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_heap.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/uniform_int_dist.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_algorithm_defs.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cassert \
+ /usr/include/assert.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstring \
+ /usr/lib/llvm/21/include/llvm/ADT/SmallVector.h \
+ /usr/lib/llvm/21/include/llvm/ADT/DenseMapInfo.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/functional \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/std_function.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/array \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/compare \
+ /usr/lib/llvm/21/include/llvm/ADT/STLExtras.h \
+ /usr/lib/llvm/21/include/llvm/ADT/STLFunctionalExtras.h \
+ /usr/lib/llvm/21/include/llvm/ADT/iterator.h \
+ /usr/lib/llvm/21/include/llvm/ADT/iterator_range.h \
+ /usr/lib/llvm/21/include/llvm/ADT/StringRef.h \
+ /usr/lib/llvm/21/include/llvm/ADT/Twine.h \
+ /usr/lib/llvm/21/include/llvm/IR/BasicBlock.h \
+ /usr/lib/llvm/21/include/llvm/ADT/DenseMap.h \
+ /usr/lib/llvm/21/include/llvm/ADT/EpochTracker.h \
+ /usr/lib/llvm/21/include/llvm/Support/AlignOf.h \
+ /usr/lib/llvm/21/include/llvm/Support/MathExtras.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/climits \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/limits.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/uio_lim.h \
+ /usr/lib/llvm/21/include/llvm/Support/MemAlloc.h \
+ /usr/lib/llvm/21/include/llvm/Support/ReverseIteration.h \
+ /usr/lib/llvm/21/include/llvm/Support/PointerLikeTypeTraits.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist.h \
+ /usr/lib/llvm/21/include/llvm/ADT/simple_ilist.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist_base.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist_node_base.h \
+ /usr/lib/llvm/21/include/llvm/ADT/PointerIntPair.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist_iterator.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist_node.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ilist_node_options.h \
+ /usr/lib/llvm/21/include/llvm/IR/DebugProgramInstruction.h \
+ /usr/lib/llvm/21/include/llvm/IR/DbgVariableFragmentInfo.h \
+ /usr/lib/llvm/21/include/llvm/IR/DebugLoc.h \
+ /usr/lib/llvm/21/include/llvm/IR/TrackingMDRef.h \
+ /usr/lib/llvm/21/include/llvm/IR/Metadata.h \
+ /usr/lib/llvm/21/include/llvm/ADT/PointerUnion.h \
+ /usr/lib/llvm/21/include/llvm/Support/Casting.h \
+ /usr/lib/llvm/21/include/llvm/IR/Constant.h \
+ /usr/lib/llvm/21/include/llvm/IR/User.h \
+ /usr/lib/llvm/21/include/llvm/IR/Use.h \
+ /usr/lib/llvm/21/include/llvm/Support/CBindingWrapping.h \
+ /usr/lib/llvm/21/include/llvm/IR/Value.h \
+ /usr/lib/llvm/21/include/llvm/Support/Alignment.h \
+ /usr/lib/llvm/21/include/llvm/IR/Value.def \
+ /usr/lib/llvm/21/include/llvm/IR/LLVMContext.h \
+ /usr/lib/llvm/21/include/llvm/IR/DiagnosticHandler.h \
+ /usr/lib/llvm/21/include/llvm/IR/FixedMetadataKinds.def \
+ /usr/lib/llvm/21/include/llvm/IR/Metadata.def \
+ /usr/lib/llvm/21/include/llvm/IR/Instruction.h \
+ /usr/lib/llvm/21/include/llvm/ADT/Bitfields.h \
+ /usr/lib/llvm/21/include/llvm/IR/SymbolTableListTraits.h \
+ /usr/lib/llvm/21/include/llvm/Support/AtomicOrdering.h \
+ /usr/lib/llvm/21/include/llvm/IR/Instruction.def \
+ /usr/lib/llvm/21/include/llvm/IR/ConstantFolder.h \
+ /usr/lib/llvm/21/include/llvm/IR/ConstantFold.h \
+ /usr/lib/llvm/21/include/llvm/IR/InstrTypes.h \
+ /usr/lib/llvm/21/include/llvm/ADT/Sequence.h \
+ /usr/lib/llvm/21/include/llvm/ADT/StringMap.h \
+ /usr/lib/llvm/21/include/llvm/ADT/StringMapEntry.h \
+ /usr/lib/llvm/21/include/llvm/Support/AllocatorBase.h \
+ /usr/lib/llvm/21/include/llvm/IR/Attributes.h \
+ /usr/lib/llvm/21/include/llvm/ADT/BitmaskEnum.h \
+ /usr/lib/llvm/21/include/llvm/Support/CodeGen.h \
+ /usr/lib/llvm/21/include/llvm/Support/ModRef.h \
+ /usr/lib/llvm/21/include/llvm/Support/raw_ostream.h \
+ /usr/lib/llvm/21/include/llvm/IR/Attributes.inc \
+ /usr/lib/llvm/21/include/llvm/IR/CallingConv.h \
+ /usr/lib/llvm/21/include/llvm/IR/DerivedTypes.h \
+ /usr/lib/llvm/21/include/llvm/IR/Type.h \
+ /usr/lib/llvm/21/include/llvm/Support/TypeSize.h \
+ /usr/lib/llvm/21/include/llvm/IR/FMF.h \
+ /usr/lib/llvm/21/include/llvm/IR/Function.h \
+ /usr/lib/llvm/21/include/llvm/ADT/DenseSet.h \
+ /usr/lib/llvm/21/include/llvm/IR/Argument.h \
+ /usr/lib/llvm/21/include/llvm/IR/GlobalObject.h \
+ /usr/lib/llvm/21/include/llvm/IR/GlobalValue.h \
+ /usr/lib/llvm/21/include/llvm/IR/OperandTraits.h \
+ /usr/lib/llvm/21/include/llvm/IR/Constants.h \
+ /usr/lib/llvm/21/include/llvm/ADT/APFloat.h \
+ /usr/lib/llvm/21/include/llvm/ADT/APInt.h \
+ /usr/lib/llvm/21/include/llvm/Support/float128.h \
+ /usr/lib/llvm/21/include/llvm/ADT/FloatingPointMode.h \
+ /usr/lib/llvm/21/include/llvm/ADT/StringSwitch.h \
+ /usr/lib/llvm/21/include/llvm/IR/ConstantRange.h \
+ /usr/lib/llvm/21/include/llvm/IR/GEPNoWrapFlags.h \
+ /usr/lib/llvm/21/include/llvm/IR/Intrinsics.h \
+ /usr/lib/llvm/21/include/llvm/IR/IntrinsicEnums.inc \
+ /usr/lib/llvm/21/include/llvm/IR/IRBuilderFolder.h \
+ /usr/lib/llvm/21/include/llvm/IR/Operator.h \
+ /usr/lib/llvm/21/include/llvm/ADT/MapVector.h \
+ /usr/lib/llvm/21/include/llvm/IR/DataLayout.h \
+ /usr/lib/llvm/21/include/llvm/Support/TrailingObjects.h \
+ /usr/lib/llvm/21/include/llvm/IR/FPEnv.h \
+ /usr/lib/llvm/21/include/llvm/IR/GlobalVariable.h \
+ /usr/lib/llvm/21/include/llvm/IR/Instructions.h \
+ /usr/lib/llvm/21/include/llvm/IR/CFG.h \
+ /usr/lib/llvm/21/include/llvm/ADT/GraphTraits.h \
+ /usr/lib/llvm/21/include/llvm/IR/CmpPredicate.h \
+ /usr/lib/llvm/21/include/llvm/IR/ValueHandle.h \
+ /usr/lib/llvm/21/include/llvm/IR/Module.h \
+ /usr/lib/llvm/21/include/llvm/IR/Comdat.h \
+ /usr/lib/llvm/21/include/llvm/ADT/SmallPtrSet.h \
+ /usr/lib/llvm/21/include/llvm/IR/GlobalAlias.h \
+ /usr/lib/llvm/21/include/llvm/IR/GlobalIFunc.h \
+ /usr/lib/llvm/21/include/llvm/IR/ProfileSummary.h \
+ /usr/lib/llvm/21/include/llvm/TargetParser/Triple.h \
+ /usr/lib/llvm/21/include/llvm/Support/VersionTuple.h \
+ /usr/lib/llvm/21/include/llvm/IR/Verifier.h \
+ /usr/lib/llvm/21/include/llvm/IR/PassManager.h \
+ /usr/lib/llvm/21/include/llvm/ADT/TinyPtrVector.h \
+ /usr/lib/llvm/21/include/llvm/IR/Analysis.h \
+ /usr/lib/llvm/21/include/llvm/IR/PassManagerInternal.h \
+ /usr/lib/llvm/21/include/llvm/Support/TypeName.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/list \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_list.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/list.tcc \
  /home/gummy/projects/techlang/src/lexer.h \
  /home/gummy/projects/techlang/src/parser.h \
- /home/gummy/projects/techlang/src/semantic_analyzer.h \
- /home/gummy/projects/techlang/src/symbol_table.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional
+ /home/gummy/projects/techlang/src/semantic_analyzer.h
