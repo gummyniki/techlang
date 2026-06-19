@@ -22,7 +22,7 @@ CMAKE_AR:FILEPATH=/usr/bin/ar
 
 //Choose the type of build, options are: None Debug Release RelWithDebInfo
 // MinSizeRel ...
-CMAKE_BUILD_TYPE:STRING=Debug
+CMAKE_BUILD_TYPE:STRING=
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
@@ -97,8 +97,8 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
 //Flags used by the linker during RELWITHDEBINFO builds.
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//No help, variable specified on the command line.
-CMAKE_EXPORT_COMPILE_COMMANDS:UNINITIALIZED=1
+//Enable/Disable output of compile commands during generation.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 
 //Value Computed by CMake.
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/home/gummy/projects/techlang/build/CMakeFiles/pkgRedirects
@@ -221,41 +221,8 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
-//No help, variable specified on the command line.
-DLVM_DIR:UNINITIALIZED=/usr/lib/llvm/21/lib64/cmake/llvm
-
-//Path to a file.
-FFI_INCLUDE_DIRS:PATH=/usr/lib64/libffi/include
-
-//Path to a library.
-FFI_LIBRARIES:FILEPATH=/usr/lib64/libffi.so
-
-//Path to a library.
-FFI_STATIC_LIBRARIES:FILEPATH=FFI_STATIC_LIBRARIES-NOTFOUND
-
 //Path to a program.
 LLVM_CONFIG:FILEPATH=/usr/lib/llvm/21/bin/llvm-config
-
-//The directory containing a CMake configuration file for LLVM.
-LLVM_DIR:PATH=/usr/lib/llvm/21/lib64/cmake/llvm
-
-//Arguments to supply to pkg-config
-PKG_CONFIG_ARGN:STRING=
-
-//pkg-config executable
-PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
-
-//Path to a file.
-ZLIB_INCLUDE_DIR:PATH=/usr/include
-
-//Path to a library.
-ZLIB_LIBRARY_DEBUG:FILEPATH=ZLIB_LIBRARY_DEBUG-NOTFOUND
-
-//Path to a library.
-ZLIB_LIBRARY_RELEASE:FILEPATH=/usr/lib64/libz.so
-
-//Path to a library.
-pkgcfg_lib_PC_LIBFFI_ffi:FILEPATH=/usr/lib64/libffi.so
 
 //Value Computed by CMake
 techlang_BINARY_DIR:STATIC=/home/gummy/projects/techlang/build
@@ -265,15 +232,6 @@ techlang_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 techlang_SOURCE_DIR:STATIC=/home/gummy/projects/techlang
-
-//Path to a file.
-zstd_INCLUDE_DIR:PATH=/usr/include
-
-//Path to a library.
-zstd_LIBRARY:FILEPATH=/usr/lib64/libzstd.so
-
-//Path to a library.
-zstd_STATIC_LIBRARY:FILEPATH=zstd_STATIC_LIBRARY-NOTFOUND
 
 
 ########################
@@ -429,76 +387,4 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-FFI_HEADER:INTERNAL=ffi.h
-//ADVANCED property for variable: FFI_INCLUDE_DIRS
-FFI_INCLUDE_DIRS-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: FFI_LIBRARIES
-FFI_LIBRARIES-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: FFI_STATIC_LIBRARIES
-FFI_STATIC_LIBRARIES-ADVANCED:INTERNAL=1
-//Details about finding FFI
-FIND_PACKAGE_MESSAGE_DETAILS_FFI:INTERNAL=[/usr/lib64/libffi.so][1][v()]
-//Details about finding ZLIB
-FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[/usr/lib64/libz.so][/usr/include][ ][v1.3.2()]
-//Details about finding zstd
-FIND_PACKAGE_MESSAGE_DETAILS_zstd:INTERNAL=[/usr/lib64/libzstd.so][/usr/include][v()]
-//Test HAVE_FFI_CALL
-HAVE_FFI_CALL:INTERNAL=1
-HAVE_FFI_H:INTERNAL=1
-PC_LIBFFI_CFLAGS:INTERNAL=-I/usr/lib64/libffi/include
-PC_LIBFFI_CFLAGS_I:INTERNAL=
-PC_LIBFFI_CFLAGS_OTHER:INTERNAL=
-PC_LIBFFI_FOUND:INTERNAL=1
-PC_LIBFFI_INCLUDEDIR:INTERNAL=/usr/lib64/libffi/include
-PC_LIBFFI_INCLUDE_DIRS:INTERNAL=/usr/lib64/libffi/include
-PC_LIBFFI_LDFLAGS:INTERNAL=-L/usr/lib64;-lffi
-PC_LIBFFI_LDFLAGS_OTHER:INTERNAL=
-PC_LIBFFI_LIBDIR:INTERNAL=/usr/lib64
-PC_LIBFFI_LIBRARIES:INTERNAL=ffi
-PC_LIBFFI_LIBRARY_DIRS:INTERNAL=/usr/lib64
-PC_LIBFFI_LIBS:INTERNAL=
-PC_LIBFFI_LIBS_L:INTERNAL=
-PC_LIBFFI_LIBS_OTHER:INTERNAL=
-PC_LIBFFI_LIBS_PATHS:INTERNAL=
-PC_LIBFFI_MODULE_NAME:INTERNAL=libffi
-PC_LIBFFI_PREFIX:INTERNAL=/usr
-PC_LIBFFI_STATIC_CFLAGS:INTERNAL=-I/usr/lib64/libffi/include
-PC_LIBFFI_STATIC_CFLAGS_I:INTERNAL=
-PC_LIBFFI_STATIC_CFLAGS_OTHER:INTERNAL=
-PC_LIBFFI_STATIC_INCLUDE_DIRS:INTERNAL=/usr/lib64/libffi/include
-PC_LIBFFI_STATIC_LDFLAGS:INTERNAL=-L/usr/lib64;-lffi
-PC_LIBFFI_STATIC_LDFLAGS_OTHER:INTERNAL=
-PC_LIBFFI_STATIC_LIBDIR:INTERNAL=
-PC_LIBFFI_STATIC_LIBRARIES:INTERNAL=ffi
-PC_LIBFFI_STATIC_LIBRARY_DIRS:INTERNAL=/usr/lib64
-PC_LIBFFI_STATIC_LIBS:INTERNAL=
-PC_LIBFFI_STATIC_LIBS_L:INTERNAL=
-PC_LIBFFI_STATIC_LIBS_OTHER:INTERNAL=
-PC_LIBFFI_STATIC_LIBS_PATHS:INTERNAL=
-PC_LIBFFI_VERSION:INTERNAL=3.5.2
-PC_LIBFFI_libffi_INCLUDEDIR:INTERNAL=
-PC_LIBFFI_libffi_LIBDIR:INTERNAL=
-PC_LIBFFI_libffi_PREFIX:INTERNAL=
-PC_LIBFFI_libffi_VERSION:INTERNAL=
-//ADVANCED property for variable: PKG_CONFIG_ARGN
-PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
-PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: ZLIB_INCLUDE_DIR
-ZLIB_INCLUDE_DIR-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: ZLIB_LIBRARY_DEBUG
-ZLIB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: ZLIB_LIBRARY_RELEASE
-ZLIB_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
-__pkg_config_arguments_PC_LIBFFI:INTERNAL=QUIET;libffi
-__pkg_config_checked_PC_LIBFFI:INTERNAL=1
-//ADVANCED property for variable: pkgcfg_lib_PC_LIBFFI_ffi
-pkgcfg_lib_PC_LIBFFI_ffi-ADVANCED:INTERNAL=1
-prefix_result:INTERNAL=/usr/lib64
-//ADVANCED property for variable: zstd_INCLUDE_DIR
-zstd_INCLUDE_DIR-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: zstd_LIBRARY
-zstd_LIBRARY-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: zstd_STATIC_LIBRARY
-zstd_STATIC_LIBRARY-ADVANCED:INTERNAL=1
 

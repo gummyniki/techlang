@@ -1,6 +1,6 @@
 CMakeFiles/techlang.dir/src/main.cpp.o: \
  /home/gummy/projects/techlang/src/main.cpp /usr/include/stdc-predef.h \
- /home/gummy/projects/techlang/src/ast_printer.h \
+ /home/gummy/projects/techlang/src/ir_generator.h \
  /home/gummy/projects/techlang/src/ast.h \
  /home/gummy/projects/techlang/src/token.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iostream \
@@ -191,7 +191,6 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
- /home/gummy/projects/techlang/src/ir_generator.h \
  /home/gummy/projects/techlang/src/symbol_table.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional \
  /usr/lib/llvm/21/include/llvm/IR/IRBuilder.h \
@@ -352,4 +351,62 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/list.tcc \
  /home/gummy/projects/techlang/src/lexer.h \
  /home/gummy/projects/techlang/src/parser.h \
- /home/gummy/projects/techlang/src/semantic_analyzer.h
+ /home/gummy/projects/techlang/src/semantic_analyzer.h \
+ /usr/lib/llvm/21/include/llvm/IR/LegacyPassManager.h \
+ /usr/lib/llvm/21/include/llvm/MC/TargetRegistry.h \
+ /usr/lib/llvm/21/include/llvm-c/DisassemblerTypes.h \
+ /usr/lib/llvm/21/include/llvm/MC/MCObjectFileInfo.h \
+ /usr/lib/llvm/21/include/llvm/BinaryFormat/Swift.h \
+ /usr/lib/llvm/21/include/llvm/BinaryFormat/Swift.def \
+ /usr/lib/llvm/21/include/llvm/MC/MCSection.h \
+ /usr/lib/llvm/21/include/llvm/ADT/SmallString.h \
+ /usr/lib/llvm/21/include/llvm/MC/MCFixup.h \
+ /usr/lib/llvm/21/include/llvm/Support/SMLoc.h \
+ /usr/lib/llvm/21/include/llvm/MC/MCInst.h \
+ /usr/lib/llvm/21/include/llvm/MC/MCRegister.h \
+ /usr/lib/llvm/21/include/llvm/MC/SectionKind.h \
+ /usr/lib/llvm/21/include/llvm/Support/FormattedStream.h \
+ /usr/lib/llvm/21/include/llvm/Support/FileSystem.h \
+ /usr/lib/llvm/21/include/llvm/Support/Chrono.h \
+ /usr/lib/llvm/21/include/llvm/Support/FormatProviders.h \
+ /usr/lib/llvm/21/include/llvm/Support/FormatVariadicDetails.h \
+ /usr/lib/llvm/21/include/llvm/Support/NativeFormatting.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/chrono \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/chrono.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ratio \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ctime \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/parse_numbers.h \
+ /usr/lib/llvm/21/include/llvm/Support/Error.h \
+ /usr/lib/llvm/21/include/llvm-c/Error.h \
+ /usr/lib/llvm/21/include/llvm-c/Visibility.h \
+ /usr/lib/llvm/21/include/llvm/Support/Debug.h \
+ /usr/lib/llvm/21/include/llvm/Support/ErrorOr.h \
+ /usr/lib/llvm/21/include/llvm/Support/Format.h \
+ /usr/lib/llvm/21/include/llvm/Support/FileSystem/UniqueID.h \
+ /usr/lib/llvm/21/include/llvm/Support/MD5.h \
+ /usr/lib/llvm/21/include/llvm/Support/Endian.h \
+ /usr/lib/llvm/21/include/llvm/Support/TargetSelect.h \
+ /usr/lib/llvm/21/include/llvm/Config/Targets.def \
+ /usr/lib/llvm/21/include/llvm/Config/AsmPrinters.def \
+ /usr/lib/llvm/21/include/llvm/Config/AsmParsers.def \
+ /usr/lib/llvm/21/include/llvm/Config/Disassemblers.def \
+ /usr/lib/llvm/21/include/llvm/Config/TargetMCAs.def \
+ /usr/lib/llvm/21/include/llvm/Target/TargetMachine.h \
+ /usr/lib/llvm/21/include/llvm/Support/Allocator.h \
+ /usr/lib/llvm/21/include/llvm/Support/CommandLine.h \
+ /usr/lib/llvm/21/include/llvm/Support/StringSaver.h \
+ /usr/lib/llvm/21/include/llvm/Support/PGOOptions.h \
+ /usr/lib/llvm/21/include/llvm/ADT/IntrusiveRefCntPtr.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/atomic \
+ /usr/lib/llvm/21/include/llvm/Target/CGPassBuilderOption.h \
+ /usr/lib/llvm/21/include/llvm/Target/TargetOptions.h \
+ /usr/lib/llvm/21/include/llvm/MC/MCTargetOptions.h \
+ /usr/lib/llvm/21/include/llvm/Support/Compression.h \
+ /usr/lib/llvm/21/include/llvm/TargetParser/Host.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/fstream \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/codecvt.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/basic_file.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/c++io.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fstream.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/sstream \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/sstream.tcc

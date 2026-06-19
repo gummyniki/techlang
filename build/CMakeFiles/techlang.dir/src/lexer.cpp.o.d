@@ -173,4 +173,12 @@ CMakeFiles/techlang.dir/src/lexer.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_uninitialized.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/algorithm \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_algo.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/algorithmfwd.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_heap.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/uniform_int_dist.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_tempbuf.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_algorithm_defs.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/execution_defs.h

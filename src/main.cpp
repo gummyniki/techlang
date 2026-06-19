@@ -1,40 +1,155 @@
-#include "ast_printer.h"
+#include "ir_generator.h"
 #include "lexer.h"
 #include "parser.h"
 #include "semantic_analyzer.h"
-#include <stdexcept>
 
-int main() {
-  std::string code = R"(
-        function add(int a, int b) returns int {
-            int result = a + b;
-            return result;
-        }
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/MC/TargetRegistry.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/TargetParser/Triple.h"
+#include <llvm/TargetParser/Host.h>
 
-        int x = 5;
-        if (x > 3) do {
-            x += 1;
-        } else do {
-            x = 0;
-        }
-    )";
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
-  Lexers::Lexer lexer(code);
-  auto tokens = lexer.tokenize();
+std::string readFile(const std::string &path) {
+  std::ifstream file(path);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + path);
+  }
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  return buffer.str();
+}
 
-  Parser parser(tokens);
-  auto ast = parser.parse();
+std::string getOutputName(const std::string &inputPath) {
+  // strip the .tec extension to get the output name
+  size_t dotPos = inputPath.rfind(".tec");
+  if (dotPos != std::string::npos) {
+    return inputPath.substr(0, dotPos);
+  }
+  return inputPath + "_out";
+}
 
-  ASTPrinter printer;
-  printer.print(ast.get(), "", true);
+void compileToObject(llvm::Module *module, const std::string &outputPath) {
+  // initialize all LLVM targets
+  llvm::InitializeAllTargetInfos();
+  llvm::InitializeAllTargets();
+  llvm::InitializeAllTargetMCs();
+  llvm::InitializeAllAsmParsers();
+  llvm::InitializeAllAsmPrinters();
 
-  SemanticAnalyzer analyzer;
+  // get the target triple for the current machine
+  std::string targetTriple = llvm::sys::getDefaultTargetTriple();
+  llvm::Triple triple(targetTriple);
+  module->setTargetTriple(triple);
+
+  std::string error;
+  const llvm::Target *target =
+      llvm::TargetRegistry::lookupTarget(targetTriple, error);
+  if (!target) {
+    throw std::runtime_error("Failed to find target: " + error);
+  }
+
+  // generic CPU, no special features
+  llvm::TargetOptions opt;
+  llvm::TargetMachine *targetMachine =
+      target->createTargetMachine(targetTriple,
+                                  "generic", // cpu
+                                  "",        // features
+                                  opt, llvm::Reloc::PIC_);
+
+  // set data layout so LLVM knows struct sizes, alignment etc
+  module->setDataLayout(targetMachine->createDataLayout());
+
+  // write object file
+  std::string objPath = outputPath + ".o";
+  std::error_code ec;
+  llvm::raw_fd_ostream objFile(objPath, ec, llvm::sys::fs::OF_None);
+  if (ec) {
+    throw std::runtime_error("Could not open object file: " + ec.message());
+  }
+
+  llvm::legacy::PassManager passManager;
+  if (targetMachine->addPassesToEmitFile(passManager, objFile, nullptr,
+                                         llvm::CodeGenFileType::ObjectFile)) {
+    throw std::runtime_error("Target machine can't emit object files");
+  }
+
+  passManager.run(*module);
+  objFile.flush();
+
+  delete targetMachine;
+}
+
+void linkToExecutable(const std::string &objPath, const std::string &exePath) {
+  // use the system linker (gcc or clang) to link the object file
+  std::string cmd = "gcc " + objPath + " -o " + exePath + " -lm";
+  int result = std::system(cmd.c_str());
+  if (result != 0) {
+    throw std::runtime_error("Linking failed!");
+  }
+
+  // clean up the object file
+  std::remove(objPath.c_str());
+}
+
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    std::cerr << "Usage: techlang <file.tec>\n";
+    std::cerr << "  Compiles a Techlang source file to a native binary.\n";
+    return 1;
+  }
+
+  std::string inputPath = argv[1];
+  std::string outputPath = getOutputName(inputPath);
 
   try {
+    // 1. read source file
+    std::cout << "Reading " << inputPath << "...\n";
+    std::string source = readFile(inputPath);
+
+    // 2. lex
+    std::cout << "Lexing...\n";
+    Lexers::Lexer lexer(source);
+    auto tokens = lexer.tokenize();
+
+    // 3. parse
+    std::cout << "Parsing...\n";
+    Parser parser(tokens);
+    auto ast = parser.parse();
+
+    // 4. semantic analysis
+    std::cout << "Analyzing...\n";
+    SemanticAnalyzer analyzer;
     analyzer.analyze(ast.get());
-    std::cout << "Semantic analysis passed!\n";
+
+    // 5. IR generation
+    std::cout << "Generating IR...\n";
+    IRGenerator irGen;
+    irGen.generate(ast.get());
+
+    // optional: save the .ll file for debugging
+    irGen.saveToFile(outputPath + ".ll");
+
+    // 6. compile to object file
+    std::cout << "Compiling...\n";
+    compileToObject(irGen.getModule(), outputPath);
+
+    // 7. link to executable
+    std::cout << "Linking...\n";
+    linkToExecutable(outputPath + ".o", outputPath);
+
+    std::cout << "Done! Binary: ./" << outputPath << "\n";
+
   } catch (std::runtime_error &e) {
-    std::cerr << "Semantic error: " << e.what() << "\n";
+    std::cerr << "Error: " << e.what() << "\n";
     return 1;
   }
 

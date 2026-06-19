@@ -3,12 +3,27 @@
 #include "symbol_table.h"
 #include <string>
 
+struct StructDefinition {
+  std::string name;
+  std::vector<std::pair<std::string, std::string>> fields; // (type, name)
+
+  // helper to find field type by name
+  std::optional<std::string> getFieldType(const std::string &fieldName) const {
+    for (auto &[type, name] : fields) {
+      if (name == fieldName)
+        return type;
+    }
+    return std::nullopt;
+  }
+};
+
 class SemanticAnalyzer {
 public:
   void analyze(ProgramNode *program);
 
   SymbolTable symbols;
   std::string currentFunctionReturnType; // track what we're returning from
+  std::unordered_map<std::string, StructDefinition> structTable;
 
   void analyzeStatement(ASTNode *node);
   void analyzeVarDeclaration(VarDeclarationNode *node);
@@ -17,6 +32,9 @@ public:
   void analyzeWhileStatement(WhileStatementNode *node);
   void analyzeForStatement(ForStatementNode *node);
   void analyzeReturnStatement(ReturnStatementNode *node);
+  void analyzeStructDeclaration(StructDeclarationNode *node);
+  void analyzeStructInstance(StructInstanceNode *node);
+  void analyzeMemberAssignment(MemberAssignmentNode *node);
   void analyzeBlock(std::vector<std::unique_ptr<ASTNode>> &statements);
 
   // expressions return their type to check mismatches

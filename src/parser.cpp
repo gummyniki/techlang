@@ -1,5 +1,9 @@
 #include "parser.h"
+#include "ast.h"
+#include "token.h"
+#include <memory>
 #include <stdexcept>
+#include <string>
 
 // in parse()
 std::unique_ptr<ProgramNode> Parser::parse() {
@@ -40,12 +44,87 @@ Token Parser::expect(TokenType type, std::string errorMsg) {
   return advance();
 }
 
+std::string Parser::parseType() {
+  // handle ArrayOf and PointerOf
+  if (current().type == TokenType::KW_ARRAYOF ||
+      current().type == TokenType::KW_POINTEROF) {
+    std::string typeName = advance().value; // "ArrayOf" or "PointerOf"
+    expect(TokenType::LPAREN, "expected '(' after " + typeName);
+    std::string innerType = advance().value; // "int", "float", etc
+    expect(TokenType::RPAREN, "expected ')' after inner type");
+    return typeName + "(" + innerType + ")"; // "ArrayOf(int)"
+  }
+
+  // simple type: int, float, string, etc
+  return advance().value;
+}
+
 // parsing methods - one per language construct
 std::unique_ptr<ASTNode> Parser::parseStatement() {
+  if (current().type == TokenType::EXCLAIM) {
+    return parseImport();
+  }
+
+  // struct declaration: struct person = { ... }
+  if (current().type == TokenType::KW_STRUCT) {
+    return parseStructDeclaration();
+  }
+
   if (current().type == TokenType::IDENTIFIER) {
-    // could be assignment or function call as a statement
     std::string name = advance().value;
 
+    // dot: either member assignment (p.age = 30) or qualified call
+    // (std.print(x))
+    if (current().type == TokenType::DOT) {
+      advance(); // consume .
+      std::string member =
+          expect(TokenType::IDENTIFIER, "expected member name").value;
+
+      // member assignment: p.age = 30;
+      if (current().type == TokenType::EQUALS ||
+          current().type == TokenType::PLUS_EQUALS ||
+          current().type == TokenType::MINUS_EQUALS ||
+          current().type == TokenType::STAR_EQUALS ||
+          current().type == TokenType::SLASH_EQUALS) {
+
+        TokenType op = advance().type;
+        auto value = parseExpression();
+        expect(TokenType::SEMICOLON, "expected ';'");
+
+        auto node = std::make_unique<MemberAssignmentNode>(current().line);
+        node->objectName = name;
+        node->memberName = member;
+        node->op = op;
+        node->value = std::move(value);
+        return node;
+      }
+
+      // qualified function call: std.print(x)
+      if (current().type == TokenType::LPAREN) {
+        advance(); // consume (
+        std::string fullName = name + "." + member;
+        auto node = std::make_unique<FunctionCallNode>(current().line);
+        node->name = fullName;
+
+        if (current().type != TokenType::RPAREN) {
+          node->args.push_back(parseExpression());
+          while (current().type == TokenType::COMMA) {
+            advance();
+            node->args.push_back(parseExpression());
+          }
+        }
+
+        expect(TokenType::RPAREN, "expected ')'");
+        expect(TokenType::SEMICOLON, "expected ';'");
+        return node;
+      }
+
+      throw std::runtime_error("Line " + std::to_string(current().line) +
+                               ": unexpected token after member access '" +
+                               current().value + "'");
+    }
+
+    // regular assignment: x = 5;
     if (current().type == TokenType::EQUALS ||
         current().type == TokenType::PLUS_EQUALS ||
         current().type == TokenType::MINUS_EQUALS ||
@@ -62,10 +141,41 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       node->value = std::move(value);
       return node;
     }
-    // otherwise it's a function call statement like std.print(x);
-    // ...
+
+    // plain function call as statement: foo(x);
+    if (current().type == TokenType::LPAREN) {
+      advance(); // consume (
+      auto node = std::make_unique<FunctionCallNode>(current().line);
+      node->name = name;
+
+      if (current().type != TokenType::RPAREN) {
+        node->args.push_back(parseExpression());
+        while (current().type == TokenType::COMMA) {
+          advance();
+          node->args.push_back(parseExpression());
+        }
+      }
+
+      expect(TokenType::RPAREN, "expected ')'");
+      expect(TokenType::SEMICOLON, "expected ';'");
+      return node;
+    }
+
+    // struct instantiation: person p;
+    // we already consumed the type name (name), next should be identifier
+    if (current().type == TokenType::IDENTIFIER) {
+      auto node = std::make_unique<StructInstanceNode>(current().line);
+      node->structType = name;
+      node->name = advance().value;
+      expect(TokenType::SEMICOLON, "expected ';'");
+      return node;
+    }
+
+    throw std::runtime_error("Line " + std::to_string(current().line) +
+                             ": unexpected token '" + current().value + "'");
   }
 
+  // function declaration
   if (current().type == TokenType::KW_FUNCTION) {
     return parseFunctionDeclaration();
   }
@@ -98,7 +208,7 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       current().type == TokenType::KW_BOOL ||
       current().type == TokenType::KW_CHAR ||
       current().type == TokenType::KW_ARRAYOF) {
-    std::string dataType = advance().value; // consume the type
+    std::string dataType = parseType();
     return parseVarDeclaration(dataType, TokenType::SEMICOLON);
   }
 
@@ -231,6 +341,26 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
     node->elseBlock = parseBlock();
   }
 
+  return node;
+}
+
+std::unique_ptr<ASTNode> Parser::parseStructDeclaration() {
+  auto node = std::make_unique<StructDeclarationNode>(current().line);
+
+  advance();
+  node->name = expect(TokenType::IDENTIFIER, "Expected struct name").value;
+  expect(TokenType::EQUALS, "Expected '=' after struct name");
+  expect(TokenType::LBRACE, "Expected '{'");
+
+  while (!isAtEnd() && current().type != TokenType::RBRACE) {
+    std::string fieldType = parseType();
+    std::string fieldName =
+        expect(TokenType::IDENTIFIER, "expected field name").value;
+    expect(TokenType::SEMICOLON, "expected ';' after field");
+    node->fields.push_back({fieldType, fieldName});
+  }
+
+  expect(TokenType::RBRACE, "expected '}'");
   return node;
 }
 
@@ -461,7 +591,58 @@ std::unique_ptr<ASTNode> Parser::parseUnary() {
   return parsePrimary();
 }
 
+std::unique_ptr<ASTNode> Parser::parseImport() {
+  auto node = std::make_unique<ImportNode>(current().line);
+
+  expect(TokenType::EXCLAIM, "expected '!'");
+
+  // expect the word "import" as an identifier
+  std::string keyword =
+      expect(TokenType::IDENTIFIER, "expected 'import'").value;
+  if (keyword != "import") {
+    throw std::runtime_error("Line " + std::to_string(current().line) +
+                             ": expected 'import' after '!'");
+  }
+
+  expect(TokenType::LPAREN, "expected '(' after import");
+
+  // filename is everything until the closing )
+  node->filename = expect(TokenType::IDENTIFIER, "expected filename").value;
+
+  // handle the .tec extension: identifier DOT identifier
+  if (current().type == TokenType::DOT) {
+    advance(); // consume .
+    std::string ext =
+        expect(TokenType::IDENTIFIER, "expected file extension").value;
+    node->filename += "." + ext;
+  }
+
+  expect(TokenType::RPAREN, "expected ')' after filename");
+  expect(TokenType::KW_AS, "expected 'as' after filename");
+  node->alias = expect(TokenType::IDENTIFIER, "expected alias name").value;
+  expect(TokenType::SEMICOLON, "expected ';'");
+
+  return node;
+}
+
 std::unique_ptr<ASTNode> Parser::parsePrimary() {
+  // array literal
+  if (current().type == TokenType::LBRACE) {
+    advance(); // consume {
+    auto node = std::make_unique<ArrayLiteralNode>(current().line);
+
+    if (current().type != TokenType::RBRACE) {
+      node->elements.push_back(parseExpression());
+      while (current().type == TokenType::COMMA) {
+        advance();
+        node->elements.push_back(parseExpression());
+      }
+    }
+
+    expect(TokenType::RBRACE, "expected '}' after array literal");
+    return node;
+  }
+
   // integer literal
   if (current().type == TokenType::INT_LITERAL) {
     int value = std::stoi(current().value);
@@ -523,6 +704,39 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
     // plain identifier, but check for postfix
     auto node = std::make_unique<IdentifierNode>(name, line);
     return parsePostfix(std::move(node));
+  }
+
+  if (current().type == TokenType::EXCLAIM) {
+    return parseImport();
+  }
+
+  if (current().type == TokenType::DOT) {
+    int line = current().line;
+    std::string name = advance().value;
+    advance(); // consume .
+    std::string member =
+        expect(TokenType::IDENTIFIER, "expected member name").value;
+
+    // it's a qualified function call like std.print
+    if (current().type == TokenType::LPAREN) {
+      advance(); // consume (
+      auto node = std::make_unique<FunctionCallNode>(line);
+      node->name = name + "." + member; // "std.print"
+
+      if (current().type != TokenType::RPAREN) {
+        node->args.push_back(parseExpression());
+        while (current().type == TokenType::COMMA) {
+          advance();
+          node->args.push_back(parseExpression());
+        }
+      }
+
+      expect(TokenType::RPAREN, "expected ')' after arguments");
+      return parsePostfix(std::move(node));
+    }
+
+    // otherwise it's just member access
+    auto node = std::make_unique<MemberAccessNode>(line);
   }
 
   // parenthesized expression: (2 + 3)

@@ -276,6 +276,13 @@ void ASTPrinter::printNode(ASTNode *node, std::string prefix, bool isLast) {
     break;
   }
 
+  case NodeType::Import: {
+    auto *n = static_cast<ImportNode *>(node);
+    std::cout << indent << "Import [" << n->filename << " as " << n->alias
+              << "]\n";
+    break;
+  }
+
   default:
     std::cout << indent << "UnknownNode\n";
     break;

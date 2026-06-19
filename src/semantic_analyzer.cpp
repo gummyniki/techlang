@@ -1,4 +1,5 @@
 #include "semantic_analyzer.h"
+#include "ast.h"
 #include <stdexcept>
 
 void SemanticAnalyzer::analyze(ProgramNode *program) {
@@ -14,6 +15,10 @@ void SemanticAnalyzer::analyze(ProgramNode *program) {
 
 void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
   switch (node->type) {
+
+  case NodeType::Import:
+    // dont do anything for now
+    break;
   case NodeType::VarDeclaration:
     analyzeVarDeclaration(static_cast<VarDeclarationNode *>(node));
     break;
@@ -31,6 +36,15 @@ void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
     break;
   case NodeType::ReturnStatement:
     analyzeReturnStatement(static_cast<ReturnStatementNode *>(node));
+    break;
+  case NodeType::StructDeclaration:
+    analyzeStructDeclaration(static_cast<StructDeclarationNode *>(node));
+    break;
+  case NodeType::StructInstance:
+    analyzeStructInstance(static_cast<StructInstanceNode *>(node));
+    break;
+  case NodeType::MemberAssignment:
+    analyzeMemberAssignment(static_cast<MemberAssignmentNode *>(node));
     break;
   case NodeType::AssignmentExpression: {
     auto *n = static_cast<AssignmentNode *>(node);
@@ -55,10 +69,19 @@ void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
     }
     break;
   }
-  case NodeType::FunctionCall:
-    // function call as a statement, just analyze it
+  case NodeType::FunctionCall: {
+    auto *n = static_cast<FunctionCallNode *>(node);
+    // for std.print and std.exit, just check args exist
+    if (n->name == "std.print" || n->name == "std.exit") {
+      for (auto &arg : n->args) {
+        analyzeExpression(arg.get());
+      }
+      break;
+    }
     analyzeExpression(node);
     break;
+  }
+
   default:
     throw std::runtime_error("Unknown statement type");
   }
@@ -153,9 +176,46 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
 
   case NodeType::MemberAccess: {
     auto *n = static_cast<MemberAccessNode *>(node);
-    // for now just return "unknown", full struct support comes later
-    analyzeExpression(n->object.get());
-    return "unknown";
+    std::string objectType = analyzeExpression(n->object.get());
+
+    if (!structTable.count(objectType)) {
+      throw std::runtime_error("Line " + std::to_string(n->line) + ": '" +
+                               objectType + "' is not a struct type");
+    }
+
+    auto fieldType = structTable[objectType].getFieldType(n->member);
+    if (!fieldType) {
+      throw std::runtime_error("Line " + std::to_string(n->line) +
+                               ": struct '" + objectType + "' has no field '" +
+                               n->member + "'");
+    }
+
+    return *fieldType;
+  }
+
+  case NodeType::ArrayLiteral: {
+    auto *n = static_cast<ArrayLiteralNode *>(node);
+
+    // empty array, can't infer type
+    if (n->elements.empty()) {
+      return "ArrayOf(unknown)";
+    }
+
+    // infer type from first element
+    std::string elementType = analyzeExpression(n->elements[0].get());
+
+    // check all elements are the same type
+    for (size_t i = 1; i < n->elements.size(); i++) {
+      std::string t = analyzeExpression(n->elements[i].get());
+      if (!typesAreCompatible(elementType, t)) {
+        throw std::runtime_error(
+            "Line " + std::to_string(n->line) +
+            ": array elements must be the same type, got " + elementType +
+            " and " + t);
+      }
+    }
+
+    return "ArrayOf(" + elementType + ")";
   }
 
   case NodeType::ArrayAccess: {
@@ -266,7 +326,74 @@ bool SemanticAnalyzer::typesAreCompatible(const std::string &a,
   if (aIsNumeric && bIsNumeric)
     return true;
 
+  // array type compatibility: ArrayOf(int) vs ArrayOf(int)
+  // also handles numeric promotion inside arrays
+  if (a.substr(0, 7) == "ArrayOf" && b.substr(0, 7) == "ArrayOf") {
+    std::string innerA =
+        a.substr(8, a.size() - 9); // extract "int" from "ArrayOf(int)"
+    std::string innerB = b.substr(8, b.size() - 9);
+    return typesAreCompatible(innerA, innerB);
+  }
+
   return false;
+}
+
+void SemanticAnalyzer::analyzeStructDeclaration(StructDeclarationNode *node) {
+  if (structTable.count(node->name)) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": struct '" + node->name + "' already defined");
+  }
+
+  StructDefinition def;
+  def.name = node->name;
+  def.fields = node->fields;
+  structTable[node->name] = def;
+}
+
+void SemanticAnalyzer::analyzeStructInstance(StructInstanceNode *node) {
+  if (!structTable.count(node->structType)) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": unknown struct type '" + node->structType +
+                             "'");
+  }
+
+  // declare the variable with its struct type
+  Symbol symbol;
+  symbol.name = node->name;
+  symbol.type = node->structType;
+  symbols.declare(symbol);
+}
+
+void SemanticAnalyzer::analyzeMemberAssignment(MemberAssignmentNode *node) {
+  // check object exists
+  auto symbol = symbols.lookup(node->objectName);
+  if (!symbol) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": undefined variable '" + node->objectName + "'");
+  }
+
+  // check it's a struct type
+  if (!structTable.count(symbol->type)) {
+    throw std::runtime_error("Line " + std::to_string(node->line) + ": '" +
+                             node->objectName + "' is not a struct");
+  }
+
+  // check field exists
+  auto &def = structTable[symbol->type];
+  auto fieldType = def.getFieldType(node->memberName);
+  if (!fieldType) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": struct '" + symbol->type + "' has no field '" +
+                             node->memberName + "'");
+  }
+
+  // check value type matches field type
+  std::string valueType = analyzeExpression(node->value.get());
+  if (!typesAreCompatible(*fieldType, valueType)) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": cannot assign " + valueType + " to field '" +
+                             node->memberName + "' of type " + *fieldType);
+  }
 }
 
 std::string SemanticAnalyzer::binaryResultType(const std::string &left,

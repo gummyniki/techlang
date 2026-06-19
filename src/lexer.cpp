@@ -1,7 +1,21 @@
 #include "lexer.h"
+#include <algorithm>
 #include <cctype>
 #include <stdexcept>
 #include <string>
+
+bool isNumber(const std::string &s) {
+  if (s.empty())
+    return false;
+
+  size_t pos;
+  try {
+    std::stod(s, &pos);
+    return pos == s.size();
+  } catch (...) {
+    return false;
+  }
+}
 
 namespace Lexers {
 char Lexer::current() {
@@ -113,12 +127,10 @@ Token Lexer::readNumber() {
     word += advance();
   }
 
-  for (char ch : word) {
-    if (!std::isdigit(ch)) {
-      std::cout << "Not a number!\n";
-      throw std::runtime_error("Line " + std::to_string(line) +
-                               ": invalid number '" + word + "'");
-    }
+  if (!isNumber(word)) {
+    std::cout << "Not a number!\n";
+    throw std::runtime_error("Line " + std::to_string(line) +
+                             ": invalid number '" + word + "'");
   }
 
   TokenType tokenType;

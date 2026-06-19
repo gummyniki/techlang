@@ -24,11 +24,15 @@ enum class NodeType {
   IntLiteral,
   FloatLiteral,
   StringLiteral,
+  StructDeclaration,
+  StructInstance,
+  MemberAssignment,
   CharLiteral,
   BoolLiteral,
   ArrayLiteral,
   MemberAccess, // for p.age
   ArrayAccess,  // for a[0]
+  Import,
 };
 
 // base node - every AST node inherits from this
@@ -45,6 +49,11 @@ struct ProgramNode : ASTNode {
   ProgramNode() : ASTNode(NodeType::Program, 0) {}
 };
 
+struct ArrayLiteralNode : ASTNode {
+  std::vector<std::unique_ptr<ASTNode>> elements;
+  ArrayLiteralNode(int line) : ASTNode(NodeType::ArrayLiteral, line) {}
+};
+
 // int x = 5 + 3;
 struct VarDeclarationNode : ASTNode {
   std::string dataType;
@@ -54,6 +63,12 @@ struct VarDeclarationNode : ASTNode {
   bool isFixed = false;
 
   VarDeclarationNode(int line) : ASTNode(NodeType::VarDeclaration, line) {}
+};
+
+struct ImportNode : ASTNode {
+  std::string filename;
+  std::string alias;
+  ImportNode(int line) : ASTNode(NodeType::Import, line) {}
 };
 
 // 5 + 3, x > 0, etc
@@ -103,6 +118,33 @@ struct BoolLiteralNode : ASTNode {
   bool value;
   BoolLiteralNode(bool v, int line)
       : ASTNode(NodeType::BoolLiteral, line), value(v) {}
+};
+
+// struct definition: struct person = { int age; float height; }
+struct StructDeclarationNode : ASTNode {
+  std::string name;
+  std::vector<std::pair<std::string, std::string>> fields; // (type, name)
+  StructDeclarationNode(int line)
+      : ASTNode(NodeType::StructDeclaration, line) {}
+};
+
+// struct instantiation: person p;
+struct StructInstanceNode : ASTNode {
+  std::string structType; // "person"
+  std::string name;       // "p"
+  StructInstanceNode(int line) : ASTNode(NodeType::StructInstance, line) {}
+};
+
+// member assignment: p.age = 30;
+// this is already handled by your AssignmentNode + MemberAccessNode
+// but you need member access on the LEFT side of assignment too
+// so add this:
+struct MemberAssignmentNode : ASTNode {
+  std::string objectName; // "p"
+  std::string memberName; // "age"
+  TokenType op;
+  std::unique_ptr<ASTNode> value;
+  MemberAssignmentNode(int line) : ASTNode(NodeType::MemberAssignment, line) {}
 };
 
 // just a variable name, like x or myVar

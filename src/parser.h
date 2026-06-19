@@ -23,16 +23,20 @@ public:
 
   // parsing methods - one per language construct
   std::unique_ptr<ASTNode> parseStatement();
+  std::string parseType();
   std::vector<std::pair<std::string, std::string>> parseParameterList();
   std::pair<std::string, std::string> parseParameter();
   std::unique_ptr<ASTNode> parseVarDeclaration(std::string dataType,
                                                TokenType terminator);
   std::unique_ptr<ASTNode> parseFunctionDeclaration();
+  std::unique_ptr<ASTNode> parseStructDeclaration();
   std::unique_ptr<ASTNode> parseIfStatement();
   std::unique_ptr<ASTNode> parseWhileStatement();
   std::unique_ptr<ASTNode> parseForStatement();
+  std::unique_ptr<ASTNode> parseEnumDeclaration();
   std::unique_ptr<ASTNode> parseReturnStatement();
   std::vector<std::unique_ptr<ASTNode>> parseBlock(); // parses { ... }
+  std::unique_ptr<ASTNode> parseImport();
 
   // expressions - broken into levels for operator precedence
   std::unique_ptr<ASTNode> parseExpression();
