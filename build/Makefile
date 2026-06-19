@@ -129,6 +129,19 @@ techlang/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/build
 .PHONY : techlang/fast
 
+#=============================================================================
+# Target rules for targets named stdlib
+
+# Build rule for target.
+stdlib: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 stdlib
+.PHONY : stdlib
+
+# fast build rule for target.
+stdlib/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/stdlib.dir/build.make CMakeFiles/stdlib.dir/build
+.PHONY : stdlib/fast
+
 src/ast_printer.o: src/ast_printer.cpp.o
 .PHONY : src/ast_printer.o
 
@@ -152,6 +165,30 @@ src/ast_printer.s: src/ast_printer.cpp.s
 src/ast_printer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ast_printer.cpp.s
 .PHONY : src/ast_printer.cpp.s
+
+src/import_rezolver.o: src/import_rezolver.cpp.o
+.PHONY : src/import_rezolver.o
+
+# target to build an object file
+src/import_rezolver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.o
+.PHONY : src/import_rezolver.cpp.o
+
+src/import_rezolver.i: src/import_rezolver.cpp.i
+.PHONY : src/import_rezolver.i
+
+# target to preprocess a source file
+src/import_rezolver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.i
+.PHONY : src/import_rezolver.cpp.i
+
+src/import_rezolver.s: src/import_rezolver.cpp.s
+.PHONY : src/import_rezolver.s
+
+# target to generate assembly for a file
+src/import_rezolver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.s
+.PHONY : src/import_rezolver.cpp.s
 
 src/ir_generator.o: src/ir_generator.cpp.o
 .PHONY : src/ir_generator.o
@@ -281,10 +318,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... stdlib"
 	@echo "... techlang"
 	@echo "... src/ast_printer.o"
 	@echo "... src/ast_printer.i"
 	@echo "... src/ast_printer.s"
+	@echo "... src/import_rezolver.o"
+	@echo "... src/import_rezolver.i"
+	@echo "... src/import_rezolver.s"
 	@echo "... src/ir_generator.o"
 	@echo "... src/ir_generator.i"
 	@echo "... src/ir_generator.s"

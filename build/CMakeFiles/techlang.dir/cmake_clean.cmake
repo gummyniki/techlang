@@ -2,6 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/techlang.dir/link.d"
   "CMakeFiles/techlang.dir/src/ast_printer.cpp.o"
   "CMakeFiles/techlang.dir/src/ast_printer.cpp.o.d"
+  "CMakeFiles/techlang.dir/src/import_rezolver.cpp.o"
+  "CMakeFiles/techlang.dir/src/import_rezolver.cpp.o.d"
   "CMakeFiles/techlang.dir/src/ir_generator.cpp.o"
   "CMakeFiles/techlang.dir/src/ir_generator.cpp.o.d"
   "CMakeFiles/techlang.dir/src/lexer.cpp.o"

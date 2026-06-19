@@ -86,10 +86,24 @@ CMakeFiles/techlang.dir/src/ast_printer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/techlang.dir/src/ast_printer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gummy/projects/techlang/src/ast_printer.cpp -o CMakeFiles/techlang.dir/src/ast_printer.cpp.s
 
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.o: CMakeFiles/techlang.dir/flags.make
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.o: /home/gummy/projects/techlang/src/import_rezolver.cpp
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/techlang.dir/src/import_rezolver.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/import_rezolver.cpp.o -MF CMakeFiles/techlang.dir/src/import_rezolver.cpp.o.d -o CMakeFiles/techlang.dir/src/import_rezolver.cpp.o -c /home/gummy/projects/techlang/src/import_rezolver.cpp
+
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/techlang.dir/src/import_rezolver.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gummy/projects/techlang/src/import_rezolver.cpp > CMakeFiles/techlang.dir/src/import_rezolver.cpp.i
+
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/techlang.dir/src/import_rezolver.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gummy/projects/techlang/src/import_rezolver.cpp -o CMakeFiles/techlang.dir/src/import_rezolver.cpp.s
+
 CMakeFiles/techlang.dir/src/ir_generator.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/ir_generator.cpp.o: /home/gummy/projects/techlang/src/ir_generator.cpp
 CMakeFiles/techlang.dir/src/ir_generator.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/techlang.dir/src/ir_generator.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/techlang.dir/src/ir_generator.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/ir_generator.cpp.o -MF CMakeFiles/techlang.dir/src/ir_generator.cpp.o.d -o CMakeFiles/techlang.dir/src/ir_generator.cpp.o -c /home/gummy/projects/techlang/src/ir_generator.cpp
 
 CMakeFiles/techlang.dir/src/ir_generator.cpp.i: cmake_force
@@ -103,7 +117,7 @@ CMakeFiles/techlang.dir/src/ir_generator.cpp.s: cmake_force
 CMakeFiles/techlang.dir/src/lexer.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/lexer.cpp.o: /home/gummy/projects/techlang/src/lexer.cpp
 CMakeFiles/techlang.dir/src/lexer.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/techlang.dir/src/lexer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/techlang.dir/src/lexer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/lexer.cpp.o -MF CMakeFiles/techlang.dir/src/lexer.cpp.o.d -o CMakeFiles/techlang.dir/src/lexer.cpp.o -c /home/gummy/projects/techlang/src/lexer.cpp
 
 CMakeFiles/techlang.dir/src/lexer.cpp.i: cmake_force
@@ -117,7 +131,7 @@ CMakeFiles/techlang.dir/src/lexer.cpp.s: cmake_force
 CMakeFiles/techlang.dir/src/main.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/main.cpp.o: /home/gummy/projects/techlang/src/main.cpp
 CMakeFiles/techlang.dir/src/main.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/techlang.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/techlang.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/main.cpp.o -MF CMakeFiles/techlang.dir/src/main.cpp.o.d -o CMakeFiles/techlang.dir/src/main.cpp.o -c /home/gummy/projects/techlang/src/main.cpp
 
 CMakeFiles/techlang.dir/src/main.cpp.i: cmake_force
@@ -131,7 +145,7 @@ CMakeFiles/techlang.dir/src/main.cpp.s: cmake_force
 CMakeFiles/techlang.dir/src/parser.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/parser.cpp.o: /home/gummy/projects/techlang/src/parser.cpp
 CMakeFiles/techlang.dir/src/parser.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/techlang.dir/src/parser.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/techlang.dir/src/parser.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/parser.cpp.o -MF CMakeFiles/techlang.dir/src/parser.cpp.o.d -o CMakeFiles/techlang.dir/src/parser.cpp.o -c /home/gummy/projects/techlang/src/parser.cpp
 
 CMakeFiles/techlang.dir/src/parser.cpp.i: cmake_force
@@ -145,7 +159,7 @@ CMakeFiles/techlang.dir/src/parser.cpp.s: cmake_force
 CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o: CMakeFiles/techlang.dir/flags.make
 CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o: /home/gummy/projects/techlang/src/semantic_analyzer.cpp
 CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o: CMakeFiles/techlang.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o -MF CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o.d -o CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o -c /home/gummy/projects/techlang/src/semantic_analyzer.cpp
 
 CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.i: cmake_force
@@ -159,6 +173,7 @@ CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.s: cmake_force
 # Object files for target techlang
 techlang_OBJECTS = \
 "CMakeFiles/techlang.dir/src/ast_printer.cpp.o" \
+"CMakeFiles/techlang.dir/src/import_rezolver.cpp.o" \
 "CMakeFiles/techlang.dir/src/ir_generator.cpp.o" \
 "CMakeFiles/techlang.dir/src/lexer.cpp.o" \
 "CMakeFiles/techlang.dir/src/main.cpp.o" \
@@ -169,6 +184,7 @@ techlang_OBJECTS = \
 techlang_EXTERNAL_OBJECTS =
 
 techlang: CMakeFiles/techlang.dir/src/ast_printer.cpp.o
+techlang: CMakeFiles/techlang.dir/src/import_rezolver.cpp.o
 techlang: CMakeFiles/techlang.dir/src/ir_generator.cpp.o
 techlang: CMakeFiles/techlang.dir/src/lexer.cpp.o
 techlang: CMakeFiles/techlang.dir/src/main.cpp.o
@@ -177,7 +193,7 @@ techlang: CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o
 techlang: CMakeFiles/techlang.dir/build.make
 techlang: CMakeFiles/techlang.dir/compiler_depend.ts
 techlang: CMakeFiles/techlang.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable techlang"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/gummy/projects/techlang/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable techlang"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/techlang.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,6 +1,6 @@
 CMakeFiles/techlang.dir/src/main.cpp.o: \
  /home/gummy/projects/techlang/src/main.cpp /usr/include/stdc-predef.h \
- /home/gummy/projects/techlang/src/ir_generator.h \
+ /home/gummy/projects/techlang/src/import_rezolver.h \
  /home/gummy/projects/techlang/src/ast.h \
  /home/gummy/projects/techlang/src/token.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iostream \
@@ -191,14 +191,43 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
+ /home/gummy/projects/techlang/src/lexer.h \
+ /home/gummy/projects/techlang/src/parser.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/filesystem \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_fwd.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/bits/stdint-least.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/chrono.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ratio \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/limits \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ctime \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/parse_numbers.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_path.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/locale \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_facets_nonio.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/time_members.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/messages_members.h \
+ /usr/include/libintl.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/codecvt.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_facets_nonio.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_conv.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iomanip \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/quoted_string.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/sstream \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/sstream.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/codecvt \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_dir.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_ops.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/unordered_set \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/unordered_set.h \
+ /home/gummy/projects/techlang/src/ir_generator.h \
  /home/gummy/projects/techlang/src/symbol_table.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional \
  /usr/lib/llvm/21/include/llvm/IR/IRBuilder.h \
  /usr/lib/llvm/21/include/llvm-c/Types.h \
  /usr/lib/llvm/21/include/llvm-c/DataTypes.h /usr/include/inttypes.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/stdint.h \
- /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h \
  /usr/lib/llvm/21/include/llvm-c/ExternC.h \
  /usr/lib/llvm/21/include/llvm/ADT/ArrayRef.h \
  /usr/lib/llvm/21/include/llvm/ADT/Hashing.h \
@@ -216,8 +245,6 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/llvm/21/include/llvm/Support/SwapByteOrder.h \
  /usr/lib/llvm/21/include/llvm/ADT/STLForwardCompat.h \
  /usr/lib/llvm/21/include/llvm/ADT/bit.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/limits \
  /usr/lib/llvm/21/include/llvm/Support/type_traits.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/algorithm \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_algo.h \
@@ -349,8 +376,6 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/list \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_list.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/list.tcc \
- /home/gummy/projects/techlang/src/lexer.h \
- /home/gummy/projects/techlang/src/parser.h \
  /home/gummy/projects/techlang/src/semantic_analyzer.h \
  /usr/lib/llvm/21/include/llvm/IR/LegacyPassManager.h \
  /usr/lib/llvm/21/include/llvm/MC/TargetRegistry.h \
@@ -372,10 +397,6 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/llvm/21/include/llvm/Support/FormatVariadicDetails.h \
  /usr/lib/llvm/21/include/llvm/Support/NativeFormatting.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/chrono \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/chrono.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ratio \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ctime \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/parse_numbers.h \
  /usr/lib/llvm/21/include/llvm/Support/Error.h \
  /usr/lib/llvm/21/include/llvm-c/Error.h \
  /usr/lib/llvm/21/include/llvm-c/Visibility.h \
@@ -404,9 +425,6 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/llvm/21/include/llvm/Support/Compression.h \
  /usr/lib/llvm/21/include/llvm/TargetParser/Host.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/fstream \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/codecvt.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/basic_file.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/c++io.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fstream.tcc \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/sstream \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/sstream.tcc
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fstream.tcc

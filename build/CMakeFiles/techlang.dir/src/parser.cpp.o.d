@@ -190,4 +190,44 @@ CMakeFiles/techlang.dir/src/parser.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/vector \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
+ /usr/lib/llvm/21/include/llvm/ADT/STLExtras.h \
+ /usr/lib/llvm/21/include/llvm/ADT/ADL.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iterator \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stream_iterator.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/utility \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_relops.h \
+ /usr/lib/llvm/21/include/llvm/ADT/Hashing.h \
+ /usr/lib/llvm/21/include/llvm/Config/abi-breaking.h \
+ /usr/lib/llvm/21/include/llvm/Support/DataTypes.h \
+ /usr/lib/llvm/21/include/llvm-c/DataTypes.h /usr/include/inttypes.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/bits/stdint-least.h \
+ /usr/lib/llvm/21/include/llvm/Support/ErrorHandling.h \
+ /usr/lib/llvm/21/include/llvm/Support/Compiler.h \
+ /usr/lib/llvm/21/include/llvm/Config/llvm-config.h \
+ /usr/lib/llvm/21/include/x86_64-pc-linux-gnu/llvm/Config/llvm-config.h \
+ /usr/lib/llvm/21/include/llvm/Support/SwapByteOrder.h \
+ /usr/lib/llvm/21/include/llvm/ADT/STLForwardCompat.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional \
+ /usr/lib/llvm/21/include/llvm/ADT/bit.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/limits \
+ /usr/lib/llvm/21/include/llvm/Support/type_traits.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/algorithm \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_algo.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/algorithmfwd.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_heap.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/uniform_int_dist.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_algorithm_defs.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cassert \
+ /usr/include/assert.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstring \
+ /usr/lib/llvm/21/include/llvm/ADT/STLFunctionalExtras.h \
+ /usr/lib/llvm/21/include/llvm/ADT/iterator.h \
+ /usr/lib/llvm/21/include/llvm/ADT/iterator_range.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/functional \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/std_function.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/array \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/compare

@@ -3,6 +3,7 @@ techlang: \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/../../../../lib64/crti.o \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/crtbeginS.o \
   CMakeFiles/techlang.dir/src/ast_printer.cpp.o \
+  CMakeFiles/techlang.dir/src/import_rezolver.cpp.o \
   CMakeFiles/techlang.dir/src/ir_generator.cpp.o \
   CMakeFiles/techlang.dir/src/lexer.cpp.o \
   CMakeFiles/techlang.dir/src/main.cpp.o \
@@ -47,6 +48,8 @@ techlang: \
 /usr/lib/gcc/x86_64-pc-linux-gnu/15/crtbeginS.o:
 
 CMakeFiles/techlang.dir/src/ast_printer.cpp.o:
+
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.o:
 
 CMakeFiles/techlang.dir/src/ir_generator.cpp.o:
 

@@ -1,7 +1,7 @@
-CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o: \
- /home/gummy/projects/techlang/src/semantic_analyzer.cpp \
+CMakeFiles/techlang.dir/src/import_rezolver.cpp.o: \
+ /home/gummy/projects/techlang/src/import_rezolver.cpp \
  /usr/include/stdc-predef.h \
- /home/gummy/projects/techlang/src/semantic_analyzer.h \
+ /home/gummy/projects/techlang/src/import_rezolver.h \
  /home/gummy/projects/techlang/src/ast.h \
  /home/gummy/projects/techlang/src/token.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iostream \
@@ -192,44 +192,38 @@ CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/vector.tcc \
- /home/gummy/projects/techlang/src/symbol_table.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/optional \
- /usr/lib/llvm/21/include/llvm/ADT/STLExtras.h \
- /usr/lib/llvm/21/include/llvm/ADT/ADL.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iterator \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stream_iterator.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/utility \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_relops.h \
- /usr/lib/llvm/21/include/llvm/ADT/Hashing.h \
- /usr/lib/llvm/21/include/llvm/Config/abi-breaking.h \
- /usr/lib/llvm/21/include/llvm/Support/DataTypes.h \
- /usr/lib/llvm/21/include/llvm-c/DataTypes.h /usr/include/inttypes.h \
+ /home/gummy/projects/techlang/src/lexer.h \
+ /home/gummy/projects/techlang/src/parser.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/filesystem \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_fwd.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
  /usr/include/bits/stdint-least.h \
- /usr/lib/llvm/21/include/llvm/Support/ErrorHandling.h \
- /usr/lib/llvm/21/include/llvm/Support/Compiler.h \
- /usr/lib/llvm/21/include/llvm/Config/llvm-config.h \
- /usr/lib/llvm/21/include/x86_64-pc-linux-gnu/llvm/Config/llvm-config.h \
- /usr/lib/llvm/21/include/llvm/Support/SwapByteOrder.h \
- /usr/lib/llvm/21/include/llvm/ADT/STLForwardCompat.h \
- /usr/lib/llvm/21/include/llvm/ADT/bit.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdint \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/chrono.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ratio \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/limits \
- /usr/lib/llvm/21/include/llvm/Support/type_traits.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/algorithm \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_algo.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/algorithmfwd.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_heap.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/uniform_int_dist.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_algorithm_defs.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cassert \
- /usr/include/assert.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstring \
- /usr/lib/llvm/21/include/llvm/ADT/STLFunctionalExtras.h \
- /usr/lib/llvm/21/include/llvm/ADT/iterator.h \
- /usr/lib/llvm/21/include/llvm/ADT/iterator_range.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/functional \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/std_function.h \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/array \
- /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/compare
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/ctime \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/parse_numbers.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_path.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/locale \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_facets_nonio.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/time_members.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/messages_members.h \
+ /usr/include/libintl.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/codecvt.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_facets_nonio.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/locale_conv.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/iomanip \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/quoted_string.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/sstream \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/sstream.tcc \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/codecvt \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_dir.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fs_ops.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/unordered_set \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/unordered_set.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/fstream \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/basic_file.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/x86_64-pc-linux-gnu/bits/c++io.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/fstream.tcc
