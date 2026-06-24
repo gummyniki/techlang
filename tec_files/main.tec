@@ -1,0 +1,12 @@
+!import(std.tec) as std;
+
+function main() returns none {
+    
+    int x = 5;
+    std.print_int(x);
+    std.print_int(15);
+
+    
+    float s = std.sqrt(16.0);
+    
+}

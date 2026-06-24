@@ -42,6 +42,9 @@ private:
   // maps variable names to their alloca'd stack slots
   std::vector<std::unordered_map<std::string, llvm::AllocaInst *>> scopes;
   std::unordered_map<std::string, StructInfo> structTypes;
+  std::unordered_map<std::string, llvm::ConstantInt *> enumConstants;
+  // maps Techlang name → LLVM function for extern-linked functions
+  std::unordered_map<std::string, llvm::Function *> externFunctions;
 
   // current function being generated
   llvm::Function *currentFunction = nullptr;
@@ -64,6 +67,7 @@ private:
   void generateForStatement(ForStatementNode *node);
   void generateReturnStatement(ReturnStatementNode *node);
   void generateAssignment(AssignmentNode *node);
+  void generateEnumDeclaration(EnumDeclarationNode *node);
 
   void generateStructInstance(StructInstanceNode *node);
   void generateStructDeclaration(StructDeclarationNode *node);
@@ -81,4 +85,8 @@ private:
   // std functions
   void declarePrintf();
   llvm::Value *generatePrint(FunctionCallNode *node);
+  void declareStdFunctions();
+  llvm::Value *generateExit(FunctionCallNode *node);
+  llvm::Value *generateReadInt(FunctionCallNode *node);
+  llvm::Value *generateSqrt(FunctionCallNode *node);
 };

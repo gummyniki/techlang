@@ -1,3 +1,4 @@
+#include "import_rezolver.h"
 #include "ir_generator.h"
 #include "lexer.h"
 #include "parser.h"
@@ -88,24 +89,35 @@ void compileToObject(llvm::Module *module, const std::string &outputPath) {
   delete targetMachine;
 }
 
-void linkToExecutable(const std::string &objPath, const std::string &exePath) {
-  // use the system linker (gcc or clang) to link the object file
-  std::string cmd = "gcc " + objPath + " -o " + exePath + " -lm";
+void linkToExecutable(const std::string &objPath, const std::string &exePath,
+                      const std::string &compilerDir) {
+
+  std::string stdLib = compilerDir + "/std.o";
+
+  // check std.o actually exists
+  if (!std::filesystem::exists(stdLib)) {
+    throw std::runtime_error("Standard library not found at: " + stdLib +
+                             "\nRun: gcc -c std.c -o std.o");
+  }
+
+  std::string cmd = "gcc " + objPath + " " + stdLib + " -o " + exePath + " -lm";
   int result = std::system(cmd.c_str());
   if (result != 0) {
     throw std::runtime_error("Linking failed!");
   }
 
-  // clean up the object file
   std::remove(objPath.c_str());
 }
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     std::cerr << "Usage: techlang <file.tec>\n";
-    std::cerr << "  Compiles a Techlang source file to a native binary.\n";
     return 1;
   }
+
+  // get the directory the compiler binary lives in
+  std::string compilerDir =
+      std::filesystem::path(argv[0]).parent_path().string();
 
   std::string inputPath = argv[1];
   std::string outputPath = getOutputName(inputPath);
@@ -124,6 +136,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Parsing...\n";
     Parser parser(tokens);
     auto ast = parser.parse();
+
+    std::string baseDir = std::filesystem::path(inputPath).parent_path();
+    ImportResolver resolver(baseDir);
+    resolver.resolve(ast.get());
 
     // 4. semantic analysis
     std::cout << "Analyzing...\n";
@@ -144,7 +160,7 @@ int main(int argc, char *argv[]) {
 
     // 7. link to executable
     std::cout << "Linking...\n";
-    linkToExecutable(outputPath + ".o", outputPath);
+    linkToExecutable(outputPath + ".o", outputPath, compilerDir);
 
     std::cout << "Done! Binary: ./" << outputPath << "\n";
 

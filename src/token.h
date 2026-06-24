@@ -38,6 +38,7 @@ enum class TokenType {
   KW_FIXED,
   KW_ARRAYOF,
   KW_POINTEROF,
+  KW_EXTERN,
 
   // Identifiers (variable names, function names)
   IDENTIFIER,
@@ -101,6 +102,7 @@ static std::unordered_map<std::string, TokenType> keywords = {
     {"false", TokenType::BOOL_LITERAL},
     {"ArrayOf", TokenType::KW_ARRAYOF},
     {"PointerOf", TokenType::KW_POINTEROF},
+    {"extern", TokenType::KW_EXTERN},
     // etc
 };
 

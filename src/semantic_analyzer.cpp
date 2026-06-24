@@ -1,5 +1,6 @@
 #include "semantic_analyzer.h"
 #include "ast.h"
+#include "llvm/ADT/STLExtras.h"
 #include <stdexcept>
 
 void SemanticAnalyzer::analyze(ProgramNode *program) {
@@ -46,6 +47,9 @@ void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
   case NodeType::MemberAssignment:
     analyzeMemberAssignment(static_cast<MemberAssignmentNode *>(node));
     break;
+  case NodeType::EnumDeclaration:
+    analyzeEnumDeclaration(static_cast<EnumDeclarationNode *>(node));
+    break;
   case NodeType::AssignmentExpression: {
     auto *n = static_cast<AssignmentNode *>(node);
     // check the variable exists
@@ -87,6 +91,21 @@ void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
   }
 }
 
+void SemanticAnalyzer::analyzeEnumDeclaration(EnumDeclarationNode *node) {
+  if (enumTable.count(node->name)) {
+    throw std::runtime_error("Line " + std::to_string(node->line) + ": enum '" +
+                             node->name + "' already defined");
+  }
+
+  EnumDefinition def;
+  def.name = node->name;
+  // the values are already computed by the parser!
+  for (auto &[name, value] : node->entries) {
+    def.values[name] = value;
+  }
+  enumTable[node->name] = def;
+}
+
 void SemanticAnalyzer::analyzeVarDeclaration(VarDeclarationNode *node) {
   // analyze the value expression and get its type
   std::string valueType = analyzeExpression(node->value.get());
@@ -111,6 +130,7 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(
   // declare the function in current scope BEFORE analyzing body
   // so recursive functions can call themselves
   Symbol funcSymbol;
+  std::cout << "NAME: " << node->name << "\n";
   funcSymbol.name = node->name;
   funcSymbol.type = node->returnType;
   funcSymbol.isFunction = true;
@@ -159,6 +179,12 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
     auto *n = static_cast<IdentifierNode *>(node);
     auto symbol = symbols.lookup(n->name);
     if (!symbol) {
+      // check if it's an enum value
+      for (auto &[enumName, def] : enumTable) {
+        if (def.getValue(n->name)) {
+          return "int"; // enum values are just ints
+        }
+      }
       throw std::runtime_error("Line " + std::to_string(n->line) +
                                ": undefined variable '" + n->name + "'");
     }
@@ -284,6 +310,7 @@ SemanticAnalyzer::analyzeUnaryExpression(UnaryExpressionNode *node) {
 
 std::string SemanticAnalyzer::analyzeFunctionCall(FunctionCallNode *node) {
   auto symbol = symbols.lookup(node->name);
+  std::cout << "Name: " << node->name << "\n";
   if (!symbol) {
     throw std::runtime_error("Line " + std::to_string(node->line) +
                              ": undefined function '" + node->name + "'");
@@ -353,7 +380,7 @@ void SemanticAnalyzer::analyzeStructDeclaration(StructDeclarationNode *node) {
 void SemanticAnalyzer::analyzeStructInstance(StructInstanceNode *node) {
   if (!structTable.count(node->structType)) {
     throw std::runtime_error("Line " + std::to_string(node->line) +
-                             ": unknown struct type '" + node->structType +
+                             ": Unknown struct type '" + node->structType +
                              "'");
   }
 

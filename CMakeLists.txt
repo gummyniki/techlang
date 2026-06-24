@@ -46,6 +46,16 @@ execute_process(
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(techlang ${SOURCES})
 
+add_custom_command(
+    OUTPUT ${CMAKE_BINARY_DIR}/std.o
+    COMMAND gcc -c ${CMAKE_SOURCE_DIR}/std.c -o ${CMAKE_BINARY_DIR}/std.o -lm
+    DEPENDS ${CMAKE_SOURCE_DIR}/std.c
+    COMMENT "Compiling standard library..."
+)
+
+add_custom_target(stdlib ALL DEPENDS ${CMAKE_BINARY_DIR}/std.o)
+add_dependencies(techlang stdlib)
+
 target_include_directories(techlang PRIVATE src/)
 
 # apply flags as strings

@@ -1,43 +1,43 @@
 [
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/ast_printer.cpp.o -c /home/gummy/projects/techlang/src/ast_printer.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/ast_printer.cpp.o -c /home/gummy/projects/techlang/src/ast_printer.cpp",
   "file": "/home/gummy/projects/techlang/src/ast_printer.cpp",
   "output": "CMakeFiles/techlang.dir/src/ast_printer.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/import_rezolver.cpp.o -c /home/gummy/projects/techlang/src/import_rezolver.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/import_rezolver.cpp.o -c /home/gummy/projects/techlang/src/import_rezolver.cpp",
   "file": "/home/gummy/projects/techlang/src/import_rezolver.cpp",
   "output": "CMakeFiles/techlang.dir/src/import_rezolver.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/ir_generator.cpp.o -c /home/gummy/projects/techlang/src/ir_generator.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/ir_generator.cpp.o -c /home/gummy/projects/techlang/src/ir_generator.cpp",
   "file": "/home/gummy/projects/techlang/src/ir_generator.cpp",
   "output": "CMakeFiles/techlang.dir/src/ir_generator.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/lexer.cpp.o -c /home/gummy/projects/techlang/src/lexer.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/lexer.cpp.o -c /home/gummy/projects/techlang/src/lexer.cpp",
   "file": "/home/gummy/projects/techlang/src/lexer.cpp",
   "output": "CMakeFiles/techlang.dir/src/lexer.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/main.cpp.o -c /home/gummy/projects/techlang/src/main.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/main.cpp.o -c /home/gummy/projects/techlang/src/main.cpp",
   "file": "/home/gummy/projects/techlang/src/main.cpp",
   "output": "CMakeFiles/techlang.dir/src/main.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/parser.cpp.o -c /home/gummy/projects/techlang/src/parser.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/parser.cpp.o -c /home/gummy/projects/techlang/src/parser.cpp",
   "file": "/home/gummy/projects/techlang/src/parser.cpp",
   "output": "CMakeFiles/techlang.dir/src/parser.cpp.o"
 },
 {
   "directory": "/home/gummy/projects/techlang/build",
-  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o -c /home/gummy/projects/techlang/src/semantic_analyzer.cpp",
+  "command": "/usr/bin/c++  -I/home/gummy/projects/techlang/src -g -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17    -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -o CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o -c /home/gummy/projects/techlang/src/semantic_analyzer.cpp",
   "file": "/home/gummy/projects/techlang/src/semantic_analyzer.cpp",
   "output": "CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o"
 }

@@ -17,6 +17,18 @@ struct StructDefinition {
   }
 };
 
+struct EnumDefinition {
+  std::string name;
+  std::unordered_map<std::string, int> values;
+
+  std::optional<int> getValue(const std::string &entryName) const {
+    auto it = values.find(entryName);
+    if (it != values.end())
+      return it->second;
+    return std::nullopt;
+  }
+};
+
 class SemanticAnalyzer {
 public:
   void analyze(ProgramNode *program);
@@ -24,6 +36,7 @@ public:
   SymbolTable symbols;
   std::string currentFunctionReturnType; // track what we're returning from
   std::unordered_map<std::string, StructDefinition> structTable;
+  std::unordered_map<std::string, EnumDefinition> enumTable;
 
   void analyzeStatement(ASTNode *node);
   void analyzeVarDeclaration(VarDeclarationNode *node);
@@ -36,6 +49,7 @@ public:
   void analyzeStructInstance(StructInstanceNode *node);
   void analyzeMemberAssignment(MemberAssignmentNode *node);
   void analyzeBlock(std::vector<std::unique_ptr<ASTNode>> &statements);
+  void analyzeEnumDeclaration(EnumDeclarationNode *node);
 
   // expressions return their type to check mismatches
   std::string analyzeExpression(ASTNode *node);

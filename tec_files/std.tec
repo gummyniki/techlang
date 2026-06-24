@@ -1,0 +1,9 @@
+// std.tec - Techlang Standard Library
+// empty bodies with extern "..." link to the C implementations in std.c
+
+function print_int(int x) returns none extern "tec_print_int" {}
+function print_float(float x) returns none extern "tec_print_float" {}
+function print_string(string s) returns none extern "tec_print_string" {}
+function exit(int code) returns none extern "tec_exit" {}
+function readInt() returns int extern "tec_readInt" {}
+function sqrt(float x) returns float extern "tec_sqrt" {}

@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "ast.h"
 #include "token.h"
+#include "llvm/ADT/STLExtras.h"
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -68,6 +69,10 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
   // struct declaration: struct person = { ... }
   if (current().type == TokenType::KW_STRUCT) {
     return parseStructDeclaration();
+  }
+
+  if (current().type == TokenType::KW_ENUM) {
+    return parseEnumDeclaration();
   }
 
   if (current().type == TokenType::IDENTIFIER) {
@@ -264,6 +269,39 @@ std::pair<std::string, std::string> Parser::parseParameter() {
   return {type, name};
 }
 
+std::unique_ptr<ASTNode> Parser::parseEnumDeclaration() {
+  auto node = std::make_unique<EnumDeclarationNode>(current().line);
+  advance(); // consume enum
+  node->name = expect(TokenType::IDENTIFIER, "expected enum name").value;
+  expect(TokenType::EQUALS, "expected '='");
+  expect(TokenType::LBRACE, "expected '{'");
+
+  int value = 0;
+
+  while (!isAtEnd() && current().type != TokenType::RBRACE) {
+    std::string entryName =
+        expect(TokenType::IDENTIFIER, "expected enum entry name").value;
+
+    // check for hard coded value
+    if (current().type == TokenType::EQUALS) {
+      advance(); // consume =
+      value = std::stoi(
+          expect(TokenType::INT_LITERAL, "expected integer value").value);
+    }
+
+    node->entries.push_back({entryName, value});
+    value++;
+
+    // consume comma if present
+    if (current().type == TokenType::COMMA) {
+      advance();
+    }
+  }
+
+  expect(TokenType::RBRACE, "expected '}'");
+  return node;
+}
+
 std::unique_ptr<ASTNode>
 Parser::parseVarDeclaration(std::string dataType,
                             TokenType terminator = TokenType::SEMICOLON) {
@@ -291,7 +329,7 @@ Parser::parseVarDeclaration(std::string dataType,
     expect(TokenType::RBRACKET, "expected ']'");
   }
 
-  expect(terminator, "expected 'terminator after variable declaration");
+  expect(terminator, "expected terminator after variable declaration");
   return node;
 }
 
@@ -317,6 +355,12 @@ std::unique_ptr<ASTNode> Parser::parseFunctionDeclaration() {
 
   // return type
   node->returnType = advance().value; // int, float, string, none, etc
+
+  // optional: extern "c_symbol_name"
+  if (current().type == TokenType::KW_EXTERN) {
+    advance(); // consume 'extern'
+    node->externSymbol = expect(TokenType::STRING_LITERAL, "expected C symbol name after 'extern'").value;
+  }
 
   // parse the function body { ... }
   node->body = parseBlock();
@@ -525,19 +569,43 @@ std::unique_ptr<ASTNode> Parser::parseAddSub() {
 
 std::unique_ptr<ASTNode> Parser::parsePostfix(std::unique_ptr<ASTNode> left) {
   while (true) {
-    // member access: p.age
     if (current().type == TokenType::DOT) {
       advance(); // consume .
       std::string member =
           expect(TokenType::IDENTIFIER, "expected member name").value;
 
+      // qualified function call in expression
+      if (current().type == TokenType::LPAREN) {
+        advance(); // consume (
+        auto node = std::make_unique<FunctionCallNode>(current().line);
+
+        // get the object name from the left side
+        if (left->type == NodeType::Identifier) {
+          auto *ident = static_cast<IdentifierNode *>(left.get());
+          node->name = ident->name + "." + member;
+        } else {
+          throw std::runtime_error("Complex qualified calls not supported yet");
+        }
+
+        if (current().type != TokenType::RPAREN) {
+          node->args.push_back(parseExpression());
+          while (current().type == TokenType::COMMA) {
+            advance();
+            node->args.push_back(parseExpression());
+          }
+        }
+
+        expect(TokenType::RPAREN, "expected ')' after arguments");
+        left = std::move(node);
+        continue; // check for further postfix
+      }
+
+      // plain member access: p.age
       auto node = std::make_unique<MemberAccessNode>(current().line);
       node->object = std::move(left);
       node->member = member;
       left = std::move(node);
-    }
-    // array access: a[0]
-    else if (current().type == TokenType::LBRACKET) {
+    } else if (current().type == TokenType::LBRACKET) {
       advance(); // consume [
       auto index = parseExpression();
       expect(TokenType::RBRACKET, "expected ']'");
@@ -553,7 +621,6 @@ std::unique_ptr<ASTNode> Parser::parsePostfix(std::unique_ptr<ASTNode> left) {
 
   return left;
 }
-
 // * / %
 std::unique_ptr<ASTNode> Parser::parseMulDiv() {
   auto left = parseUnary();
@@ -721,7 +788,7 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
     if (current().type == TokenType::LPAREN) {
       advance(); // consume (
       auto node = std::make_unique<FunctionCallNode>(line);
-      node->name = name + "." + member; // "std.print"
+      node->name = name + "." + member;
 
       if (current().type != TokenType::RPAREN) {
         node->args.push_back(parseExpression());

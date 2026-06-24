@@ -2,6 +2,7 @@
 #include "ir_generator.h"
 #include "ast.h"
 #include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/raw_ostream.h"
@@ -88,7 +89,7 @@ void IRGenerator::saveToFile(const std::string &filename) {
 }
 
 void IRGenerator::generate(ProgramNode *program) {
-  declarePrintf();
+  declareStdFunctions();
   pushScope();
   for (auto &statement : program->statements) {
     generateStatement(statement.get());
@@ -128,6 +129,9 @@ void IRGenerator::generateStatement(ASTNode *node) {
   case NodeType::StructDeclaration:
     generateStructDeclaration(static_cast<StructDeclarationNode *>(node));
     break;
+  case NodeType::EnumDeclaration:
+    generateEnumDeclaration(static_cast<EnumDeclarationNode *>(node));
+    break;
   case NodeType::StructInstance:
     generateStructInstance(static_cast<StructInstanceNode *>(node));
     break;
@@ -136,6 +140,7 @@ void IRGenerator::generateStatement(ASTNode *node) {
     break;
   case NodeType::ForStatement:
     generateForStatement(static_cast<ForStatementNode *>(node));
+    break;
   case NodeType::Import:
     // for now empty, std is handled manually
     break;
@@ -223,8 +228,23 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
   llvm::Type *returnType = getLLVMType(node->returnType);
   llvm::FunctionType *funcType =
       llvm::FunctionType::get(returnType, paramTypes, false);
+
+  // extern "c_symbol": declare the C symbol in the module, map Techlang name → it.
+  // must happen before Function::Create so getFunction() never sees the Techlang name.
+  if (node->body.empty() && !node->externSymbol.empty()) {
+    auto callee = module->getOrInsertFunction(node->externSymbol, funcType);
+    externFunctions[node->name] = llvm::cast<llvm::Function>(callee.getCallee());
+    return;
+  }
+
   llvm::Function *func = llvm::Function::Create(
       funcType, llvm::Function::ExternalLinkage, node->name, module.get());
+
+  // body-less but no extern symbol: plain forward declaration using Techlang name
+  if (node->body.empty()) {
+    module->getOrInsertFunction(node->name, funcType);
+    return;
+  }
 
   // name the parameters
   size_t i = 0;
@@ -466,6 +486,13 @@ void IRGenerator::generateForStatement(ForStatementNode *node) {
   builder.SetInsertPoint(forafter);
 }
 
+void IRGenerator::generateEnumDeclaration(EnumDeclarationNode *node) {
+  for (auto &entry : node->entries) {
+    enumConstants[entry.first] = llvm::ConstantInt::get(
+        llvm::Type::getInt32Ty(context), entry.second, true);
+  }
+}
+
 llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   switch (node->type) {
   case NodeType::IntLiteral: {
@@ -557,6 +584,14 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   }
   case NodeType::Identifier: {
     auto *n = static_cast<IdentifierNode *>(node);
+
+    // check enum constants first
+    auto it = enumConstants.find(n->name);
+    if (it != enumConstants.end()) {
+      return it->second;
+    }
+
+    // if not, try to look up a regular variable
     llvm::AllocaInst *alloca = lookupVariable(n->name);
     return builder.CreateLoad(alloca->getAllocatedType(), alloca, n->name);
   }
@@ -647,57 +682,15 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   }
 }
 
-llvm::Value *IRGenerator::generatePrint(FunctionCallNode *node) {
-  llvm::Function *printfFunc = module->getFunction("printf");
-
-  if (node->args.empty()) {
-    // print a newline if no args
-    llvm::Value *fmt = builder.CreateGlobalStringPtr("\n", "fmt");
-    return builder.CreateCall(printfFunc, {fmt}, "printtmp");
-  }
-
-  llvm::Value *arg = generateExpression(node->args[0].get());
-  llvm::Type *argType = arg->getType();
-
-  llvm::Value *fmt;
-
-  // pick format string based on type
-  if (argType->isIntegerTy(32)) {
-    fmt = builder.CreateGlobalStringPtr("%d\n", "fmt");
-  } else if (argType->isFloatTy()) {
-    // printf needs double for %f, so promote float to double
-    arg = builder.CreateFPExt(arg, llvm::Type::getDoubleTy(context));
-    fmt = builder.CreateGlobalStringPtr("%f\n", "fmt");
-  } else if (argType->isDoubleTy()) {
-    fmt = builder.CreateGlobalStringPtr("%f\n", "fmt");
-  } else if (argType->isIntegerTy(1)) {
-    // bool: print "true" or "false"
-    // we need a conditional here
-    llvm::Value *trueStr = builder.CreateGlobalStringPtr("true\n", "truestr");
-    llvm::Value *falseStr =
-        builder.CreateGlobalStringPtr("false\n", "falsestr");
-    llvm::Value *str = builder.CreateSelect(arg, trueStr, falseStr, "boolstr");
-    fmt = builder.CreateGlobalStringPtr("%s", "fmt");
-    return builder.CreateCall(printfFunc, {fmt, str}, "printtmp");
-  } else if (argType->isIntegerTy(8)) {
-    // char
-    fmt = builder.CreateGlobalStringPtr("%c\n", "fmt");
-  } else {
-    // string (i8*)
-    fmt = builder.CreateGlobalStringPtr("%s\n", "fmt");
-  }
-
-  return builder.CreateCall(printfFunc, {fmt, arg}, "printtmp");
-}
-
 llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
-  // std functions
-
-  if (node->name == "std.print") {
-    return generatePrint(node);
-  }
 
   llvm::Function *func = module->getFunction(node->name);
+  if (!func) {
+    // check if it was declared with extern "..." — stored under the Techlang name
+    auto it = externFunctions.find(node->name);
+    if (it != externFunctions.end())
+      func = it->second;
+  }
   if (!func) {
     throw std::runtime_error("Undefined function '" + node->name + "'");
   }
@@ -707,5 +700,28 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     args.push_back(generateExpression(arg.get()));
   }
 
-  return builder.CreateCall(func, args, "calltmp");
+  // void calls must not have a name in LLVM IR
+  bool isVoid = func->getReturnType()->isVoidTy();
+  return builder.CreateCall(func, args, isVoid ? "" : "calltmp");
+}
+
+void IRGenerator::declareStdFunctions() {
+  declarePrintf();
+}
+
+llvm::Value *IRGenerator::generateExit(FunctionCallNode *node) {
+  llvm::Function *exitFunc = module->getFunction("exit");
+  llvm::Value *code = generateExpression(node->args[0].get());
+  return builder.CreateCall(exitFunc, {code});
+}
+
+llvm::Value *IRGenerator::generateReadInt(FunctionCallNode *node) {
+  llvm::Function *readIntFunc = module->getFunction("tec_readInt");
+  return builder.CreateCall(readIntFunc, {}, "readtmp");
+}
+
+llvm::Value *IRGenerator::generateSqrt(FunctionCallNode *node) {
+  llvm::Function *sqrtFunc = module->getFunction("tec_sqrt");
+  llvm::Value *arg = generateExpression(node->args[0].get());
+  return builder.CreateCall(sqrtFunc, {arg}, "sqrttmp");
 }

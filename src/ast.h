@@ -12,6 +12,7 @@ enum class NodeType {
   Program,
   VarDeclaration,
   FunctionDeclaration,
+  EnumDeclaration,
   ReturnStatement,
   IfStatement,
   WhileStatement,
@@ -65,9 +66,17 @@ struct VarDeclarationNode : ASTNode {
   VarDeclarationNode(int line) : ASTNode(NodeType::VarDeclaration, line) {}
 };
 
+struct EnumDeclarationNode : ASTNode {
+  std::string name;
+  std::vector<std::pair<std::string, int>> entries;
+
+  EnumDeclarationNode(int line) : ASTNode(NodeType::EnumDeclaration, line) {}
+};
+
 struct ImportNode : ASTNode {
   std::string filename;
   std::string alias;
+  std::vector<std::unique_ptr<ASTNode>> declarations;
   ImportNode(int line) : ASTNode(NodeType::Import, line) {}
 };
 
@@ -188,6 +197,7 @@ struct ForStatementNode : ASTNode {
 struct FunctionDeclarationNode : ASTNode {
   std::string name;
   std::string returnType;
+  std::string externSymbol; // C symbol name when declared with extern "..."
   std::vector<std::pair<std::string, std::string>> params; // (type, name)
   std::vector<std::unique_ptr<ASTNode>> body;
   FunctionDeclarationNode(int line)
