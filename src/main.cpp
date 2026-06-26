@@ -30,6 +30,47 @@ std::string readFile(const std::string &path) {
   return buffer.str();
 }
 
+std::string findStdLib(const std::string &compilerDir,
+                       const std::string &filename) {
+  std::string localPath = compilerDir + "/" + filename;
+  if (std::filesystem::exists(localPath))
+    return localPath;
+
+  std::string systemPath = "/usr/local/lib/" + filename;
+  if (std::filesystem::exists(systemPath))
+    return systemPath;
+
+  std::string cwdPath = "./" + filename;
+  if (std::filesystem::exists(cwdPath))
+    return cwdPath;
+
+  throw std::runtime_error("Could not find " + filename +
+                           "\n"
+                           "Looked in:\n"
+                           "  " +
+                           localPath +
+                           "\n"
+                           "  " +
+                           systemPath +
+                           "\n"
+                           "  " +
+                           cwdPath);
+}
+
+void linkToExecutable(const std::string &objPath, const std::string &exePath,
+                      const std::string &compilerDir) {
+
+  std::string stdLib = findStdLib(compilerDir, "stdlib.o");
+
+  std::string cmd = "gcc " + objPath + " " + stdLib + " -o " + exePath + " -lm";
+  int result = std::system(cmd.c_str());
+  if (result != 0) {
+    throw std::runtime_error("Linking failed!");
+  }
+
+  std::remove(objPath.c_str());
+}
+
 std::string getOutputName(const std::string &inputPath) {
   // strip the .tec extension to get the output name
   size_t dotPos = inputPath.rfind(".tec");
@@ -88,26 +129,6 @@ void compileToObject(llvm::Module *module, const std::string &outputPath) {
   objFile.flush();
 
   delete targetMachine;
-}
-
-void linkToExecutable(const std::string &objPath, const std::string &exePath,
-                      const std::string &compilerDir) {
-
-  std::string stdLib = compilerDir + "/stdlib.o";
-
-  // check std.o actually exists
-  if (!std::filesystem::exists(stdLib)) {
-    throw std::runtime_error("Standard library not found at: " + stdLib +
-                             "\nRun: gcc -c std.c -o std.o");
-  }
-
-  std::string cmd = "gcc " + objPath + " " + stdLib + " -o " + exePath + " -lm";
-  int result = std::system(cmd.c_str());
-  if (result != 0) {
-    throw std::runtime_error("Linking failed!");
-  }
-
-  std::remove(objPath.c_str());
 }
 
 int main(int argc, char *argv[]) {

@@ -44,24 +44,34 @@ void ImportResolver::prefixDeclarations(
 }
 
 void ImportResolver::resolveImport(ImportNode *node) {
-  // check local directory first, then compiler directory
   std::string fullPath = baseDir + "/" + node->filename;
 
   if (!std::filesystem::exists(fullPath)) {
-    // fall back to compiler directory
     fullPath = compilerDir + "/" + node->filename;
   }
 
   if (!std::filesystem::exists(fullPath)) {
-    throw std::runtime_error("Cannot find import file: " + node->filename);
+    fullPath = "/usr/local/lib/" + node->filename;
   }
 
-  // prevent importing the same file twice
+  if (!std::filesystem::exists(fullPath)) {
+    throw std::runtime_error("Cannot find import file: " + node->filename +
+                             "\n"
+                             "Looked in:\n"
+                             "  " +
+                             baseDir + "/" + node->filename +
+                             "\n"
+                             "  " +
+                             compilerDir + "/" + node->filename +
+                             "\n"
+                             "  /usr/local/lib/" +
+                             node->filename);
+  }
+
   if (alreadyImported.count(fullPath))
     return;
   alreadyImported.insert(fullPath);
 
-  // parse the file
   auto declarations = parseFile(fullPath);
   prefixDeclarations(declarations, node->alias);
 
