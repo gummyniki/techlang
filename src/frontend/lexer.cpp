@@ -114,7 +114,6 @@ Token Lexer::readIdentifierOrKeyword() {
     word += advance();
   }
 
-  // check if it's a keyword
   auto it = keywords.find(word);
   TokenType type = (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
 
@@ -150,9 +149,8 @@ Token Lexer::readString() {
   std::string value;
 
   while (!isAtEnd() && current() != '"') {
-    // handle escape sequences
     if (current() == '\\') {
-      advance(); // consume the backslash
+      advance();
       switch (current()) {
       case 'n':
         value += '\n';
@@ -188,15 +186,14 @@ Token Lexer::readString() {
     throw CompileError("unterminated string literal", line, column);
   }
 
-  advance(); // consume closing "
+  advance();
   return makeToken(TokenType::STRING_LITERAL, value);
 }
 
 Token Lexer::readOperator() {
   std::string word;
-  word += advance(); // consume first char, word[0] is now that char
+  word += advance();
 
-  // two-character operators: check word[0] for first, current() for second
   if (word[0] == '=' && current() == '=') {
     word += advance();
     return makeToken(TokenType::EQUALS_EQUALS, word);
@@ -238,7 +235,6 @@ Token Lexer::readOperator() {
     return makeToken(TokenType::SLASH_EQUALS, word);
   }
 
-  // single-character: switch on word[0], the char we already consumed
   switch (word[0]) {
   case '=':
     return makeToken(TokenType::EQUALS, word);
@@ -282,7 +278,7 @@ Token Lexer::readOperator() {
   }
 }
 Token Lexer::readChar() {
-  advance(); // consume opening '
+  advance();
   std::string value;
 
   if (current() == '\\') {
@@ -313,13 +309,12 @@ Token Lexer::readChar() {
     value += advance();
   }
 
-  // must be followed by closing '
   if (current() != '\'') {
     throw CompileError("char literal must contain exactly one character", line,
                        column);
   }
 
-  advance(); // consume closing '
+  advance();
   return makeToken(TokenType::CHAR_LITERAL, value);
 }
 Token Lexer::makeToken(TokenType type, std::string value) {

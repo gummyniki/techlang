@@ -1,4 +1,3 @@
-// ir_generator.h
 #pragma once
 #include "../ast.h"
 #include "../symbol_table.h"
@@ -13,7 +12,7 @@
 
 struct StructInfo {
   llvm::StructType *llvmType;
-  std::vector<std::pair<std::string, std::string>> fields; // (type, name)
+  std::vector<std::pair<std::string, std::string>> fields;
 
   int getFieldIndex(const std::string &name) const {
     for (int i = 0; i < fields.size(); i++) {
@@ -29,25 +28,21 @@ public:
   IRGenerator();
 
   void generate(ProgramNode *program);
-  void print();                                 // print the IR to stdout
-  void saveToFile(const std::string &filename); // save to .ll file
+  void print();
+  void saveToFile(const std::string &filename);
   llvm::Module *getModule() { return module.get(); }
 
 private:
-  // the three core LLVM objects you always need
   llvm::LLVMContext context;
   llvm::IRBuilder<> builder;
   std::unique_ptr<llvm::Module> module;
 
-  // maps variable names to their alloca'd stack slots
   std::vector<std::unordered_map<std::string, llvm::AllocaInst *>> scopes;
   std::vector<std::unordered_map<std::string, llvm::Type *>> pointerTypeScopes;
   std::unordered_map<std::string, StructInfo> structTypes;
   std::unordered_map<std::string, llvm::ConstantInt *> enumConstants;
-  // maps Techlang name → LLVM function for extern-linked functions
   std::unordered_map<std::string, llvm::Function *> externFunctions;
 
-  // current function being generated
   llvm::Function *currentFunction = nullptr;
 
   // scope management
@@ -81,12 +76,10 @@ private:
   llvm::Value *generateBinaryExpression(BinaryExpressionNode *node);
   llvm::Value *generateFunctionCall(FunctionCallNode *node);
 
-  // helper: alloca always in function entry block (LLVM best practice)
   llvm::AllocaInst *createEntryAlloca(llvm::Function *func,
                                       const std::string &name,
                                       llvm::Type *type);
-
-  // std functions
+  // this is unused im pretty sure
   void declarePrintf();
   llvm::Value *generatePrint(FunctionCallNode *node);
   void declareStdFunctions();

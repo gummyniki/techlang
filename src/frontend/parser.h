@@ -14,7 +14,6 @@ public:
   std::vector<Token> tokens;
   size_t pos;
 
-  // same trio as the lexer, but for tokens!
   Token current();
   Token advance();
   Token peek(int offset = 1);
@@ -37,7 +36,7 @@ public:
   std::unique_ptr<ASTNode> parseForStatement();
   std::unique_ptr<ASTNode> parseEnumDeclaration();
   std::unique_ptr<ASTNode> parseReturnStatement();
-  std::vector<std::unique_ptr<ASTNode>> parseBlock(); // parses { ... }
+  std::vector<std::unique_ptr<ASTNode>> parseBlock();
   std::unique_ptr<ASTNode> parseImport();
 
   // expressions - broken into levels for operator precedence

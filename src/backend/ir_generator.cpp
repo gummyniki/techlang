@@ -84,9 +84,7 @@ llvm::AllocaInst *IRGenerator::createEntryAlloca(llvm::Function *func,
 void IRGenerator::declarePrintf() {
   llvm::FunctionType *printfType = llvm::FunctionType::get(
       llvm::Type::getInt32Ty(context), // returns int
-      {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)}, // char* arg
-      true                                                         // variadic!
-  );
+      {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)}, true);
 
   module->getOrInsertFunction("printf", printfType);
 }
@@ -155,7 +153,7 @@ void IRGenerator::generateStatement(ASTNode *node) {
     generateForStatement(static_cast<ForStatementNode *>(node));
     break;
   case NodeType::Import:
-    // for now empty, std is handled manually
+    // for now empty
     break;
   default:
     throw std::runtime_error("Unknown statement in IR generation");
@@ -163,17 +161,14 @@ void IRGenerator::generateStatement(ASTNode *node) {
 }
 
 void IRGenerator::generateStructDeclaration(StructDeclarationNode *node) {
-  // build the LLVM struct type from field types
   std::vector<llvm::Type *> fieldTypes;
   for (auto &[type, name] : node->fields) {
     fieldTypes.push_back(getLLVMType(type));
   }
 
-  // create a named struct type in the module
   llvm::StructType *structType =
       llvm::StructType::create(context, fieldTypes, node->name);
 
-  // store for later lookup
   StructInfo info;
   info.llvmType = structType;
   info.fields = node->fields;
@@ -210,8 +205,6 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
   llvm::StructType *structType =
       static_cast<llvm::StructType *>(alloca->getAllocatedType());
 
-  // find the field index
-  // look up struct info by type name
   std::string structTypeName = structType->getName().str();
   auto &info = structTypes[structTypeName];
   int fieldIndex = info.getFieldIndex(node->memberName);
@@ -220,7 +213,6 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
     throw std::runtime_error("Unknown field '" + node->memberName + "'");
   }
 
-  // GEP to the field
   llvm::Value *fieldPtr = builder.CreateGEP(
       structType, alloca,
       {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
@@ -237,7 +229,6 @@ void IRGenerator::declarePointerType(const std::string &name,
 }
 
 llvm::Type *IRGenerator::getPointeeType(const std::string &name) {
-  // search scopes from innermost to outermost
   for (int i = pointerTypeScopes.size() - 1; i >= 0; i--) {
     auto it = pointerTypeScopes[i].find(name);
     if (it != pointerTypeScopes[i].end())
@@ -247,7 +238,6 @@ llvm::Type *IRGenerator::getPointeeType(const std::string &name) {
 }
 
 void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
-  // build the function signature
   std::vector<llvm::Type *> paramTypes;
   for (auto &[type, name] : node->params) {
     paramTypes.push_back(getLLVMType(type));
@@ -257,9 +247,6 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
   llvm::FunctionType *funcType =
       llvm::FunctionType::get(returnType, paramTypes, false);
 
-  // extern "c_symbol": declare the C symbol in the module, map Techlang name →
-  // it. must happen before Function::Create so getFunction() never sees the
-  // Techlang name.
   if (node->body.empty() && !node->externSymbol.empty()) {
     auto callee = module->getOrInsertFunction(node->externSymbol, funcType);
     externFunctions[node->name] =
@@ -270,51 +257,42 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
   llvm::Function *func = llvm::Function::Create(
       funcType, llvm::Function::ExternalLinkage, node->name, module.get());
 
-  // body-less but no extern symbol: plain forward declaration using Techlang
-  // name
   if (node->body.empty()) {
     module->getOrInsertFunction(node->name, funcType);
     return;
   }
 
-  // name the parameters
   size_t i = 0;
   for (auto &arg : func->args()) {
     arg.setName(node->params[i++].second);
   }
 
-  // create the entry basic block
   llvm::BasicBlock *entry = llvm::BasicBlock::Create(context, "entry", func);
   builder.SetInsertPoint(entry);
 
   currentFunction = func;
   pushScope();
 
-  // alloca each parameter so they can be modified locally
   i = 0;
   for (auto &arg : func->args()) {
     auto &[type, name] = node->params[i++];
     llvm::AllocaInst *alloca = createEntryAlloca(func, name, getLLVMType(type));
     builder.CreateStore(&arg, alloca);
     declareVariable(name, alloca);
-    // if it's a pointer parameter, track its pointee type
     if (type.substr(0, 9) == "PointerOf") {
       std::string innerTypeStr = type.substr(10, type.size() - 11);
       declarePointerType(name, getLLVMType(innerTypeStr));
     }
-    // if its an array type, track its type
     if (type.substr(0, 7) == "ArrayOf") {
       std::string innerTypeStr = type.substr(8, type.size() - 9);
       declarePointerType(name, getLLVMType(innerTypeStr));
     }
   }
 
-  // generate body
   for (auto &statement : node->body) {
     generateStatement(statement.get());
   }
 
-  // if function returns none and no explicit return, add one
   if (node->returnType == "none") {
     builder.CreateRetVoid();
   }
@@ -325,13 +303,11 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
     if (node->returnType == "none") {
       builder.CreateRetVoid();
     } else {
-      // function missing return statement — add a default
       builder.CreateRet(
           llvm::Constant::getNullValue(getLLVMType(node->returnType)));
     }
   }
 
-  // verify the function is well-formed
   std::string errors;
   llvm::raw_string_ostream errorStream(errors);
   if (llvm::verifyFunction(*func, &errorStream)) {
@@ -342,7 +318,6 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
 
 void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
   if (node->dataType.substr(0, 9) == "PointerOf") {
-    // extract inner type string e.g. "int" from "PointerOf(int)"
     std::string innerTypeStr =
         node->dataType.substr(10, node->dataType.size() - 11);
     llvm::Type *pointeeType = getLLVMType(innerTypeStr);
@@ -360,26 +335,20 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
   }
 
   if (node->dataType.substr(0, 7) == "ArrayOf") {
-    // generateExpression for ArrayLiteral already creates an alloca
-    // and returns a GEP pointer to it — we need the alloca itself
-    // so instead, we generate the elements and build the array here directly
 
     auto *literalNode = static_cast<ArrayLiteralNode *>(node->value.get());
     if (literalNode->elements.empty()) {
       throw std::runtime_error("Cannot declare empty array");
     }
 
-    // generate first element to get type
     llvm::Value *firstVal = generateExpression(literalNode->elements[0].get());
     llvm::Type *elementType = firstVal->getType();
     int size = literalNode->elements.size();
 
-    // create the array alloca directly
     llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, size);
     llvm::AllocaInst *arrayAlloca =
         createEntryAlloca(currentFunction, node->name, arrayType);
 
-    // store first element
     llvm::Value *gep0 = builder.CreateGEP(
         arrayType, arrayAlloca,
         {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
@@ -387,7 +356,6 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
         "elemptr");
     builder.CreateStore(firstVal, gep0);
 
-    // store remaining elements
     for (int i = 1; i < size; i++) {
       llvm::Value *val = generateExpression(literalNode->elements[i].get());
       llvm::Value *gep = builder.CreateGEP(
@@ -398,12 +366,10 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
       builder.CreateStore(val, gep);
     }
 
-    // declare the variable pointing to the actual array alloca
     declareVariable(node->name, arrayAlloca);
     return;
   }
 
-  // normal scalar
   llvm::Type *type = getLLVMType(node->dataType);
   llvm::AllocaInst *alloca =
       createEntryAlloca(currentFunction, node->name, type);
@@ -416,7 +382,6 @@ void IRGenerator::generateAssignment(AssignmentNode *node) {
   llvm::AllocaInst *alloca = lookupVariable(node->name);
   llvm::Value *value = generateExpression(node->value.get());
 
-  // handle += -= *= /=
   if (node->op != TokenType::EQUALS) {
     llvm::Value *current =
         builder.CreateLoad(alloca->getAllocatedType(), alloca, node->name);
@@ -462,27 +427,22 @@ void IRGenerator::generateIfStatement(IfStatementNode *node) {
 
   builder.CreateCondBr(condition, thenBlock, elseBlock);
 
-  // then block
   builder.SetInsertPoint(thenBlock);
   pushScope();
   for (auto &s : node->thenBlock)
     generateStatement(s.get());
   popScope();
-  // ✅ only branch to merge if no terminator (early return)
   if (!builder.GetInsertBlock()->getTerminator())
     builder.CreateBr(mergeBlock);
 
-  // else block
   builder.SetInsertPoint(elseBlock);
   pushScope();
   for (auto &s : node->elseBlock)
     generateStatement(s.get());
   popScope();
-  // ✅ same here
   if (!builder.GetInsertBlock()->getTerminator())
     builder.CreateBr(mergeBlock);
 
-  // ✅ only set insert point to merge if it's reachable
   if (!mergeBlock->hasNPredecessors(0))
     builder.SetInsertPoint(mergeBlock);
 }
@@ -494,20 +454,18 @@ void IRGenerator::generateWhileStatement(WhileStatementNode *node) {
   llvm::BasicBlock *afterBlock =
       llvm::BasicBlock::Create(context, "whileafter", currentFunction);
 
-  builder.CreateBr(condBlock); // jump into condition check
+  builder.CreateBr(condBlock);
 
-  // condition
   builder.SetInsertPoint(condBlock);
   llvm::Value *condition = generateExpression(node->condition.get());
   builder.CreateCondBr(condition, bodyBlock, afterBlock);
 
-  // body
   builder.SetInsertPoint(bodyBlock);
   pushScope();
   for (auto &s : node->body)
     generateStatement(s.get());
   popScope();
-  builder.CreateBr(condBlock); // loop back to condition
+  builder.CreateBr(condBlock);
 
   builder.SetInsertPoint(afterBlock);
 }
@@ -524,14 +482,12 @@ void IRGenerator::generateForStatement(ForStatementNode *node) {
 
   generateStatement(node->declaration.get());
 
-  builder.CreateBr(forCond); // jump into condition check
+  builder.CreateBr(forCond);
 
-  // condition
   builder.SetInsertPoint(forCond);
   llvm::Value *condition = generateExpression(node->condition.get());
   builder.CreateCondBr(condition, forBody, forafter);
 
-  // body
   builder.SetInsertPoint(forBody);
   pushScope();
   for (auto &s : node->body)
@@ -583,17 +539,14 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       throw std::runtime_error("Cannot create empty array literal");
     }
 
-    // generate first element to figure out the type
     llvm::Value *firstVal = generateExpression(n->elements[0].get());
     llvm::Type *elementType = firstVal->getType();
     int size = n->elements.size();
 
-    // allocate stack space for the whole array
     llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, size);
     llvm::AllocaInst *arrayAlloca =
         createEntryAlloca(currentFunction, "arraytmp", arrayType);
 
-    // store each element at its index
     auto storeElement = [&](int index, llvm::Value *val) {
       llvm::Value *gep = builder.CreateGEP(
           arrayType, arrayAlloca,
@@ -603,16 +556,13 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       builder.CreateStore(val, gep);
     };
 
-    // store first element (already generated)
     storeElement(0, firstVal);
 
-    // generate and store remaining elements
     for (int i = 1; i < size; i++) {
       llvm::Value *val = generateExpression(n->elements[i].get());
       storeElement(i, val);
     }
 
-    // return a pointer to the start of the array
     return builder.CreateGEP(
         arrayType, arrayAlloca,
         {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
@@ -627,9 +577,7 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       auto *ident = static_cast<IdentifierNode *>(n->array.get());
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
 
-      // handle both array alloca and pointer to array (function params)
       if (alloca->getAllocatedType()->isArrayTy()) {
-        // local array, use GEP directly
         llvm::ArrayType *arrayType =
             static_cast<llvm::ArrayType *>(alloca->getAllocatedType());
         llvm::Type *elementType = arrayType->getElementType();
@@ -640,7 +588,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
             "elemptr");
         return builder.CreateLoad(elementType, elemPtr, "elemval");
       } else {
-        // pointer parameter,  load the pointer first then GEP
         llvm::Value *ptr =
             builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
         llvm::Type *elementType = getPointeeType(ident->name);
@@ -666,10 +613,8 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       return it->second;
     }
 
-    // if not, try to look up a regular variable
     llvm::AllocaInst *alloca = lookupVariable(n->name);
 
-    // if it's an array, return pointer to first element instead of loading
     if (alloca->getAllocatedType()->isArrayTy()) {
       return builder.CreateGEP(
           alloca->getAllocatedType(), alloca,
@@ -687,7 +632,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   case NodeType::MemberAccess: {
     auto *n = static_cast<MemberAccessNode *>(node);
 
-    // get the object
     if (n->object->type == NodeType::Identifier) {
       auto *ident = static_cast<IdentifierNode *>(n->object.get());
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
@@ -719,7 +663,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
     bool isInt = val->getType()->isIntegerTy();
     bool isFloat = val->getType()->isFloatingPointTy();
 
-    // if there's a '-' sign
     if (n->op == TokenType::MINUS) {
 
       if (isInt) {
@@ -729,10 +672,7 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       }
     }
 
-    // if there's a bang sign ('!')
-
     if (n->op == TokenType::BANG) {
-      // doesnt matter what type it is, just return the opposite value
       return builder.CreateNot(val);
     }
   }
@@ -764,7 +704,6 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   case TokenType::PERCENT:
     return builder.CreateSRem(left, right, "remtmp");
 
-  // comparisons
   case TokenType::EQUALS_EQUALS:
     return isFloat ? builder.CreateFCmpOEQ(left, right, "eqtmp")
                    : builder.CreateICmpEQ(left, right, "eqtmp");
@@ -803,21 +742,16 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     auto *ident = static_cast<IdentifierNode *>(node->args[0].get());
     llvm::AllocaInst *alloca = lookupVariable(ident->name);
 
-    // also track that the result is a pointer to this variable's type
-    // this gets stored when the result is assigned to a PointerOf variable
-    // which is handled in generateVarDeclaration already
-    return alloca; // alloca IS the pointer!
+    return alloca;
   }
 
   if (node->name == "std.deref") {
     auto *ident = static_cast<IdentifierNode *>(node->args[0].get());
     llvm::AllocaInst *alloca = lookupVariable(ident->name);
 
-    // load the pointer value from the alloca
     llvm::Value *ptr =
         builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
 
-    // load through the pointer using the tracked pointee type
     llvm::Type *pointeeType = getPointeeType(ident->name);
     return builder.CreateLoad(pointeeType, ptr, "deref");
   }
@@ -826,11 +760,9 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     auto *ident = static_cast<IdentifierNode *>(node->args[0].get());
     llvm::AllocaInst *alloca = lookupVariable(ident->name);
 
-    // load the pointer value
     llvm::Value *ptr =
         builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
 
-    // generate the value to store
     llvm::Value *val = generateExpression(node->args[1].get());
     builder.CreateStore(val, ptr);
     return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
@@ -838,8 +770,6 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
 
   llvm::Function *func = module->getFunction(node->name);
   if (!func) {
-    // check if it was declared with extern "..." — stored under the Techlang
-    // name
     auto it = externFunctions.find(node->name);
     if (it != externFunctions.end())
       func = it->second;
@@ -853,7 +783,6 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     args.push_back(generateExpression(arg.get()));
   }
 
-  // void calls must not have a name in LLVM IR
   bool isVoid = func->getReturnType()->isVoidTy();
   return builder.CreateCall(func, args, isVoid ? "" : "calltmp");
 }

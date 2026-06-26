@@ -109,8 +109,8 @@ static std::unordered_map<std::string, TokenType> keywords = {
 
 struct Token {
   TokenType type;
-  std::string value; // the actual text
-  int line;          // for error messages!
+  std::string value;
+  int line;
   int column;
 
   Token(TokenType t, std::string v, int l, int c)

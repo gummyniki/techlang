@@ -16,9 +16,9 @@ public:
   size_t pos;
   int line, column;
 
-  char current();            // peek at current char
-  char advance();            // consume and return current char
-  char peek(int offset = 1); // look ahead without consuming
+  char current();
+  char advance();
+  char peek(int offset = 1);
   bool isAtEnd();
 
   void skipWhitespace();

@@ -98,7 +98,7 @@ chmod +x run_tests.sh
 
 ## Language Reference
 
-See [LANGUAGE.md](LANGUAGE.md) for the full syntax reference.
+See [LANGUAGE.md](docs/LANGUAGE.md) for the full syntax reference.
 
 ## Standard Library
 

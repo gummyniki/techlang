@@ -300,7 +300,6 @@ std::string SemanticAnalyzer::analyzeFunctionCall(FunctionCallNode *node) {
     return ptrType.substr(10, ptrType.size() - 11);
   }
   if (node->name == "std.storeAt") {
-    // just check args are valid, returns none
     analyzeExpression(node->args[0].get());
     analyzeExpression(node->args[1].get());
     return "none";

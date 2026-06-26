@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <string>
 
-// in parse()
 std::unique_ptr<ProgramNode> Parser::parse() {
   auto program = std::make_unique<ProgramNode>();
 
@@ -50,11 +49,11 @@ std::string Parser::parseType() {
   // handle ArrayOf and PointerOf
   if (current().type == TokenType::KW_ARRAYOF ||
       current().type == TokenType::KW_POINTEROF) {
-    std::string typeName = advance().value; // "ArrayOf" or "PointerOf"
+    std::string typeName = advance().value;
     expect(TokenType::LPAREN, "expected '(' after " + typeName);
-    std::string innerType = advance().value; // "int", "float", etc
+    std::string innerType = advance().value;
     expect(TokenType::RPAREN, "expected ')' after inner type");
-    return typeName + "(" + innerType + ")"; // "ArrayOf(int)"
+    return typeName + "(" + innerType + ")";
   }
 
   // simple type: int, float, string, etc
@@ -67,7 +66,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     return parseImport();
   }
 
-  // struct declaration: struct person = { ... }
   if (current().type == TokenType::KW_STRUCT) {
     return parseStructDeclaration();
   }
@@ -79,14 +77,11 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
   if (current().type == TokenType::IDENTIFIER) {
     std::string name = advance().value;
 
-    // dot: either member assignment (p.age = 30) or qualified call
-    // (std.print(x))
     if (current().type == TokenType::DOT) {
       advance(); // consume .
       std::string member =
           expect(TokenType::IDENTIFIER, "expected member name").value;
 
-      // member assignment: p.age = 30;
       if (current().type == TokenType::EQUALS ||
           current().type == TokenType::PLUS_EQUALS ||
           current().type == TokenType::MINUS_EQUALS ||
@@ -105,7 +100,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
         return node;
       }
 
-      // qualified function call: std.print(x)
       if (current().type == TokenType::LPAREN) {
         advance(); // consume (
         std::string fullName = name + "." + member;
@@ -148,7 +142,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       return node;
     }
 
-    // plain function call as statement: foo(x);
     if (current().type == TokenType::LPAREN) {
       advance(); // consume (
       auto node = std::make_unique<FunctionCallNode>(current().line);
@@ -167,8 +160,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       return node;
     }
 
-    // struct instantiation: person p;
-    // we already consumed the type name (name), next should be identifier
     if (current().type == TokenType::IDENTIFIER) {
       auto node = std::make_unique<StructInstanceNode>(current().line);
       node->structType = name;
@@ -206,7 +197,7 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     return parseReturnStatement();
   }
 
-  // variable declaration (starts with a type keyword)
+  // variable declaration
   if (current().type == TokenType::KW_INT ||
       current().type == TokenType::KW_FLOAT ||
       current().type == TokenType::KW_DOUBLE ||
@@ -226,9 +217,9 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
 std::vector<std::pair<std::string, std::string>> Parser::parseParameterList() {
   std::vector<std::pair<std::string, std::string>> params;
 
-  // empty parameter list — function foo() returns none
+  // if there are no parameters
   if (current().type == TokenType::RPAREN) {
-    return params; // return empty list, don't consume the )
+    return params;
   }
 
   // parse first parameter
@@ -253,15 +244,15 @@ std::vector<std::pair<std::string, std::string>> Parser::parseParameterList() {
 std::pair<std::string, std::string> Parser::parseParameter() {
   std::string type;
 
-  // handle complex types like ArrayOf(int) or PointerOf(int)
   if (current().type == TokenType::KW_ARRAYOF ||
       current().type == TokenType::KW_POINTEROF) {
-    type += advance().value; // "ArrayOf" or "PointerOf"
+    type += advance().value;
+
     expect(TokenType::LPAREN, "expected '(' after ArrayOf/PointerOf");
-    type += "(" + advance().value + ")"; // the inner type
+    type += "(" + advance().value + ")";
     expect(TokenType::RPAREN, "expected ')' after inner type");
   } else {
-    // simple type: int, float, string, etc
+
     type = advance().value;
   }
 
@@ -294,7 +285,6 @@ std::unique_ptr<ASTNode> Parser::parseEnumDeclaration() {
     node->entries.push_back({entryName, value});
     value++;
 
-    // consume comma if present
     if (current().type == TokenType::COMMA) {
       advance();
     }
@@ -310,13 +300,10 @@ Parser::parseVarDeclaration(std::string dataType,
   auto node = std::make_unique<VarDeclarationNode>(current().line);
   node->dataType = dataType;
 
-  // get the variable name
   node->name = expect(TokenType::IDENTIFIER, "expected variable name").value;
 
-  // expect =
   expect(TokenType::EQUALS, "expected '=' after variable name");
 
-  // parse the value expression
   node->value = parseExpression();
 
   // check for optional params like [const] or [fixed]
@@ -338,35 +325,27 @@ Parser::parseVarDeclaration(std::string dataType,
 std::unique_ptr<ASTNode> Parser::parseFunctionDeclaration() {
   auto node = std::make_unique<FunctionDeclarationNode>(current().line);
 
-  advance(); // consume 'function' keyword
+  advance();
 
-  // get function name
   node->name = expect(TokenType::IDENTIFIER, "expected function name").value;
 
-  // opening paren
   expect(TokenType::LPAREN, "expected '(' after function name");
 
-  // parse parameters
   node->params = parseParameterList();
 
-  // closing paren
   expect(TokenType::RPAREN, "expected ')' after parameters");
 
-  // 'returns' keyword
   expect(TokenType::KW_RETURNS, "expected 'returns'");
 
-  // return type
-  node->returnType = advance().value; // int, float, string, none, etc
+  node->returnType = advance().value;
 
-  // optional: extern "c_symbol_name"
   if (current().type == TokenType::KW_EXTERN) {
-    advance(); // consume 'extern'
+    advance();
     node->externSymbol = expect(TokenType::STRING_LITERAL,
                                 "expected C symbol name after 'extern'")
                              .value;
   }
 
-  // parse the function body { ... }
   node->body = parseBlock();
 
   return node;
@@ -430,20 +409,16 @@ std::unique_ptr<ASTNode> Parser::parseForStatement() {
   expect(TokenType::KW_FOR, "expected 'for'");
   expect(TokenType::LPAREN, "expected '(' after 'for'");
 
-  // consume the type keyword first, then parse declaration
   std::string dataType = advance().value;
   node->declaration = parseVarDeclaration(dataType, TokenType::COMMA);
-  // note: parseVarDeclaration already consumes the semicolon
-  // but in a for loop we use commas, so we need to adjust!
 
   node->condition = parseExpression();
   expect(TokenType::COMMA, "expected ',' after for condition");
 
-  // this is an assignment: identifier op expression
   std::string name =
       expect(TokenType::IDENTIFIER, "expected identifier in for increment")
           .value;
-  TokenType op = advance().type; // consume +=, -=, etc
+  TokenType op = advance().type;
   auto value = parseExpression();
   auto increment = std::make_unique<AssignmentNode>(current().line);
   increment->name = name;
@@ -463,7 +438,7 @@ std::unique_ptr<ASTNode> Parser::parseReturnStatement() {
 
   expect(TokenType::KW_RETURN, "expected 'return'");
 
-  // if next token is semicolon, it's a bare return (for none functions)
+  // if next token is semicolon, it's a bare return
   if (current().type == TokenType::SEMICOLON) {
     advance(); // consume ;
     node->value = nullptr;
@@ -488,15 +463,14 @@ std::vector<std::unique_ptr<ASTNode>> Parser::parseBlock() {
 
   expect(TokenType::RBRACE, "expected '}'");
   return statements;
-
-} // parses { ... }
+}
 
 // expressions - broken into levels for operator precedence
 std::unique_ptr<ASTNode> Parser::parseExpression() {
   auto left = parseAnd();
 
   while (current().type == TokenType::PIPE_PIPE) {
-    TokenType op = advance().type; // consume ||
+    TokenType op = advance().type;
     auto right = parseAnd();
 
     auto node = std::make_unique<BinaryExpressionNode>(current().line);
@@ -574,13 +548,12 @@ std::unique_ptr<ASTNode> Parser::parseAddSub() {
 std::unique_ptr<ASTNode> Parser::parsePostfix(std::unique_ptr<ASTNode> left) {
   while (true) {
     if (current().type == TokenType::DOT) {
-      advance(); // consume .
+      advance();
       std::string member =
           expect(TokenType::IDENTIFIER, "expected member name").value;
 
-      // qualified function call in expression
       if (current().type == TokenType::LPAREN) {
-        advance(); // consume (
+        advance();
         auto node = std::make_unique<FunctionCallNode>(current().line);
 
         // get the object name from the left side
@@ -602,16 +575,15 @@ std::unique_ptr<ASTNode> Parser::parsePostfix(std::unique_ptr<ASTNode> left) {
 
         expect(TokenType::RPAREN, "expected ')' after arguments");
         left = std::move(node);
-        continue; // check for further postfix
+        continue;
       }
 
-      // plain member access: p.age
       auto node = std::make_unique<MemberAccessNode>(current().line);
       node->object = std::move(left);
       node->member = member;
       left = std::move(node);
     } else if (current().type == TokenType::LBRACKET) {
-      advance(); // consume [
+      advance();
       auto index = parseExpression();
       expect(TokenType::RBRACKET, "expected ']'");
 
@@ -626,6 +598,7 @@ std::unique_ptr<ASTNode> Parser::parsePostfix(std::unique_ptr<ASTNode> left) {
 
   return left;
 }
+
 // * / %
 std::unique_ptr<ASTNode> Parser::parseMulDiv() {
   auto left = parseUnary();
@@ -652,7 +625,7 @@ std::unique_ptr<ASTNode> Parser::parseUnary() {
   if (current().type == TokenType::BANG || current().type == TokenType::MINUS) {
 
     TokenType op = advance().type;
-    auto operand = parseUnary(); // recursive! handles !!x or --x
+    auto operand = parseUnary();
 
     auto node = std::make_unique<UnaryExpressionNode>(current().line);
     node->op = op;
@@ -668,7 +641,6 @@ std::unique_ptr<ASTNode> Parser::parseImport() {
 
   expect(TokenType::EXCLAIM, "expected '!'");
 
-  // expect the word "import" as an identifier
   std::string keyword =
       expect(TokenType::IDENTIFIER, "expected 'import'").value;
   if (keyword != "import") {
@@ -678,10 +650,8 @@ std::unique_ptr<ASTNode> Parser::parseImport() {
 
   expect(TokenType::LPAREN, "expected '(' after import");
 
-  // filename is everything until the closing )
   node->filename = expect(TokenType::IDENTIFIER, "expected filename").value;
 
-  // handle the .tec extension: identifier DOT identifier
   if (current().type == TokenType::DOT) {
     advance(); // consume .
     std::string ext =
@@ -698,11 +668,11 @@ std::unique_ptr<ASTNode> Parser::parseImport() {
 }
 
 std::unique_ptr<ASTNode> Parser::parsePrimary() {
+
   // array literal
   if (current().type == TokenType::LBRACE) {
-    advance(); // consume {
+    advance();
     auto node = std::make_unique<ArrayLiteralNode>(current().line);
-
     if (current().type != TokenType::RBRACE) {
       node->elements.push_back(parseExpression());
       while (current().type == TokenType::COMMA) {
@@ -740,7 +710,6 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
   }
 
   // char literal
-
   if (current().type == TokenType::CHAR_LITERAL) {
     char value = current().value[0];
     int line = current().line;
@@ -794,13 +763,12 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
   if (current().type == TokenType::DOT) {
     int line = current().line;
     std::string name = advance().value;
-    advance(); // consume .
+    advance();
     std::string member =
         expect(TokenType::IDENTIFIER, "expected member name").value;
 
-    // it's a qualified function call like std.print
     if (current().type == TokenType::LPAREN) {
-      advance(); // consume (
+      advance();
       auto node = std::make_unique<FunctionCallNode>(line);
       node->name = name + "." + member;
 
@@ -816,14 +784,12 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
       return parsePostfix(std::move(node));
     }
 
-    // otherwise it's just member access
     auto node = std::make_unique<MemberAccessNode>(line);
   }
 
-  // parenthesized expression: (2 + 3)
   if (current().type == TokenType::LPAREN) {
-    advance();                     // consume (
-    auto expr = parseExpression(); // recurse!
+    advance();
+    auto expr = parseExpression();
     expect(TokenType::RPAREN, "expected ')'");
     return expr;
   }

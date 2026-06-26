@@ -31,8 +31,8 @@ enum class NodeType {
   CharLiteral,
   BoolLiteral,
   ArrayLiteral,
-  MemberAccess, // for p.age
-  ArrayAccess,  // for a[0]
+  MemberAccess,
+  ArrayAccess,
   Import,
 };
 
@@ -55,7 +55,6 @@ struct ArrayLiteralNode : ASTNode {
   ArrayLiteralNode(int line) : ASTNode(NodeType::ArrayLiteral, line) {}
 };
 
-// int x = 5 + 3;
 struct VarDeclarationNode : ASTNode {
   std::string dataType;
   std::string name;
@@ -80,7 +79,6 @@ struct ImportNode : ASTNode {
   ImportNode(int line) : ASTNode(NodeType::Import, line) {}
 };
 
-// 5 + 3, x > 0, etc
 struct BinaryExpressionNode : ASTNode {
   std::unique_ptr<ASTNode> left;
   TokenType op;
@@ -104,7 +102,6 @@ struct AssignmentNode : ASTNode {
   AssignmentNode(int line) : ASTNode(NodeType::AssignmentExpression, line) {}
 };
 
-// just a number literal
 struct IntLiteralNode : ASTNode {
   int value;
   IntLiteralNode(int v, int line)
@@ -135,7 +132,6 @@ struct BoolLiteralNode : ASTNode {
       : ASTNode(NodeType::BoolLiteral, line), value(v) {}
 };
 
-// struct definition: struct person = { int age; float height; }
 struct StructDeclarationNode : ASTNode {
   std::string name;
   std::vector<std::pair<std::string, std::string>> fields; // (type, name)
@@ -143,26 +139,20 @@ struct StructDeclarationNode : ASTNode {
       : ASTNode(NodeType::StructDeclaration, line) {}
 };
 
-// struct instantiation: person p;
 struct StructInstanceNode : ASTNode {
-  std::string structType; // "person"
-  std::string name;       // "p"
+  std::string structType;
+  std::string name;
   StructInstanceNode(int line) : ASTNode(NodeType::StructInstance, line) {}
 };
 
-// member assignment: p.age = 30;
-// this is already handled by your AssignmentNode + MemberAccessNode
-// but you need member access on the LEFT side of assignment too
-// so add this:
 struct MemberAssignmentNode : ASTNode {
-  std::string objectName; // "p"
-  std::string memberName; // "age"
+  std::string objectName;
+  std::string memberName;
   TokenType op;
   std::unique_ptr<ASTNode> value;
   MemberAssignmentNode(int line) : ASTNode(NodeType::MemberAssignment, line) {}
 };
 
-// just a variable name, like x or myVar
 struct IdentifierNode : ASTNode {
   std::string name;
   IdentifierNode(std::string n, int line)
@@ -176,7 +166,6 @@ struct FunctionCallNode : ASTNode {
   FunctionCallNode(int line) : ASTNode(NodeType::FunctionCall, line) {}
 };
 
-// if (cond) do { ... } else do { ... }
 struct IfStatementNode : ASTNode {
   std::unique_ptr<ASTNode> condition;
   std::vector<std::unique_ptr<ASTNode>> thenBlock;
@@ -199,31 +188,27 @@ struct ForStatementNode : ASTNode {
   ForStatementNode(int line) : ASTNode(NodeType::ForStatement, line) {}
 };
 
-// function foo(int x) returns int { ... }
 struct FunctionDeclarationNode : ASTNode {
   std::string name;
   std::string returnType;
-  std::string externSymbol; // C symbol name when declared with extern "..."
-  std::vector<std::pair<std::string, std::string>> params; // (type, name)
+  std::string externSymbol;
+  std::vector<std::pair<std::string, std::string>> params;
   std::vector<std::unique_ptr<ASTNode>> body;
   FunctionDeclarationNode(int line)
       : ASTNode(NodeType::FunctionDeclaration, line) {}
 };
 
-// return x + 1;
 struct ReturnStatementNode : ASTNode {
   std::unique_ptr<ASTNode> value; // nullptr if returns none
   ReturnStatementNode(int line) : ASTNode(NodeType::ReturnStatement, line) {}
 };
 
-// p.age
 struct MemberAccessNode : ASTNode {
   std::unique_ptr<ASTNode> object;
   std::string member;
   MemberAccessNode(int line) : ASTNode(NodeType::MemberAccess, line) {}
 };
 
-// a[0]
 struct ArrayAccessNode : ASTNode {
   std::unique_ptr<ASTNode> array;
   std::unique_ptr<ASTNode> index;
