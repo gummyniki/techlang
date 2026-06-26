@@ -73,6 +73,7 @@ run_test "$EXAMPLES_DIR/enums.tec"          "$EXAMPLES_DIR/enums.expected"      
 run_test "$EXAMPLES_DIR/pointers.tec"       "$EXAMPLES_DIR/pointers.expected"       "Pointers"
 run_test "$EXAMPLES_DIR/arrays.tec"         "$EXAMPLES_DIR/arrays.expected"         "Arrays"
 run_test "$EXAMPLES_DIR/imports/main.tec"   "$EXAMPLES_DIR/imports/main.expected"   "Imports"
+run_test "$EXAMPLES_DIR/casting.tec" 	    "$EXAMPLES_DIR/casting.expected"        "Casting"
 
 # summary
 echo ""

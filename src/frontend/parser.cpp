@@ -364,7 +364,6 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
 
   if (current().type == TokenType::KW_ELSE) {
     advance();
-    expect(TokenType::KW_DO, "expected 'do' after else");
     node->elseBlock = parseBlock();
   }
 
@@ -395,9 +394,9 @@ std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
   auto node = std::make_unique<WhileStatementNode>(current().line);
 
   expect(TokenType::KW_WHILE, "expected 'while' keyword");
-  expect(TokenType::LBRACE, "expected '(' after loop declaration");
+  expect(TokenType::LPAREN, "expected '(' after loop declaration");
   node->condition = parseComparison();
-  expect(TokenType::RBRACE, "expected ')' after condition");
+  expect(TokenType::RPAREN, "expected ')' after condition");
   node->body = parseBlock();
   return node;
 }
@@ -501,7 +500,7 @@ std::unique_ptr<ASTNode> Parser::parseAnd() {
 
 // == != < > <= >=
 std::unique_ptr<ASTNode> Parser::parseComparison() {
-  auto left = parseAddSub();
+  auto left = parseCast();
 
   while (current().type == TokenType::EQUALS_EQUALS ||
          current().type == TokenType::BANG_EQUALS ||
@@ -511,7 +510,7 @@ std::unique_ptr<ASTNode> Parser::parseComparison() {
          current().type == TokenType::GREATER_EQUALS) {
 
     TokenType op = advance().type;
-    auto right = parseAddSub();
+    auto right = parseCast();
 
     auto node = std::make_unique<BinaryExpressionNode>(current().line);
     node->left = std::move(left);
@@ -616,6 +615,21 @@ std::unique_ptr<ASTNode> Parser::parseMulDiv() {
   }
 
   return left;
+}
+
+// x as y
+std::unique_ptr<ASTNode> Parser::parseCast() {
+  auto expr = parseAddSub();
+
+  while (current().type == TokenType::KW_AS) {
+    advance();
+    auto node = std::make_unique<CastNode>(current().line);
+    node->value = std::move(expr);
+    node->targetType = parseType();
+    expr = std::move(node);
+  }
+
+  return expr;
 }
 
 // unary: ! and negative -

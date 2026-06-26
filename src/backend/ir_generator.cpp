@@ -597,9 +597,44 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
         return builder.CreateLoad(elementType, elemPtr, "elemval");
       }
     }
+  }
+
+  case NodeType::Cast: {
+    auto *n = static_cast<CastNode *>(node);
+    llvm::Value *val = generateExpression(n->value.get());
+    llvm::Type *targetType = getLLVMType(n->targetType);
+
+    llvm::Type *srcType = val->getType();
+
+    if (srcType->isIntegerTy() && targetType->isFloatingPointTy()) {
+      return builder.CreateSIToFP(val, targetType, "casttmp");
+    }
+
+    if (srcType->isFloatingPointTy() && targetType->isIntegerTy()) {
+      return builder.CreateFPToSI(val, targetType, "casttmp");
+    }
+
+    if (srcType->isFloatingPointTy() && targetType->isFloatingPointTy()) {
+      if (srcType->isFloatTy() && targetType->isDoubleTy()) {
+        return builder.CreateFPExt(val, targetType, "casttmp");
+      } else {
+        return builder.CreateFPTrunc(val, targetType, "casttmp");
+      }
+    }
+
+    if (srcType->isIntegerTy() && targetType->isIntegerTy()) {
+      if (srcType->getIntegerBitWidth() > targetType->getIntegerBitWidth()) {
+        return builder.CreateTrunc(val, targetType, "casttmp");
+      } else {
+        return builder.CreateSExt(val, targetType, "casttmp");
+      }
+    }
+
+    throw std::runtime_error("Unsupported cast from " + n->targetType);
+  }
 
     throw std::runtime_error("Complex array access not supported yet");
-  }
+
   case NodeType::StringLiteral: {
     auto *n = static_cast<StringLiteralNode *>(node);
     return builder.CreateGlobalStringPtr(n->value, "str");

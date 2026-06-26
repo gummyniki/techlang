@@ -234,6 +234,24 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
     return "unknown";
   }
 
+  case NodeType::Cast: {
+    auto *n = static_cast<CastNode *>(node);
+    std::string fromType = analyzeExpression(n->value.get());
+
+    bool fromNumeric = (fromType == "int" || fromType == "float" ||
+                        fromType == "double" || fromType == "char");
+    bool toNumeric = (n->targetType == "int" || n->targetType == "float" ||
+                      n->targetType == "double" || n->targetType == "char");
+
+    if (!fromNumeric || !toNumeric) {
+      throw std::runtime_error("Line " + std::to_string(n->line) +
+                               ": cannot cast " + fromType + " to " +
+                               n->targetType);
+    }
+
+    return n->targetType;
+  }
+
   default:
     throw std::runtime_error("Unknown expression type");
   }

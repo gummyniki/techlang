@@ -33,6 +33,7 @@ enum class NodeType {
   ArrayLiteral,
   MemberAccess,
   ArrayAccess,
+  Cast,
   Import,
 };
 
@@ -42,6 +43,12 @@ struct ASTNode {
   int line;
   virtual ~ASTNode() = default;
   ASTNode(NodeType t, int line) : type(t), line(line) {}
+};
+
+struct CastNode : ASTNode {
+  std::unique_ptr<ASTNode> value;
+  std::string targetType;
+  CastNode(int line) : ASTNode(NodeType::Cast, line) {}
 };
 
 // the root of the whole program

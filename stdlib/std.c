@@ -13,6 +13,4 @@ int tec_readInt()           { int x; scanf("%d", &x); return x; }
 float tec_readFloat() { float x; scanf("%f", &x); return x; };
 
 float tec_sqrt(float x)      { return sqrtf(x); }
-int tec_cast_float_int(float x) { return (int) x; };
-float tec_cast_int_float(int x) { return (float) x; };
-char tec_cast_int_char(int x) { return (char) x; };
+

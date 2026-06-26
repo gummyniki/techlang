@@ -46,6 +46,7 @@ public:
   std::unique_ptr<ASTNode> parseAnd();
   std::unique_ptr<ASTNode> parsePostfix(std::unique_ptr<ASTNode> left);
   std::unique_ptr<ASTNode> parseMulDiv();
+  std::unique_ptr<ASTNode> parseCast();
   std::unique_ptr<ASTNode> parseUnary();
   std::unique_ptr<ASTNode> parsePrimary();
 };
