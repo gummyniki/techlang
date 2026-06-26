@@ -811,11 +811,6 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
       throw std::runtime_error("Print function not found: " + printFunc);
     }
 
-    // float needs promotion to double for printf
-    if (argType->isFloatTy()) {
-      arg = builder.CreateFPExt(arg, llvm::Type::getDoubleTy(context), "fpext");
-    }
-
     bool isVoid = func->getReturnType()->isVoidTy();
     return builder.CreateCall(func, {arg}, isVoid ? "" : "calltmp");
   }

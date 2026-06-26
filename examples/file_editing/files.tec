@@ -1,0 +1,20 @@
+!import(std.tec) as std;
+
+function main() returns none {
+    // write to a file
+    any f = std.file_open("hello.txt", "w");
+    std.file_write(f, "Hello from Techlang!\n");
+    std.file_write(f, "File I/O works!\n");
+    std.file_close(f);
+
+    // read it back
+    any f2 = std.file_open("hello.txt", "r");
+    while (std.file_eof(f2) == 0) {
+        string line = std.file_read_line(f2);
+        std.print(line);
+    }
+    std.file_close(f2);
+
+    // clean up
+    std.file_delete("hello.txt");
+}

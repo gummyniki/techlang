@@ -2,7 +2,6 @@
 // empty bodies with extern "..." link to the C implementations in std.c
 
 
-// explicit type for print
 function print_newline() returns none extern "tec_print_newline";
 function print_int(int x) returns none extern "tec_print_int";
 function print_float(float x) returns none extern "tec_print_float";
@@ -11,7 +10,19 @@ function print_char(char c) returns none extern "tec_print_char";
 function print_bool(bool c) returns none extern "tec_print_bool";
 
 function exit(int code) returns none extern "tec_exit";
+
 function read_int() returns int extern "tec_readInt";
 function read_float() returns float extern "tec_readFloat";
+
 function sqrt(float x) returns float extern "tec_sqrt";
 
+
+
+// file operations
+// "file" is just a PointerOf(none) — an opaque handle like FILE* in C
+function file_open(string path, string mode) returns any extern "tec_file_open";
+function file_close(any file) returns none extern "tec_file_close";
+function file_write(any file, string text) returns none extern "tec_file_write";
+function file_read_line(any file) returns string extern "tec_file_read_line";
+function file_eof(any file) returns int extern "tec_file_eof";
+function file_delete(string path) returns none extern "tec_file_delete";

@@ -23,4 +23,5 @@ function main() returns none {
     std.print_int(a); // 20
     std.print_newline();
     std.print_int(b); // 10
+    
 }

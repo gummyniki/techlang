@@ -123,6 +123,14 @@ import(std.tec) as std; // the std file has to actually exist in your current di
 | `std.cast_int_char(int x)` | Cast int to char |
 | `std.exit(int code)` | Exit the program |
 
+
+## Editor Support
+
+| Editor | Plugin | Status |
+|---|---|---|
+| VS Code | [techlang-vscode](https://open-vsx.org/extension/gummyniki/techlang) | ✅ Available |
+| Neovim | [techlang-nvim](https://github.com/gummyniki/techlang-nvim) | ✅ Available |
+
 ## Roadmap
 
 - [x] Basic types (int, float, double, char, string, bool)

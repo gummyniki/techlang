@@ -17,8 +17,8 @@ function main() returns none {
     rectangle r;
     r.width = 5.0;
     r.height = 3.0;
-    std.print_string("Area:\n");
-    std.print_float(area(r));
-    std.print_string("\nPerimeter:\n");
-    std.print_float(perimeter(r));
+    std.print("Area:\n");
+    std.print(area(r));
+    std.print("\nPerimeter:\n");
+    std.print(perimeter(r));
 }
