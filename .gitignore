@@ -1,0 +1,39 @@
+# Build directory
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# Compiled binaries
+*.o
+*.a
+*.so
+*.out
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+install_manifest.txt
+
+# Techlang compiled output
+*.ll
+examples/hello
+examples/fibonacci
+examples/structs
+examples/enums
+examples/pointers
+examples/arrays
+examples/imports/main
+
+# VS Code
+.vscode/
+
+# IDE files
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Compiled std library
+std.o

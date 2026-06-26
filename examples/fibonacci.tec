@@ -1,0 +1,15 @@
+!import(std.tec) as std;
+
+function fibonacci(int n) returns int {
+    if (n <= 1) do {
+        return n;
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+function main() returns none {
+    for (int i = 0, i < 10, i += 1) do {
+        std.print_int(fibonacci(i));
+	std.print_newline();
+    }
+}

@@ -1,8 +1,9 @@
-#include "import_rezolver.h"
-#include "ir_generator.h"
-#include "lexer.h"
-#include "parser.h"
-#include "semantic_analyzer.h"
+#include "analysis/semantic_analyzer.h"
+#include "backend/ir_generator.h"
+#include "debug/error.h"
+#include "frontend/import_resolver.h"
+#include "frontend/lexer.h"
+#include "frontend/parser.h"
 
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/MC/TargetRegistry.h"
@@ -92,7 +93,7 @@ void compileToObject(llvm::Module *module, const std::string &outputPath) {
 void linkToExecutable(const std::string &objPath, const std::string &exePath,
                       const std::string &compilerDir) {
 
-  std::string stdLib = compilerDir + "/std.o";
+  std::string stdLib = compilerDir + "/stdlib.o";
 
   // check std.o actually exists
   if (!std::filesystem::exists(stdLib)) {
@@ -117,15 +118,17 @@ int main(int argc, char *argv[]) {
 
   // get the directory the compiler binary lives in
   std::string compilerDir =
-      std::filesystem::path(argv[0]).parent_path().string();
+      std::filesystem::canonical(std::filesystem::path(argv[0]).parent_path())
+          .string();
 
   std::string inputPath = argv[1];
   std::string outputPath = getOutputName(inputPath);
 
+  std::string source;
   try {
     // 1. read source file
     std::cout << "Reading " << inputPath << "...\n";
-    std::string source = readFile(inputPath);
+    source = readFile(inputPath);
 
     // 2. lex
     std::cout << "Lexing...\n";
@@ -137,8 +140,8 @@ int main(int argc, char *argv[]) {
     Parser parser(tokens);
     auto ast = parser.parse();
 
-    std::string baseDir = std::filesystem::path(inputPath).parent_path();
-    ImportResolver resolver(baseDir);
+    ImportResolver resolver(
+        std::filesystem::path(inputPath).parent_path().string(), compilerDir);
     resolver.resolve(ast.get());
 
     // 4. semantic analysis
@@ -164,6 +167,23 @@ int main(int argc, char *argv[]) {
 
     std::cout << "Done! Binary: ./" << outputPath << "\n";
 
+  } catch (CompileError &e) {
+    std::cerr << "Error on line " << e.line << ": " << e.message << "\n";
+
+    // split source into lines and show the offending line with a pointer
+    std::vector<std::string> lines;
+    std::istringstream stream(source);
+    std::string ln;
+    while (std::getline(stream, ln))
+      lines.push_back(ln);
+
+    if (e.line >= 1 && e.line <= (int)lines.size()) {
+      std::cerr << "  " << lines[e.line - 1] << "\n";
+      if (e.column >= 1)
+        std::cerr << "  " << std::string(e.column - 1, ' ') << "^\n";
+    }
+
+    return 1;
   } catch (std::runtime_error &e) {
     std::cerr << "Error: " << e.what() << "\n";
     return 1;

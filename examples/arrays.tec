@@ -1,0 +1,20 @@
+!import(std.tec) as std;
+
+
+function sumArray(ArrayOf(int) arr, int size) returns int {
+    int sum = 0;
+    for (int i = 0, i < size, i += 1) do {
+        sum += arr[i];
+    }
+    return sum;
+}
+
+function main() returns none {
+    ArrayOf(int) nums = {1, 2, 3, 4, 5};
+    std.print_string("Sum:\n");
+    std.print_int(sumArray(nums, 5));
+    std.print_string("\nFirst element:\n");
+    std.print_int(nums[0]);
+    std.print_string("\nLast element:\n");
+    std.print_int(nums[4]);
+}

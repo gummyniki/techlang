@@ -123,6 +123,12 @@ struct StringLiteralNode : ASTNode {
       : ASTNode(NodeType::StringLiteral, line), value(v) {}
 };
 
+struct CharLiteralNode : ASTNode {
+  char value;
+  CharLiteralNode(char v, int line)
+      : ASTNode(NodeType::CharLiteral, line), value(v) {}
+};
+
 struct BoolLiteralNode : ASTNode {
   bool value;
   BoolLiteralNode(bool v, int line)

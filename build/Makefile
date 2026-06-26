@@ -129,114 +129,149 @@ techlang/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/build
 .PHONY : techlang/fast
 
-#=============================================================================
-# Target rules for targets named stdlib
-
-# Build rule for target.
-stdlib: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 stdlib
-.PHONY : stdlib
-
-# fast build rule for target.
-stdlib/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/stdlib.dir/build.make CMakeFiles/stdlib.dir/build
-.PHONY : stdlib/fast
-
-src/ast_printer.o: src/ast_printer.cpp.o
-.PHONY : src/ast_printer.o
+src/analysis/semantic_analyzer.o: src/analysis/semantic_analyzer.cpp.o
+.PHONY : src/analysis/semantic_analyzer.o
 
 # target to build an object file
-src/ast_printer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ast_printer.cpp.o
-.PHONY : src/ast_printer.cpp.o
+src/analysis/semantic_analyzer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o
+.PHONY : src/analysis/semantic_analyzer.cpp.o
 
-src/ast_printer.i: src/ast_printer.cpp.i
-.PHONY : src/ast_printer.i
+src/analysis/semantic_analyzer.i: src/analysis/semantic_analyzer.cpp.i
+.PHONY : src/analysis/semantic_analyzer.i
 
 # target to preprocess a source file
-src/ast_printer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ast_printer.cpp.i
-.PHONY : src/ast_printer.cpp.i
+src/analysis/semantic_analyzer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.i
+.PHONY : src/analysis/semantic_analyzer.cpp.i
 
-src/ast_printer.s: src/ast_printer.cpp.s
-.PHONY : src/ast_printer.s
+src/analysis/semantic_analyzer.s: src/analysis/semantic_analyzer.cpp.s
+.PHONY : src/analysis/semantic_analyzer.s
 
 # target to generate assembly for a file
-src/ast_printer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ast_printer.cpp.s
-.PHONY : src/ast_printer.cpp.s
+src/analysis/semantic_analyzer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.s
+.PHONY : src/analysis/semantic_analyzer.cpp.s
 
-src/import_rezolver.o: src/import_rezolver.cpp.o
-.PHONY : src/import_rezolver.o
+src/backend/ir_generator.o: src/backend/ir_generator.cpp.o
+.PHONY : src/backend/ir_generator.o
 
 # target to build an object file
-src/import_rezolver.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.o
-.PHONY : src/import_rezolver.cpp.o
+src/backend/ir_generator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o
+.PHONY : src/backend/ir_generator.cpp.o
 
-src/import_rezolver.i: src/import_rezolver.cpp.i
-.PHONY : src/import_rezolver.i
+src/backend/ir_generator.i: src/backend/ir_generator.cpp.i
+.PHONY : src/backend/ir_generator.i
 
 # target to preprocess a source file
-src/import_rezolver.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.i
-.PHONY : src/import_rezolver.cpp.i
+src/backend/ir_generator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.i
+.PHONY : src/backend/ir_generator.cpp.i
 
-src/import_rezolver.s: src/import_rezolver.cpp.s
-.PHONY : src/import_rezolver.s
+src/backend/ir_generator.s: src/backend/ir_generator.cpp.s
+.PHONY : src/backend/ir_generator.s
 
 # target to generate assembly for a file
-src/import_rezolver.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/import_rezolver.cpp.s
-.PHONY : src/import_rezolver.cpp.s
+src/backend/ir_generator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.s
+.PHONY : src/backend/ir_generator.cpp.s
 
-src/ir_generator.o: src/ir_generator.cpp.o
-.PHONY : src/ir_generator.o
+src/debug/ast_printer.o: src/debug/ast_printer.cpp.o
+.PHONY : src/debug/ast_printer.o
 
 # target to build an object file
-src/ir_generator.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.o
-.PHONY : src/ir_generator.cpp.o
+src/debug/ast_printer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o
+.PHONY : src/debug/ast_printer.cpp.o
 
-src/ir_generator.i: src/ir_generator.cpp.i
-.PHONY : src/ir_generator.i
+src/debug/ast_printer.i: src/debug/ast_printer.cpp.i
+.PHONY : src/debug/ast_printer.i
 
 # target to preprocess a source file
-src/ir_generator.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.i
-.PHONY : src/ir_generator.cpp.i
+src/debug/ast_printer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.i
+.PHONY : src/debug/ast_printer.cpp.i
 
-src/ir_generator.s: src/ir_generator.cpp.s
-.PHONY : src/ir_generator.s
+src/debug/ast_printer.s: src/debug/ast_printer.cpp.s
+.PHONY : src/debug/ast_printer.s
 
 # target to generate assembly for a file
-src/ir_generator.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/ir_generator.cpp.s
-.PHONY : src/ir_generator.cpp.s
+src/debug/ast_printer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.s
+.PHONY : src/debug/ast_printer.cpp.s
 
-src/lexer.o: src/lexer.cpp.o
-.PHONY : src/lexer.o
+src/frontend/import_resolver.o: src/frontend/import_resolver.cpp.o
+.PHONY : src/frontend/import_resolver.o
 
 # target to build an object file
-src/lexer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/lexer.cpp.o
-.PHONY : src/lexer.cpp.o
+src/frontend/import_resolver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o
+.PHONY : src/frontend/import_resolver.cpp.o
 
-src/lexer.i: src/lexer.cpp.i
-.PHONY : src/lexer.i
+src/frontend/import_resolver.i: src/frontend/import_resolver.cpp.i
+.PHONY : src/frontend/import_resolver.i
 
 # target to preprocess a source file
-src/lexer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/lexer.cpp.i
-.PHONY : src/lexer.cpp.i
+src/frontend/import_resolver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.i
+.PHONY : src/frontend/import_resolver.cpp.i
 
-src/lexer.s: src/lexer.cpp.s
-.PHONY : src/lexer.s
+src/frontend/import_resolver.s: src/frontend/import_resolver.cpp.s
+.PHONY : src/frontend/import_resolver.s
 
 # target to generate assembly for a file
-src/lexer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/lexer.cpp.s
-.PHONY : src/lexer.cpp.s
+src/frontend/import_resolver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.s
+.PHONY : src/frontend/import_resolver.cpp.s
+
+src/frontend/lexer.o: src/frontend/lexer.cpp.o
+.PHONY : src/frontend/lexer.o
+
+# target to build an object file
+src/frontend/lexer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.o
+.PHONY : src/frontend/lexer.cpp.o
+
+src/frontend/lexer.i: src/frontend/lexer.cpp.i
+.PHONY : src/frontend/lexer.i
+
+# target to preprocess a source file
+src/frontend/lexer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.i
+.PHONY : src/frontend/lexer.cpp.i
+
+src/frontend/lexer.s: src/frontend/lexer.cpp.s
+.PHONY : src/frontend/lexer.s
+
+# target to generate assembly for a file
+src/frontend/lexer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.s
+.PHONY : src/frontend/lexer.cpp.s
+
+src/frontend/parser.o: src/frontend/parser.cpp.o
+.PHONY : src/frontend/parser.o
+
+# target to build an object file
+src/frontend/parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.o
+.PHONY : src/frontend/parser.cpp.o
+
+src/frontend/parser.i: src/frontend/parser.cpp.i
+.PHONY : src/frontend/parser.i
+
+# target to preprocess a source file
+src/frontend/parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.i
+.PHONY : src/frontend/parser.cpp.i
+
+src/frontend/parser.s: src/frontend/parser.cpp.s
+.PHONY : src/frontend/parser.s
+
+# target to generate assembly for a file
+src/frontend/parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.s
+.PHONY : src/frontend/parser.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -262,54 +297,6 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
-src/parser.o: src/parser.cpp.o
-.PHONY : src/parser.o
-
-# target to build an object file
-src/parser.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/parser.cpp.o
-.PHONY : src/parser.cpp.o
-
-src/parser.i: src/parser.cpp.i
-.PHONY : src/parser.i
-
-# target to preprocess a source file
-src/parser.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/parser.cpp.i
-.PHONY : src/parser.cpp.i
-
-src/parser.s: src/parser.cpp.s
-.PHONY : src/parser.s
-
-# target to generate assembly for a file
-src/parser.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/parser.cpp.s
-.PHONY : src/parser.cpp.s
-
-src/semantic_analyzer.o: src/semantic_analyzer.cpp.o
-.PHONY : src/semantic_analyzer.o
-
-# target to build an object file
-src/semantic_analyzer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o
-.PHONY : src/semantic_analyzer.cpp.o
-
-src/semantic_analyzer.i: src/semantic_analyzer.cpp.i
-.PHONY : src/semantic_analyzer.i
-
-# target to preprocess a source file
-src/semantic_analyzer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.i
-.PHONY : src/semantic_analyzer.cpp.i
-
-src/semantic_analyzer.s: src/semantic_analyzer.cpp.s
-.PHONY : src/semantic_analyzer.s
-
-# target to generate assembly for a file
-src/semantic_analyzer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.s
-.PHONY : src/semantic_analyzer.cpp.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -318,29 +305,28 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... stdlib"
 	@echo "... techlang"
-	@echo "... src/ast_printer.o"
-	@echo "... src/ast_printer.i"
-	@echo "... src/ast_printer.s"
-	@echo "... src/import_rezolver.o"
-	@echo "... src/import_rezolver.i"
-	@echo "... src/import_rezolver.s"
-	@echo "... src/ir_generator.o"
-	@echo "... src/ir_generator.i"
-	@echo "... src/ir_generator.s"
-	@echo "... src/lexer.o"
-	@echo "... src/lexer.i"
-	@echo "... src/lexer.s"
+	@echo "... src/analysis/semantic_analyzer.o"
+	@echo "... src/analysis/semantic_analyzer.i"
+	@echo "... src/analysis/semantic_analyzer.s"
+	@echo "... src/backend/ir_generator.o"
+	@echo "... src/backend/ir_generator.i"
+	@echo "... src/backend/ir_generator.s"
+	@echo "... src/debug/ast_printer.o"
+	@echo "... src/debug/ast_printer.i"
+	@echo "... src/debug/ast_printer.s"
+	@echo "... src/frontend/import_resolver.o"
+	@echo "... src/frontend/import_resolver.i"
+	@echo "... src/frontend/import_resolver.s"
+	@echo "... src/frontend/lexer.o"
+	@echo "... src/frontend/lexer.i"
+	@echo "... src/frontend/lexer.s"
+	@echo "... src/frontend/parser.o"
+	@echo "... src/frontend/parser.i"
+	@echo "... src/frontend/parser.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
-	@echo "... src/parser.o"
-	@echo "... src/parser.i"
-	@echo "... src/parser.s"
-	@echo "... src/semantic_analyzer.o"
-	@echo "... src/semantic_analyzer.i"
-	@echo "... src/semantic_analyzer.s"
 .PHONY : help
 
 

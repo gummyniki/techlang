@@ -1,0 +1,24 @@
+!import(std.tec) as std;
+
+struct rectangle = {
+    float width;
+    float height;
+}
+
+function area(rectangle r) returns float {
+    return r.width * r.height;
+}
+
+function perimeter(rectangle r) returns float {
+    return 2.0 * (r.width + r.height);
+}
+
+function main() returns none {
+    rectangle r;
+    r.width = 5.0;
+    r.height = 3.0;
+    std.print_string("Area:\n");
+    std.print_float(area(r));
+    std.print_string("\nPerimeter:\n");
+    std.print_float(perimeter(r));
+}

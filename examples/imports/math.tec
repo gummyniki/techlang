@@ -1,0 +1,21 @@
+function add(int a, int b) returns int {
+    return a + b;
+}
+
+function multiply(int a, int b) returns int {
+    return a * b;
+}
+
+function abs(int x) returns int {
+    if (x < 0) do {
+        return -x;
+    }
+    return x;
+}
+
+function max(int a, int b) returns int {
+    if (a > b) do {
+        return a;
+    }
+    return b;
+}

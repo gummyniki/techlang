@@ -2,13 +2,13 @@ techlang: \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/../../../../lib64/Scrt1.o \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/../../../../lib64/crti.o \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/crtbeginS.o \
-  CMakeFiles/techlang.dir/src/ast_printer.cpp.o \
-  CMakeFiles/techlang.dir/src/import_rezolver.cpp.o \
-  CMakeFiles/techlang.dir/src/ir_generator.cpp.o \
-  CMakeFiles/techlang.dir/src/lexer.cpp.o \
+  CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o \
+  CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o \
+  CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o \
+  CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o \
+  CMakeFiles/techlang.dir/src/frontend/lexer.cpp.o \
+  CMakeFiles/techlang.dir/src/frontend/parser.cpp.o \
   CMakeFiles/techlang.dir/src/main.cpp.o \
-  CMakeFiles/techlang.dir/src/parser.cpp.o \
-  CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o \
   /usr/lib/llvm/21/lib64/libLLVM-21.so \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/libstdc++.so \
   /usr/lib/gcc/x86_64-pc-linux-gnu/15/../../../../lib64/libm.so \
@@ -47,19 +47,19 @@ techlang: \
 
 /usr/lib/gcc/x86_64-pc-linux-gnu/15/crtbeginS.o:
 
-CMakeFiles/techlang.dir/src/ast_printer.cpp.o:
+CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o:
 
-CMakeFiles/techlang.dir/src/import_rezolver.cpp.o:
+CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o:
 
-CMakeFiles/techlang.dir/src/ir_generator.cpp.o:
+CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o:
 
-CMakeFiles/techlang.dir/src/lexer.cpp.o:
+CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o:
+
+CMakeFiles/techlang.dir/src/frontend/lexer.cpp.o:
+
+CMakeFiles/techlang.dir/src/frontend/parser.cpp.o:
 
 CMakeFiles/techlang.dir/src/main.cpp.o:
-
-CMakeFiles/techlang.dir/src/parser.cpp.o:
-
-CMakeFiles/techlang.dir/src/semantic_analyzer.cpp.o:
 
 /usr/lib/llvm/21/lib64/libLLVM-21.so:
 

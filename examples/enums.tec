@@ -1,0 +1,22 @@
+!import(std.tec) as std;
+
+enum direction = {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
+}
+
+function describeDirection(int d) returns none {
+    if (d == NORTH) do { std.print_string("Going north!\n"); }
+    if (d == SOUTH) do { std.print_string("Going south!\n"); }
+    if (d == EAST)  do { std.print_string("Going east!\n"); }
+    if (d == WEST)  do { std.print_string("Going west!\n"); }
+}
+
+function main() returns none {
+    describeDirection(NORTH);
+    describeDirection(EAST);
+    describeDirection(SOUTH);
+    describeDirection(WEST);
+}

@@ -1,0 +1,12 @@
+!import(std.tec) as std;
+!import(math.tec) as math;
+
+function main() returns none {
+    std.print_int(math.add(3, 4));
+    std.print_newline();
+    std.print_int(math.multiply(3, 4));
+    std.print_newline();
+    std.print_int(math.abs(-42));
+    std.print_newline();
+    std.print_int(math.max(10, 20));
+}

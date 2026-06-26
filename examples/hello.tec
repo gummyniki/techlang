@@ -1,0 +1,5 @@
+!import(std.tec) as std;
+
+function main() returns none {
+    std.print_string("Hello, World!");
+}

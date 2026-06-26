@@ -1,4 +1,3 @@
 /home/gummy/projects/techlang/build/CMakeFiles/techlang.dir
-/home/gummy/projects/techlang/build/CMakeFiles/stdlib.dir
 /home/gummy/projects/techlang/build/CMakeFiles/edit_cache.dir
 /home/gummy/projects/techlang/build/CMakeFiles/rebuild_cache.dir
