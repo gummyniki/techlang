@@ -1,5 +1,7 @@
 # Techlang 🔧
 
+[![Release](https://img.shields.io/github/v/release/gummyniki/techlang?include_prereleases)](https://github.com/gummyniki/techlang/releases)
+
 A compiled, statically typed programming language with familiar C-like syntax
 and modern features. Techlang compiles directly to native binaries via LLVM.
 
@@ -44,6 +46,13 @@ Output:
 
 
 ## Installation
+
+**Quick install (Linux x64):**
+```bash
+wget https://github.com/gummyniki/techlang/releases/download/v0.1.0-alpha/techlang-linux-x64.tar.gz
+tar -xzf techlang-linux-x64.tar.gz
+cd techlang-linux-x64 && ./install.sh
+```
 
 ### Requirements
 - LLVM 17+
