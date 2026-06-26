@@ -344,10 +344,11 @@ std::unique_ptr<ASTNode> Parser::parseFunctionDeclaration() {
     node->externSymbol = expect(TokenType::STRING_LITERAL,
                                 "expected C symbol name after 'extern'")
                              .value;
+    expect(TokenType::SEMICOLON, "expected ';' after C function name");
+  } else {
+
+    node->body = parseBlock();
   }
-
-  node->body = parseBlock();
-
   return node;
 }
 
@@ -359,7 +360,6 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
   expect(TokenType::LPAREN, "expected '(' after if keyword");
   node->condition = parseComparison();
   expect(TokenType::RPAREN, "expected ')' after condition");
-  expect(TokenType::KW_DO, "expected 'do' after condition end");
   node->thenBlock = parseBlock();
 
   if (current().type == TokenType::KW_ELSE) {
@@ -398,7 +398,6 @@ std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
   expect(TokenType::LBRACE, "expected '(' after loop declaration");
   node->condition = parseComparison();
   expect(TokenType::RBRACE, "expected ')' after condition");
-  expect(TokenType::KW_DO, "expected 'do' after condition end");
   node->body = parseBlock();
   return node;
 }
@@ -427,7 +426,6 @@ std::unique_ptr<ASTNode> Parser::parseForStatement() {
   node->increment = std::move(increment);
 
   expect(TokenType::RPAREN, "expected ')' after for clauses");
-  expect(TokenType::KW_DO, "expected 'do' after for header");
   node->body = parseBlock();
 
   return node;

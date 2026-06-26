@@ -1,18 +1,18 @@
 // std.tec - Techlang Standard Library
 // empty bodies with extern "..." link to the C implementations in std.c
 
-function print_newline() returns none extern "tec_print_newline" {}
-function print_int(int x) returns none extern "tec_print_int" {}
-function print_float(float x) returns none extern "tec_print_float" {}
-function print_string(string s) returns none extern "tec_print_string" {}
-function print_char(char c) returns none extern "tec_print_char" {}
-function print_bool(bool c) returns none extern "tec_print_bool" {}
-function exit(int code) returns none extern "tec_exit" {}
-function read_int() returns int extern "tec_readInt" {}
-function read_float() returns float extern "tec_readFloat" {}
-function sqrt(float x) returns float extern "tec_sqrt" {}
-function cast_float_int(float x) returns int extern "tec_cast_float_int" {}
-function cast_int_float(int x) returns float extern "tec_cast_int_float" {}
-function cast_int_char(int x) returns char extern "tec_cast_int_char" {}
+function print_newline() returns none extern "tec_print_newline";
+function print_int(int x) returns none extern "tec_print_int";
+function print_float(float x) returns none extern "tec_print_float";
+function print_string(string s) returns none extern "tec_print_string";
+function print_char(char c) returns none extern "tec_print_char";
+function print_bool(bool c) returns none extern "tec_print_bool";
+function exit(int code) returns none extern "tec_exit";
+function read_int() returns int extern "tec_readInt";
+function read_float() returns float extern "tec_readFloat";
+function sqrt(float x) returns float extern "tec_sqrt";
+function cast_float_int(float x) returns int extern "tec_cast_float_int";
+function cast_int_float(int x) returns float extern "tec_cast_int_float";
+function cast_int_char(int x) returns char extern "tec_cast_int_char";
 
 

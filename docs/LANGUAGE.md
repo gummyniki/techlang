@@ -134,9 +134,9 @@ bool b = !true; // logical not
 ### If / Else
 
 ```techlang
-if (x > 0) do {
+if (x > 0) {
     std.print_string("positive");
-} else do {
+} else {
     std.print_string("not positive");
 }
 ```
@@ -144,7 +144,7 @@ if (x > 0) do {
 ### While
 
 ```techlang
-while (x > 0) do {
+while (x > 0) {
     x -= 1;
 }
 ```
@@ -152,7 +152,7 @@ while (x > 0) do {
 ### For
 
 ```techlang
-for (int i = 0, i < 10, i += 1) do {
+for (int i = 0, i < 10, i += 1) {
     std.print_int(i);
 }
 ```
@@ -194,7 +194,7 @@ function greet(string name) returns none {
 
 ```techlang
 function fibonacci(int n) returns int {
-    if (n <= 1) do {
+    if (n <= 1) {
         return n;
     }
     return fibonacci(n - 1) + fibonacci(n - 2);
@@ -233,7 +233,7 @@ nums[0] = 10;
 ```techlang
 function sum(ArrayOf(int) arr, int size) returns int {
     int total = 0;
-    for (int i = 0, i < size, i += 1) do {
+    for (int i = 0, i < size, i += 1) {
         total += arr[i];
     }
     return total;
@@ -347,7 +347,7 @@ Enum values are integers and can be used anywhere an int is expected:
 ```techlang
 int d = NORTH;
 
-if (d == NORTH) do {
+if (d == NORTH) {
     std.print_string("Going north!");
 }
 ```
@@ -381,7 +381,7 @@ The recommended pattern for error handling is returning error codes:
 
 ```techlang
 function divide(int a, int b) returns int {
-    if (b == 0) do {
+    if (b == 0) {
         std.exit(1); // exit with error code
     }
     return a / b;
