@@ -17,4 +17,6 @@ function main() returns none {
     std.print(nums[0]);
     std.print("\nLast element:\n");
     std.print(nums[4]);
+    std.print("\nArray size:\n");
+    std.print(nums.length);
 }

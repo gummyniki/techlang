@@ -186,6 +186,10 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
     auto *n = static_cast<MemberAccessNode *>(node);
     std::string objectType = analyzeExpression(n->object.get());
 
+    if (n->member == "length" && objectType.substr(0, 7) == "ArrayOf") {
+      return "int";
+    }
+
     if (!structTable.count(objectType)) {
       throw CompileError("'" + objectType + "' is not a struct type", n->line);
     }

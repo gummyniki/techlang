@@ -40,6 +40,7 @@ A complete reference for the Techlang programming language.
 | `bool` | Boolean value | `true` or `false` |
 | `ArrayOf(T)` | Array of type T | `{1, 2, 3}` |
 | `PointerOf(T)` | Pointer to type T | `std.addressOf(x)` |
+| `any` | Pointer to an integer, can cast to any type | `42, 42.1, 'a', "hello", etc.` |
 
 ### Base Values
 
@@ -125,6 +126,14 @@ bool c = !true;         // false
 ```techlang
 int x = -5;   // negation
 bool b = !true; // logical not
+```
+
+## Casting
+```
+ float x = 3.14;
+ int y = x as int // 3
+
+ // variable of type 'any' can cast to all types
 ```
 
 ---
@@ -226,6 +235,13 @@ ArrayOf(string) words = {"hello", "world"};
 ```techlang
 int first = nums[0];
 nums[0] = 10;
+```
+
+### Methods
+```
+ArrayOf(int) x = {1, 2, 3, 4};
+
+print(x.length); // 4
 ```
 
 ### Passing to Functions
@@ -388,6 +404,26 @@ function divide(int a, int b) returns int {
 }
 ```
 
+## I/O
+```
+any f = std.file_open("hello.txt", "w"); // files are always of type 'any'
+
+std.file_write(f, "Hello from Techlang!\n");
+std.file_write(f, "File I/O works!\n");
+
+std.file_close(f);
+
+
+any f2 = std.file_open("hello.txt", "r");
+string line = std.file_read_line(f2);
+print(line); // "Hello from Techlang!"
+
+std.file_close(f2);
+
+std.file_delete("hello.txt");
+```
+
+
 ---
 
 ## Standard Library
@@ -418,13 +454,21 @@ float f = std.read_float();
 float s = std.sqrt(16.0); // 4.0
 ```
 
-### Casting
-
-```techlang
-float f = std.cast_int_float(42);   // 42.0
-int i = std.cast_float_int(3.14);   // 3
-char c = std.cast_int_char(65);     // 'A'
+### I/O
 ```
+any f = std.file_open("hello.txt", "w");
+std.file_write(f, "Hello from Techlang!\n");
+std.file_write(f, "File I/O works!\n");
+std.file_close(f);
+
+any f2 = std.file_open("hello.txt", "r");
+string line = std.file_read_line(f2);
+
+int eof = std.file_eof(f); // returns 1 if the file ended
+
+std.file_close(f2);
+```
+
 
 ### Pointers
 

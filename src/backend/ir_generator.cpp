@@ -683,6 +683,15 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
     if (n->object->type == NodeType::Identifier) {
       auto *ident = static_cast<IdentifierNode *>(n->object.get());
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
+
+      if (n->member == "length" && alloca->getAllocatedType()->isArrayTy()) {
+        uint64_t size =
+            static_cast<llvm::ArrayType *>(alloca->getAllocatedType())
+                ->getNumElements();
+        return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), size,
+                                      true);
+      }
+
       llvm::StructType *structType =
           static_cast<llvm::StructType *>(alloca->getAllocatedType());
 
