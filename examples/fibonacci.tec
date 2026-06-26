@@ -9,7 +9,7 @@ function fibonacci(int n) returns int {
 
 function main() returns none {
     for (int i = 0, i < 10, i += 1) {
-        std.print_int(fibonacci(i));
+        std.print(fibonacci(i));
 	std.print_newline();
     }
 }

@@ -204,6 +204,7 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       current().type == TokenType::KW_STRING ||
       current().type == TokenType::KW_BOOL ||
       current().type == TokenType::KW_CHAR ||
+      current().type == TokenType::KW_ANY ||
       current().type == TokenType::KW_ARRAYOF ||
       current().type == TokenType::KW_POINTEROF) {
     std::string dataType = parseType();

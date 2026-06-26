@@ -8,10 +8,10 @@ enum direction = {
 }
 
 function describeDirection(int d) returns none {
-    if (d == NORTH) { std.print_string("Going north!\n"); }
-    if (d == SOUTH) { std.print_string("Going south!\n"); }
-    if (d == EAST) { std.print_string("Going east!\n"); }
-    if (d == WEST) { std.print_string("Going west!\n"); }
+    if (d == NORTH) { std.print("Going north!\n"); }
+    if (d == SOUTH) { std.print("Going south!\n"); }
+    if (d == EAST) { std.print("Going east!\n"); }
+    if (d == WEST) { std.print("Going west!\n"); }
 }
 
 function main() returns none {

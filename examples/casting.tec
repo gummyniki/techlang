@@ -1,19 +1,27 @@
 !import(std.tec) as std;
 
+function print_any(any x, bool isFloat) returns none {
+    if (isFloat) {
+	std.print_float(x as float);
+    } else {
+	std.print_int(x as int);
+    }
+}
+
 function main() returns none {
     int x = 42;
     float f = x as float;
-    std.print_float(f); // 42.000000
+    print_any(f, true); // 42.000000
 
     std.print_newline();
 
     float pi = 3.14;
     int i = pi as int;
-    std.print_int(i); // 3
+    print_any(i, false); // 3
 
     std.print_newline();
 
     int code = 65;
     char c = code as char;
-    std.print_char(c); // A
+    std.print(c); // A
 }

@@ -35,6 +35,7 @@ enum class TokenType {
   KW_NONE,
   KW_IMPORT,
   KW_AS,
+  KW_ANY,
   KW_FIXED,
   KW_ARRAYOF,
   KW_POINTEROF,
@@ -81,6 +82,7 @@ enum class TokenType {
 };
 
 static std::unordered_map<std::string, TokenType> keywords = {
+    {"any", TokenType::KW_ANY},
     {"int", TokenType::KW_INT},
     {"char", TokenType::KW_CHAR},
     {"float", TokenType::KW_FLOAT},

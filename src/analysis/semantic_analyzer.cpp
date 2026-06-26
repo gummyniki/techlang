@@ -243,10 +243,15 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
     bool toNumeric = (n->targetType == "int" || n->targetType == "float" ||
                       n->targetType == "double" || n->targetType == "char");
 
-    if (!fromNumeric || !toNumeric) {
-      throw std::runtime_error("Line " + std::to_string(n->line) +
-                               ": cannot cast " + fromType + " to " +
-                               n->targetType);
+    bool isAny = (fromType == "any");
+
+    if (!isAny) {
+
+      if (!fromNumeric || !toNumeric) {
+        throw std::runtime_error("Line " + std::to_string(n->line) +
+                                 ": cannot cast " + fromType + " to " +
+                                 n->targetType);
+      }
     }
 
     return n->targetType;
@@ -356,6 +361,9 @@ std::string SemanticAnalyzer::analyzeFunctionCall(FunctionCallNode *node) {
 bool SemanticAnalyzer::typesAreCompatible(const std::string &a,
                                           const std::string &b) {
   if (a == b)
+    return true;
+
+  if (a == "any" || b == "any")
     return true;
 
   bool aIsNumeric = (a == "int" || a == "float" || a == "double");

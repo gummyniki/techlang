@@ -50,6 +50,8 @@ llvm::Type *IRGenerator::getLLVMType(const std::string &type) {
     return llvm::Type::getInt8Ty(context);
   if (type == "string")
     return llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0);
+  if (type == "any")
+    return llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0);
 
   if (type.substr(0, 7) == "ArrayOf") {
     std::string innerType = type.substr(8, type.size() - 9);
@@ -606,6 +608,17 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
 
     llvm::Type *srcType = val->getType();
 
+    if (srcType->isPointerTy() && !targetType->isPointerTy()) {
+      return builder.CreateLoad(targetType, val, "anycasttmp");
+    }
+
+    if (!srcType->isPointerTy() && targetType->isPointerTy()) {
+      llvm::AllocaInst *alloca =
+          createEntryAlloca(currentFunction, "anybox", srcType);
+      builder.CreateStore(val, alloca);
+      return builder.CreateBitCast(alloca, targetType, "anyboxtmp");
+    }
+
     if (srcType->isIntegerTy() && targetType->isFloatingPointTy()) {
       return builder.CreateSIToFP(val, targetType, "casttmp");
     }
@@ -773,6 +786,40 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
   // TODO: find a way to connect the std.tec functions to C implementations
   // somehow
 
+  if (node->name == "std.print") {
+    // generate the argument
+    llvm::Value *arg = generateExpression(node->args[0].get());
+    llvm::Type *argType = arg->getType();
+
+    // pick the right print function based on type
+    std::string printFunc;
+    if (argType->isIntegerTy(32))
+      printFunc = "tec_print_int";
+    else if (argType->isFloatTy())
+      printFunc = "tec_print_float";
+    else if (argType->isDoubleTy())
+      printFunc = "tec_print_double";
+    else if (argType->isIntegerTy(1))
+      printFunc = "tec_print_bool";
+    else if (argType->isIntegerTy(8))
+      printFunc = "tec_print_char";
+    else
+      printFunc = "tec_print_string";
+
+    llvm::Function *func = module->getFunction(printFunc);
+    if (!func) {
+      throw std::runtime_error("Print function not found: " + printFunc);
+    }
+
+    // float needs promotion to double for printf
+    if (argType->isFloatTy()) {
+      arg = builder.CreateFPExt(arg, llvm::Type::getDoubleTy(context), "fpext");
+    }
+
+    bool isVoid = func->getReturnType()->isVoidTy();
+    return builder.CreateCall(func, {arg}, isVoid ? "" : "calltmp");
+  }
+
   if (node->name == "std.addressOf") {
     auto *ident = static_cast<IdentifierNode *>(node->args[0].get());
     llvm::AllocaInst *alloca = lookupVariable(ident->name);
@@ -814,8 +861,27 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
   }
 
   std::vector<llvm::Value *> args;
+  int i = 0;
   for (auto &arg : node->args) {
-    args.push_back(generateExpression(arg.get()));
+    llvm::Value *val = generateExpression(arg.get());
+
+    // auto-box if function expects ptr (any) but got concrete value
+    if (i < func->getFunctionType()->getNumParams()) {
+      llvm::Type *expectedType = func->getFunctionType()->getParamType(i);
+      llvm::Type *actualType = val->getType();
+
+      if (expectedType->isPointerTy() && !actualType->isPointerTy()) {
+        llvm::AllocaInst *alloca =
+            createEntryAlloca(currentFunction, "anybox", actualType);
+        builder.CreateStore(val, alloca);
+        val = builder.CreateBitCast(
+            alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+            "anyptr");
+      }
+    }
+
+    args.push_back(val);
+    i++;
   }
 
   bool isVoid = func->getReturnType()->isVoidTy();
