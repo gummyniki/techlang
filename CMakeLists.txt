@@ -14,7 +14,7 @@ find_program(LLVM_CONFIG
 )
 
 if(NOT LLVM_CONFIG)
-    message(FATAL_ERROR "llvm-config not found!")
+  message(FATAL_ERROR "llvm-config not found!")
 endif()
 
 message(STATUS "Using llvm-config: ${LLVM_CONFIG}")
@@ -48,10 +48,12 @@ execute_process(
 )
 
 if(NOT STDLIB_RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to compile standard library!")
+  message(FATAL_ERROR "Failed to compile standard library!")
 else()
-    message(STATUS "Standard library compiled successfully")
+  message(STATUS "Standard library compiled successfully")
 endif()
+
+
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(techlang ${SOURCES})
@@ -63,10 +65,8 @@ target_include_directories(techlang PRIVATE
     src/backend/
 )
 
-set_target_properties(techlang PROPERTIES
-    COMPILE_FLAGS "${LLVM_CXX_FLAGS}"
-    LINK_FLAGS "${LLVM_LD_FLAGS}"
-)
+separate_arguments(LLVM_CXX_FLAGS_LIST UNIX_COMMAND "${LLVM_CXX_FLAGS}")
+separate_arguments(LLVM_LD_FLAGS_LIST UNIX_COMMAND "${LLVM_LD_FLAGS}")
 
 target_link_libraries(techlang
     ${LLVM_LIBRARIES}
@@ -81,3 +81,6 @@ add_custom_command(
         ${CMAKE_BINARY_DIR}/std.tec
     COMMENT "Copying std.tec to build directory..."
 )
+
+target_compile_options(techlang PRIVATE -fexceptions)
+

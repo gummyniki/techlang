@@ -103,7 +103,7 @@ void compileToObject(llvm::Module *module, const std::string &outputPath) {
   // generic CPU, no special features
   llvm::TargetOptions opt;
   llvm::TargetMachine *targetMachine =
-      target->createTargetMachine(targetTriple,
+      target->createTargetMachine(triple,
                                   "generic", // cpu
                                   "",        // features
                                   opt, llvm::Reloc::PIC_);
