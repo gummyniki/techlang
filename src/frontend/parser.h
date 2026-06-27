@@ -39,6 +39,8 @@ public:
   std::vector<std::unique_ptr<ASTNode>> parseBlock();
   std::unique_ptr<ASTNode> parseImport();
 
+  std::unique_ptr<ASTNode> parseKernelDeclaration();
+
   // expressions - broken into levels for operator precedence
   std::unique_ptr<ASTNode> parseExpression();
   std::unique_ptr<ASTNode> parseComparison();

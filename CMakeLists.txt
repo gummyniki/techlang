@@ -30,7 +30,10 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 execute_process(
-    COMMAND ${LLVM_CONFIG} --libs core support object target mc mcparser passes native nativecodegen irreader x86asmparser x86codegen x86desc x86info
+    COMMAND ${LLVM_CONFIG} --libs core support object target mc mcparser
+            passes native nativecodegen irreader
+            x86asmparser x86codegen x86desc x86info
+            nvptx nvptxcodegen nvptxdesc nvptxinfo
     OUTPUT_VARIABLE LLVM_LIBRARIES
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -53,9 +56,14 @@ else()
   message(STATUS "Standard library compiled successfully")
 endif()
 
+separate_arguments(LLVM_CXX_FLAGS_LIST UNIX_COMMAND "${LLVM_CXX_FLAGS}")
+separate_arguments(LLVM_LD_FLAGS_LIST UNIX_COMMAND "${LLVM_LD_FLAGS}")
 
-
+# ✅ Techlang compiler — exclude vectec files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
+list(FILTER SOURCES EXCLUDE REGEX ".*vectec_main\\.cpp")
+list(FILTER SOURCES EXCLUDE REGEX ".*gpu_generator\\.cpp")
+
 add_executable(techlang ${SOURCES})
 
 target_include_directories(techlang PRIVATE
@@ -65,9 +73,8 @@ target_include_directories(techlang PRIVATE
     src/backend/
 )
 
-separate_arguments(LLVM_CXX_FLAGS_LIST UNIX_COMMAND "${LLVM_CXX_FLAGS}")
-separate_arguments(LLVM_LD_FLAGS_LIST UNIX_COMMAND "${LLVM_LD_FLAGS}")
-
+target_compile_options(techlang PRIVATE ${LLVM_CXX_FLAGS_LIST} -fexceptions)
+target_link_options(techlang PRIVATE ${LLVM_LD_FLAGS_LIST})
 target_link_libraries(techlang
     ${LLVM_LIBRARIES}
     ${LLVM_SYSTEM_LIBS}
@@ -82,5 +89,29 @@ add_custom_command(
     COMMENT "Copying std.tec to build directory..."
 )
 
-target_compile_options(techlang PRIVATE -fexceptions)
+# ✅ VecTec compiler
+file(GLOB_RECURSE VECTEC_SOURCES
+    "src/frontend/lexer.cpp"
+    "src/frontend/parser.cpp"
+    "src/frontend/import_resolver.cpp"
+    "src/analysis/semantic_analyzer.cpp"
+    "src/backend/gpu_generator.cpp"
+"src/backend/gpu_runtime_generator.cpp"
+    "src/vectec_main.cpp"
+)
 
+add_executable(vectec ${VECTEC_SOURCES})
+
+target_include_directories(vectec PRIVATE
+    src/
+    src/frontend/
+    src/analysis/
+    src/backend/
+)
+
+target_compile_options(vectec PRIVATE ${LLVM_CXX_FLAGS_LIST} -fexceptions)
+target_link_options(vectec PRIVATE ${LLVM_LD_FLAGS_LIST})
+target_link_libraries(vectec
+    ${LLVM_LIBRARIES}
+    ${LLVM_SYSTEM_LIBS}
+)

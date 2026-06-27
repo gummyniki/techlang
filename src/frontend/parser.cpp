@@ -211,6 +211,11 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     return parseVarDeclaration(dataType, TokenType::SEMICOLON);
   }
 
+  if (current().type == TokenType::KW_KERNEL) {
+
+    return parseKernelDeclaration();
+  }
+
   throw CompileError("unexpected token '" + current().value + "'",
                      current().line, current().column);
 }
@@ -338,7 +343,7 @@ std::unique_ptr<ASTNode> Parser::parseFunctionDeclaration() {
 
   expect(TokenType::KW_RETURNS, "expected 'returns'");
 
-  node->returnType = advance().value;
+  node->returnType = parseType();
 
   if (current().type == TokenType::KW_EXTERN) {
     advance();
@@ -809,4 +814,20 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
 
   throw CompileError("unexpected token '" + current().value + "'",
                      current().line, current().column);
+}
+
+std::unique_ptr<ASTNode> Parser::parseKernelDeclaration() {
+  auto node = std::make_unique<KernelDeclarationNode>(current().line);
+
+  advance(); // consume 'kernel'
+
+  node->name = expect(TokenType::IDENTIFIER, "expected kernel name").value;
+  expect(TokenType::LPAREN, "expected '('");
+  node->params = parseParameterList();
+  expect(TokenType::RPAREN, "expected ')'");
+  expect(TokenType::KW_RETURNS, "expected 'returns'");
+  node->returnType = parseType();
+  node->body = parseBlock();
+
+  return node;
 }

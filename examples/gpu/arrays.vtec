@@ -1,0 +1,4 @@
+kernel addArrays(ArrayOf(float) a, ArrayOf(float) b) returns ArrayOf(float) {
+    int id = threadId();
+    return a[id] + b[id];
+}

@@ -40,6 +40,9 @@ enum class TokenType {
   KW_ARRAYOF,
   KW_POINTEROF,
   KW_EXTERN,
+  KW_KERNEL,
+  KW_SHARED,
+  KW_THREADID,
 
   // Identifiers (variable names, function names)
   IDENTIFIER,
@@ -82,6 +85,8 @@ enum class TokenType {
 };
 
 static std::unordered_map<std::string, TokenType> keywords = {
+    {"kernel", TokenType::KW_KERNEL},
+    {"shared", TokenType::KW_SHARED},
     {"any", TokenType::KW_ANY},
     {"int", TokenType::KW_INT},
     {"char", TokenType::KW_CHAR},
@@ -107,7 +112,7 @@ static std::unordered_map<std::string, TokenType> keywords = {
     {"PointerOf", TokenType::KW_POINTEROF},
     {"extern", TokenType::KW_EXTERN},
     // etc
-};
+}; // namespace Tokens
 
 struct Token {
   TokenType type;

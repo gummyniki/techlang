@@ -26,6 +26,7 @@ enum class NodeType {
   FloatLiteral,
   StringLiteral,
   StructDeclaration,
+  KernelDeclaration,
   StructInstance,
   MemberAssignment,
   CharLiteral,
@@ -70,6 +71,15 @@ struct VarDeclarationNode : ASTNode {
   bool isFixed = false;
 
   VarDeclarationNode(int line) : ASTNode(NodeType::VarDeclaration, line) {}
+};
+
+struct KernelDeclarationNode : ASTNode {
+  std::string name;
+  std::string returnType;
+  std::vector<std::pair<std::string, std::string>> params;
+  std::vector<std::unique_ptr<ASTNode>> body;
+  KernelDeclarationNode(int line)
+      : ASTNode(NodeType::KernelDeclaration, line) {}
 };
 
 struct EnumDeclarationNode : ASTNode {

@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/gummy/projects/techlang/src/analysis/semantic_analyzer.cpp" "CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o.d"
+  "/home/gummy/projects/techlang/src/backend/gpu_runtime_generator.cpp" "CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.o.d"
   "/home/gummy/projects/techlang/src/backend/ir_generator.cpp" "CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o.d"
   "/home/gummy/projects/techlang/src/debug/ast_printer.cpp" "CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o.d"
   "/home/gummy/projects/techlang/src/frontend/import_resolver.cpp" "CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o" "gcc" "CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o.d"

@@ -22,6 +22,10 @@ void IRGenerator::popScope() {
   pointerTypeScopes.pop_back();
 }
 
+void IRGenerator::registerGPUAlias(const std::string &alias) {
+  gpuAliases.push_back(alias);
+}
+
 void IRGenerator::declareVariable(const std::string &name,
                                   llvm::AllocaInst *alloca) {
   scopes.back()[name] = alloca;
@@ -104,6 +108,7 @@ void IRGenerator::saveToFile(const std::string &filename) {
 void IRGenerator::generate(ProgramNode *program) {
   declareStdFunctions();
   pushScope();
+
   for (auto &statement : program->statements) {
     generateStatement(statement.get());
   }
@@ -250,7 +255,17 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
       llvm::FunctionType::get(returnType, paramTypes, false);
 
   if (node->body.empty() && !node->externSymbol.empty()) {
-    auto callee = module->getOrInsertFunction(node->externSymbol, funcType);
+    // The GPU runtime wrapper appends an int size parameter after each array
+    // argument, so expand the LLVM type to match the actual C signature.
+    std::vector<llvm::Type *> expandedParamTypes;
+    for (auto &[type, name] : node->params) {
+      expandedParamTypes.push_back(getLLVMType(type));
+      if (type.substr(0, 7) == "ArrayOf")
+        expandedParamTypes.push_back(llvm::Type::getInt32Ty(context));
+    }
+    llvm::FunctionType *expandedFuncType =
+        llvm::FunctionType::get(returnType, expandedParamTypes, false);
+    auto callee = module->getOrInsertFunction(node->externSymbol, expandedFuncType);
     externFunctions[node->name] =
         llvm::cast<llvm::Function>(callee.getCallee());
     return;
@@ -288,6 +303,18 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
     if (type.substr(0, 7) == "ArrayOf") {
       std::string innerTypeStr = type.substr(8, type.size() - 9);
       declarePointerType(name, getLLVMType(innerTypeStr));
+    }
+  }
+
+  // Inject GPU context init at the top of main before any body statements.
+  if (node->name == "main" && !gpuAliases.empty()) {
+    for (auto &alias : gpuAliases) {
+      std::string initName = "tec_gpu_init_" + alias;
+      llvm::FunctionType *initType =
+          llvm::FunctionType::get(llvm::Type::getVoidTy(context), {}, false);
+      llvm::Function *initFunc = llvm::cast<llvm::Function>(
+          module->getOrInsertFunction(initName, initType).getCallee());
+      builder.CreateCall(initFunc, {});
     }
   }
 
@@ -337,38 +364,52 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
   }
 
   if (node->dataType.substr(0, 7) == "ArrayOf") {
+    std::string innerTypeStr = node->dataType.substr(8, node->dataType.size() - 9);
+    llvm::Type *elementType = getLLVMType(innerTypeStr);
 
-    auto *literalNode = static_cast<ArrayLiteralNode *>(node->value.get());
-    if (literalNode->elements.empty()) {
-      throw std::runtime_error("Cannot declare empty array");
-    }
+    if (node->value->type == NodeType::ArrayLiteral) {
+      auto *literalNode = static_cast<ArrayLiteralNode *>(node->value.get());
+      if (literalNode->elements.empty()) {
+        throw std::runtime_error("Cannot declare empty array");
+      }
 
-    llvm::Value *firstVal = generateExpression(literalNode->elements[0].get());
-    llvm::Type *elementType = firstVal->getType();
-    int size = literalNode->elements.size();
+      llvm::Value *firstVal = generateExpression(literalNode->elements[0].get());
+      int size = literalNode->elements.size();
 
-    llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, size);
-    llvm::AllocaInst *arrayAlloca =
-        createEntryAlloca(currentFunction, node->name, arrayType);
+      llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, size);
+      llvm::AllocaInst *arrayAlloca =
+          createEntryAlloca(currentFunction, node->name, arrayType);
 
-    llvm::Value *gep0 = builder.CreateGEP(
-        arrayType, arrayAlloca,
-        {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
-         llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0)},
-        "elemptr");
-    builder.CreateStore(firstVal, gep0);
-
-    for (int i = 1; i < size; i++) {
-      llvm::Value *val = generateExpression(literalNode->elements[i].get());
-      llvm::Value *gep = builder.CreateGEP(
+      llvm::Value *gep0 = builder.CreateGEP(
           arrayType, arrayAlloca,
           {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
-           llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i)},
+           llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0)},
           "elemptr");
-      builder.CreateStore(val, gep);
+      builder.CreateStore(firstVal, gep0);
+
+      for (int i = 1; i < size; i++) {
+        llvm::Value *val = generateExpression(literalNode->elements[i].get());
+        llvm::Value *gep = builder.CreateGEP(
+            arrayType, arrayAlloca,
+            {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
+             llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), i)},
+            "elemptr");
+        builder.CreateStore(val, gep);
+      }
+
+      declareVariable(node->name, arrayAlloca);
+      declarePointerType(node->name, elementType);
+      return;
     }
 
-    declareVariable(node->name, arrayAlloca);
+    // non-literal initializer (e.g. function call returning a pointer)
+    llvm::Type *ptrType = llvm::PointerType::get(elementType, 0);
+    llvm::AllocaInst *alloca =
+        createEntryAlloca(currentFunction, node->name, ptrType);
+    llvm::Value *value = generateExpression(node->value.get());
+    builder.CreateStore(value, alloca);
+    declareVariable(node->name, alloca);
+    declarePointerType(node->name, elementType);
     return;
   }
 
@@ -514,6 +555,13 @@ void IRGenerator::generateEnumDeclaration(EnumDeclarationNode *node) {
 }
 
 llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
+  if (!node) {
+    throw std::runtime_error("generateExpression received null node!");
+  }
+
+  std::cerr << "DEBUG generateExpression type: " << static_cast<int>(node->type)
+            << "\n";
+
   switch (node->type) {
   case NodeType::IntLiteral: {
     auto *n = static_cast<IntLiteralNode *>(node);
@@ -816,6 +864,33 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
 }
 
 llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
+  std::cerr << "DEBUG generateFunctionCall: " << node->name << "\n";
+  std::cerr << "DEBUG arg count: " << node->args.size() << "\n";
+
+  for (size_t i = 0; i < node->args.size(); i++) {
+    std::cerr << "DEBUG processing arg " << i << "\n";
+    if (!node->args[i]) {
+      std::cerr << "DEBUG arg " << i << " is NULL!\n";
+      continue;
+    }
+    std::cerr << "DEBUG arg " << i
+              << " type: " << static_cast<int>(node->args[i]->type) << "\n";
+  }
+
+  // check if it's a GPU function
+  if (node->name.find('.') != std::string::npos) {
+    std::cerr << "DEBUG qualified call: " << node->name << "\n";
+
+    // check extern functions map
+    auto it = externFunctions.find(node->name);
+    std::cerr << "DEBUG in externFunctions: "
+              << (it != externFunctions.end() ? "yes" : "no") << "\n";
+
+    // check module
+    llvm::Function *f = module->getFunction(node->name);
+    std::cerr << "DEBUG in module: " << (f ? "yes" : "no") << "\n";
+  }
+
   // hardcoded std functions for now
   // TODO: find a way to connect the std.tec functions to C implementations
   // somehow
@@ -911,6 +986,24 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
 
     args.push_back(val);
     i++;
+
+    // If the next expected param is an i32 immediately after a pointer arg,
+    // it's the array-size slot injected by the GPU runtime wrapper — fill it
+    // automatically from the stack array's compile-time known element count.
+    if (i < (int)func->getFunctionType()->getNumParams() &&
+        func->getFunctionType()->getParamType(i)->isIntegerTy(32) &&
+        val->getType()->isPointerTy() &&
+        arg->type == NodeType::Identifier) {
+      auto *ident = static_cast<IdentifierNode *>(arg.get());
+      llvm::AllocaInst *arrAlloca = lookupVariable(ident->name);
+      if (arrAlloca->getAllocatedType()->isArrayTy()) {
+        uint64_t sz =
+            static_cast<llvm::ArrayType *>(arrAlloca->getAllocatedType())
+                ->getNumElements();
+        args.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), sz));
+        i++;
+      }
+    }
   }
 
   bool isVoid = func->getReturnType()->isVoidTy();

@@ -129,12 +129,26 @@ techlang/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/build
 .PHONY : techlang/fast
 
+#=============================================================================
+# Target rules for targets named vectec
+
+# Build rule for target.
+vectec: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 vectec
+.PHONY : vectec
+
+# fast build rule for target.
+vectec/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/build
+.PHONY : vectec/fast
+
 src/analysis/semantic_analyzer.o: src/analysis/semantic_analyzer.cpp.o
 .PHONY : src/analysis/semantic_analyzer.o
 
 # target to build an object file
 src/analysis/semantic_analyzer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/analysis/semantic_analyzer.cpp.o
 .PHONY : src/analysis/semantic_analyzer.cpp.o
 
 src/analysis/semantic_analyzer.i: src/analysis/semantic_analyzer.cpp.i
@@ -143,6 +157,7 @@ src/analysis/semantic_analyzer.i: src/analysis/semantic_analyzer.cpp.i
 # target to preprocess a source file
 src/analysis/semantic_analyzer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/analysis/semantic_analyzer.cpp.i
 .PHONY : src/analysis/semantic_analyzer.cpp.i
 
 src/analysis/semantic_analyzer.s: src/analysis/semantic_analyzer.cpp.s
@@ -151,7 +166,59 @@ src/analysis/semantic_analyzer.s: src/analysis/semantic_analyzer.cpp.s
 # target to generate assembly for a file
 src/analysis/semantic_analyzer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/analysis/semantic_analyzer.cpp.s
 .PHONY : src/analysis/semantic_analyzer.cpp.s
+
+src/backend/gpu_generator.o: src/backend/gpu_generator.cpp.o
+.PHONY : src/backend/gpu_generator.o
+
+# target to build an object file
+src/backend/gpu_generator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_generator.cpp.o
+.PHONY : src/backend/gpu_generator.cpp.o
+
+src/backend/gpu_generator.i: src/backend/gpu_generator.cpp.i
+.PHONY : src/backend/gpu_generator.i
+
+# target to preprocess a source file
+src/backend/gpu_generator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_generator.cpp.i
+.PHONY : src/backend/gpu_generator.cpp.i
+
+src/backend/gpu_generator.s: src/backend/gpu_generator.cpp.s
+.PHONY : src/backend/gpu_generator.s
+
+# target to generate assembly for a file
+src/backend/gpu_generator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_generator.cpp.s
+.PHONY : src/backend/gpu_generator.cpp.s
+
+src/backend/gpu_runtime_generator.o: src/backend/gpu_runtime_generator.cpp.o
+.PHONY : src/backend/gpu_runtime_generator.o
+
+# target to build an object file
+src/backend/gpu_runtime_generator.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_runtime_generator.cpp.o
+.PHONY : src/backend/gpu_runtime_generator.cpp.o
+
+src/backend/gpu_runtime_generator.i: src/backend/gpu_runtime_generator.cpp.i
+.PHONY : src/backend/gpu_runtime_generator.i
+
+# target to preprocess a source file
+src/backend/gpu_runtime_generator.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_runtime_generator.cpp.i
+.PHONY : src/backend/gpu_runtime_generator.cpp.i
+
+src/backend/gpu_runtime_generator.s: src/backend/gpu_runtime_generator.cpp.s
+.PHONY : src/backend/gpu_runtime_generator.s
+
+# target to generate assembly for a file
+src/backend/gpu_runtime_generator.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/backend/gpu_runtime_generator.cpp.s
+.PHONY : src/backend/gpu_runtime_generator.cpp.s
 
 src/backend/ir_generator.o: src/backend/ir_generator.cpp.o
 .PHONY : src/backend/ir_generator.o
@@ -207,6 +274,7 @@ src/frontend/import_resolver.o: src/frontend/import_resolver.cpp.o
 # target to build an object file
 src/frontend/import_resolver.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/import_resolver.cpp.o
 .PHONY : src/frontend/import_resolver.cpp.o
 
 src/frontend/import_resolver.i: src/frontend/import_resolver.cpp.i
@@ -215,6 +283,7 @@ src/frontend/import_resolver.i: src/frontend/import_resolver.cpp.i
 # target to preprocess a source file
 src/frontend/import_resolver.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/import_resolver.cpp.i
 .PHONY : src/frontend/import_resolver.cpp.i
 
 src/frontend/import_resolver.s: src/frontend/import_resolver.cpp.s
@@ -223,6 +292,7 @@ src/frontend/import_resolver.s: src/frontend/import_resolver.cpp.s
 # target to generate assembly for a file
 src/frontend/import_resolver.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/import_resolver.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/import_resolver.cpp.s
 .PHONY : src/frontend/import_resolver.cpp.s
 
 src/frontend/lexer.o: src/frontend/lexer.cpp.o
@@ -231,6 +301,7 @@ src/frontend/lexer.o: src/frontend/lexer.cpp.o
 # target to build an object file
 src/frontend/lexer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/lexer.cpp.o
 .PHONY : src/frontend/lexer.cpp.o
 
 src/frontend/lexer.i: src/frontend/lexer.cpp.i
@@ -239,6 +310,7 @@ src/frontend/lexer.i: src/frontend/lexer.cpp.i
 # target to preprocess a source file
 src/frontend/lexer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/lexer.cpp.i
 .PHONY : src/frontend/lexer.cpp.i
 
 src/frontend/lexer.s: src/frontend/lexer.cpp.s
@@ -247,6 +319,7 @@ src/frontend/lexer.s: src/frontend/lexer.cpp.s
 # target to generate assembly for a file
 src/frontend/lexer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/lexer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/lexer.cpp.s
 .PHONY : src/frontend/lexer.cpp.s
 
 src/frontend/parser.o: src/frontend/parser.cpp.o
@@ -255,6 +328,7 @@ src/frontend/parser.o: src/frontend/parser.cpp.o
 # target to build an object file
 src/frontend/parser.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/parser.cpp.o
 .PHONY : src/frontend/parser.cpp.o
 
 src/frontend/parser.i: src/frontend/parser.cpp.i
@@ -263,6 +337,7 @@ src/frontend/parser.i: src/frontend/parser.cpp.i
 # target to preprocess a source file
 src/frontend/parser.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/parser.cpp.i
 .PHONY : src/frontend/parser.cpp.i
 
 src/frontend/parser.s: src/frontend/parser.cpp.s
@@ -271,6 +346,7 @@ src/frontend/parser.s: src/frontend/parser.cpp.s
 # target to generate assembly for a file
 src/frontend/parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/frontend/parser.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/frontend/parser.cpp.s
 .PHONY : src/frontend/parser.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -297,6 +373,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/techlang.dir/build.make CMakeFiles/techlang.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/vectec_main.o: src/vectec_main.cpp.o
+.PHONY : src/vectec_main.o
+
+# target to build an object file
+src/vectec_main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/vectec_main.cpp.o
+.PHONY : src/vectec_main.cpp.o
+
+src/vectec_main.i: src/vectec_main.cpp.i
+.PHONY : src/vectec_main.i
+
+# target to preprocess a source file
+src/vectec_main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/vectec_main.cpp.i
+.PHONY : src/vectec_main.cpp.i
+
+src/vectec_main.s: src/vectec_main.cpp.s
+.PHONY : src/vectec_main.s
+
+# target to generate assembly for a file
+src/vectec_main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/vectec.dir/build.make CMakeFiles/vectec.dir/src/vectec_main.cpp.s
+.PHONY : src/vectec_main.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -306,9 +406,16 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... techlang"
+	@echo "... vectec"
 	@echo "... src/analysis/semantic_analyzer.o"
 	@echo "... src/analysis/semantic_analyzer.i"
 	@echo "... src/analysis/semantic_analyzer.s"
+	@echo "... src/backend/gpu_generator.o"
+	@echo "... src/backend/gpu_generator.i"
+	@echo "... src/backend/gpu_generator.s"
+	@echo "... src/backend/gpu_runtime_generator.o"
+	@echo "... src/backend/gpu_runtime_generator.i"
+	@echo "... src/backend/gpu_runtime_generator.s"
 	@echo "... src/backend/ir_generator.o"
 	@echo "... src/backend/ir_generator.i"
 	@echo "... src/backend/ir_generator.s"
@@ -327,6 +434,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/vectec_main.o"
+	@echo "... src/vectec_main.i"
+	@echo "... src/vectec_main.s"
 .PHONY : help
 
 

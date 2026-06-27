@@ -2,6 +2,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/techlang.dir/link.d"
   "CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o"
   "CMakeFiles/techlang.dir/src/analysis/semantic_analyzer.cpp.o.d"
+  "CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.o"
+  "CMakeFiles/techlang.dir/src/backend/gpu_runtime_generator.cpp.o.d"
   "CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o"
   "CMakeFiles/techlang.dir/src/backend/ir_generator.cpp.o.d"
   "CMakeFiles/techlang.dir/src/debug/ast_printer.cpp.o"

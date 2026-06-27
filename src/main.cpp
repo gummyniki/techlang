@@ -58,11 +58,23 @@ std::string findStdLib(const std::string &compilerDir,
 }
 
 void linkToExecutable(const std::string &objPath, const std::string &exePath,
-                      const std::string &compilerDir) {
+                      const std::string &compilerDir,
+                      const std::vector<std::string> &gpuWrappers) {
 
   std::string stdLib = findStdLib(compilerDir, "stdlib.o");
 
-  std::string cmd = "gcc " + objPath + " " + stdLib + " -o " + exePath + " -lm";
+  std::string cmd = "gcc " + objPath + " " + stdLib;
+
+  for (auto &wrapper : gpuWrappers) {
+    cmd += " " + wrapper;
+  }
+
+  if (!gpuWrappers.empty()) {
+    cmd += " -L/opt/cuda/lib64 -lcuda";
+  }
+
+  cmd += " -o " + exePath + " -lm";
+
   int result = std::system(cmd.c_str());
   if (result != 0) {
     throw std::runtime_error("Linking failed!");
@@ -173,6 +185,18 @@ int main(int argc, char *argv[]) {
     // 5. IR generation
     std::cout << "Generating IR...\n";
     IRGenerator irGen;
+
+    for (auto &statement : ast->statements) {
+      if (statement->type == NodeType::Import) {
+        auto *importNode = static_cast<ImportNode *>(statement.get());
+        if (importNode->filename.size() > 5 &&
+            importNode->filename.substr(importNode->filename.size() - 5) ==
+                ".vtec") {
+          irGen.registerGPUAlias(importNode->alias);
+        }
+      }
+    }
+
     irGen.generate(ast.get());
 
     // optional: save the .ll file for debugging
@@ -184,7 +208,8 @@ int main(int argc, char *argv[]) {
 
     // 7. link to executable
     std::cout << "Linking...\n";
-    linkToExecutable(outputPath + ".o", outputPath, compilerDir);
+    linkToExecutable(outputPath + ".o", outputPath, compilerDir,
+                     resolver.gpuWrapperFiles);
 
     std::cout << "Done! Binary: ./" << outputPath << "\n";
 

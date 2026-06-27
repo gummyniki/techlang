@@ -31,6 +31,8 @@ public:
   void print();
   void saveToFile(const std::string &filename);
   llvm::Module *getModule() { return module.get(); }
+  std::vector<std::string> gpuAliases;
+  void registerGPUAlias(const std::string &alias);
 
 private:
   llvm::LLVMContext context;
