@@ -692,6 +692,22 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
                                       true);
       }
 
+      if (n->member == "length" && alloca->getAllocatedType()->isPointerTy()) {
+        llvm::Function *strlenFunc = module->getFunction("tec_string_length");
+        if (!strlenFunc) {
+          llvm::FunctionType *strlenType = llvm::FunctionType::get(
+              llvm::Type::getInt32Ty(context),
+              {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)},
+              false);
+          strlenFunc = llvm::Function::Create(
+              strlenType, llvm::Function::ExternalLinkage, "tec_string_length",
+              module.get());
+        }
+        llvm::Value *strPtr =
+            builder.CreateLoad(alloca->getAllocatedType(), alloca, "strptr");
+        return builder.CreateCall(strlenFunc, {strPtr}, "strlen");
+      }
+
       llvm::StructType *structType =
           static_cast<llvm::StructType *>(alloca->getAllocatedType());
 
@@ -746,9 +762,18 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   bool isFloat = left->getType()->isFloatingPointTy();
 
   switch (node->op) {
-  case TokenType::PLUS:
+
+  case TokenType::PLUS: {
+    if (left->getType()->isPointerTy() && right->getType()->isPointerTy()) {
+      llvm::Function *concatFunc = module->getFunction("tec_concat");
+      if (!concatFunc) {
+        throw std::runtime_error("tec_concat not found");
+      }
+      return builder.CreateCall(concatFunc, {left, right}, "concattmp");
+    }
     return isFloat ? builder.CreateFAdd(left, right, "addtmp")
                    : builder.CreateAdd(left, right, "addtmp");
+  }
   case TokenType::MINUS:
     return isFloat ? builder.CreateFSub(left, right, "subtmp")
                    : builder.CreateSub(left, right, "subtmp");

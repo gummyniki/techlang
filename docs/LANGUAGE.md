@@ -260,6 +260,52 @@ int result = sum(nums, 5);
 
 ---
 
+## Strings
+
+### Decalration
+
+```techlang
+string s = "Hello world";
+string empty = "";
+```
+
+### Concatenation
+Strings can be concatenated with the `+` operator:
+
+```techlang
+string first = "Hello";
+
+string second = " World";
+
+string result = first + second; // "Hello World"
+```
+
+Or by using `std.concat()`:
+
+```techlang
+string result = std.concat("foo", "bar"); // "foobar"
+```
+
+
+### length
+
+```techlang
+string s = "hello";
+
+std.print(s.length); // 5
+```
+
+### Standard Library String Functions
+
+| Function | Description | Example |
+|---|---|---|
+| `std.concat(string a, string b)` | Concatenate two strings | `std.concat("hello", " world")` |
+| `std.string_length(string s)` | Get string length | `std.string_length("hello")` |
+| `std.string_equals(string a, string b)` | Compare two strings | `std.string_equals("a", "a")` |
+| `std.string_substring(string s, int start, int end)` | Get substring | `std.string_substring("hello", 0, 3)` |
+
+---
+
 ## Pointers
 
 ### Getting a Pointer

@@ -118,19 +118,17 @@ import(std.tec) as std; // the std file has to actually exist in your current di
 
 | Function | Description |
 |---|---|
-| `std.print_int(int x)` | Print an integer |
-| `std.print_float(float x)` | Print a float |
-| `std.print_string(string s)` | Print a string |
-| `std.print_char(char c)` | Print a character |
-| `std.print_bool(bool b)` | Print a boolean |
+| `std.print()` | Print to the standard output |
 | `std.print_newline()` | Print a newline |
 | `std.read_int()` | Read an integer from stdin |
 | `std.read_float()` | Read a float from stdin |
 | `std.sqrt(float x)` | Square root |
-| `std.cast_int_float(int x)` | Cast int to float |
-| `std.cast_float_int(float x)` | Cast float to int |
-| `std.cast_int_char(int x)` | Cast int to char |
 | `std.exit(int code)` | Exit the program |
+| `std.concat(string a, string b)` | Concatenate two strings |
+| `std.string_length(string s)` | Get string length |
+| `std.string_equals(string a, string b)` | Compare strings (returns 1 if equal) |
+| `std.string_substring(string s, int start, int end)` | Extract substring |
+
 
 
 ## Editor Support

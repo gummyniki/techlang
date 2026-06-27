@@ -1,0 +1,25 @@
+!import(std.tec) as std;
+
+function main() returns none {
+    string first = "Hello";
+    string second = " World";
+    
+    string result = first + second;
+    std.print(result); // Hello World
+    std.print_newline();
+
+    string result2 = std.concat("foo", "bar");
+    std.print(result2); // foobar
+    std.print_newline();
+
+    std.print(result.length); // 11
+    std.print_newline();
+
+    if (std.string_equals(first, "Hello") == 1) {
+        std.print("strings are equal!");
+	std.print_newline();
+    }
+
+    string sub = std.string_substring(result, 0, 5);
+    std.print(sub); // Hello
+}

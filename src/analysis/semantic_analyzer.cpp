@@ -190,6 +190,13 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
       return "int";
     }
 
+    if (n->member == "length") {
+      if (objectType == "string")
+        return "int";
+      if (objectType.substr(0, 7) == "ArrayOf")
+        return "int";
+    }
+
     if (!structTable.count(objectType)) {
       throw CompileError("'" + objectType + "' is not a struct type", n->line);
     }

@@ -26,3 +26,11 @@ function file_write(any file, string text) returns none extern "tec_file_write";
 function file_read_line(any file) returns string extern "tec_file_read_line";
 function file_eof(any file) returns int extern "tec_file_eof";
 function file_delete(string path) returns none extern "tec_file_delete";
+
+
+//string concatenation
+
+function concat(string a, string b) returns string extern "tec_concat";
+function string_length(string s) returns int extern "tec_string_length";
+function string_equals(string a, string b) returns int extern "tec_string_equals";
+function string_substring(string s, int start, int end) returns string extern "tec_string_substring";

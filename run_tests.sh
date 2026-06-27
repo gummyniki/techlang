@@ -75,6 +75,7 @@ run_test "$EXAMPLES_DIR/arrays.tec"         		    "$EXAMPLES_DIR/arrays.expected
 run_test "$EXAMPLES_DIR/imports/main.tec"   		    "$EXAMPLES_DIR/imports/main.expected"   	       "Imports"
 run_test "$EXAMPLES_DIR/casting.tec" 	    		    "$EXAMPLES_DIR/casting.expected"        	       "Casting"
 run_test "$EXAMPLES_DIR/file_editing/files.tec" 	    "$EXAMPLES_DIR/file_editing/files.expected"        "Files"
+run_test "$EXAMPLES_DIR/strings.tec" 	    		    "$EXAMPLES_DIR/strings.expected"        	       "Strings"
 
 # summary
 echo ""

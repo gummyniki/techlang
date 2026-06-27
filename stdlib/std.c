@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 // printing
@@ -48,4 +49,30 @@ int tec_file_eof(FILE* file) {
 
 void tec_file_delete(const char* path) {
     remove(path);
+}
+
+// string concatenation
+
+
+char* tec_concat(const char* a, const char* b) {
+    char* result = (char *)malloc(strlen(a) + strlen(b) + 1);
+    strcpy(result, a);
+    strcat(result, b);
+    return result;
+}
+
+int tec_string_length(const char* s) {
+    return strlen(s);
+}
+
+int tec_string_equals(const char* a, const char* b) {
+    return strcmp(a, b) == 0;
+}
+
+char* tec_string_substring(const char* s, int start, int end) {
+    int len = end - start;
+    char* result = (char *)malloc(len + 1);
+    strncpy(result, s + start, len);
+    result[len] = '\0';
+    return result;
 }
