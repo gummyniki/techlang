@@ -2,6 +2,8 @@
 
 [![Release](https://img.shields.io/github/v/release/gummyniki/techlang?include_prereleases)](https://github.com/gummyniki/techlang/releases)
 
+### [Website](https://gummyniki.github.io/techlang-website/)
+
 A compiled, statically typed programming language with familiar C-like syntax
 and modern features. Techlang compiles directly to native binaries via LLVM.
 
@@ -28,8 +30,8 @@ struct person = {
 }
 
 function greet(person p) returns none {
-    std.print_string("Hello, ");
-    std.print_string(p.name);
+    std.print("Hello, ");
+    std.print(p.name);
 }
 
 function main() returns none {
@@ -59,6 +61,7 @@ cd techlang-linux-x64 && ./install.sh
 - GCC
 - CMake 3.20+
 - A Linux or macOS system
+- If you're using VecTec, the CUDA toolkit
 
 ### Build from Source
 
@@ -98,6 +101,9 @@ features:
 | `pointers.tec` | Pointer usage and pass by reference |
 | `arrays.tec` | Arrays and iteration |
 | `imports/` | Multi-file programs with imports |
+| `casting.tec` | Casting a variable's type to another |
+| `file_editing/` | File I/O |
+| `gpu/` | Examples showcasing GPU computing using VecTec |
 
 Run all examples:
 ```bash
@@ -151,12 +157,11 @@ import(std.tec) as std; // the std file has to actually exist in your current di
 - [x] Standard library
 - [x] Compiles to native binary
 - [x] Helpful error messages
-- [ ] `[fixed]` arrays
-- [ ] More standard library functions
-- [ ] VS Code syntax highlighting
+- [x] More standard library functions
+- [x] VS Code syntax highlighting
 - [ ] Language Server Protocol (LSP)
 - [ ] Package manager
-- [ ] GPU compute companion language *(coming soon)*
+- [x] GPU compute companion language
 
 ## Contributing
 
