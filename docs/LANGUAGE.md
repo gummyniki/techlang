@@ -144,9 +144,9 @@ bool b = !true; // logical not
 
 ```techlang
 if (x > 0) {
-    std.print_string("positive");
+    std.print("positive");
 } else {
-    std.print_string("not positive");
+    std.print("not positive");
 }
 ```
 
@@ -162,7 +162,7 @@ while (x > 0) {
 
 ```techlang
 for (int i = 0, i < 10, i += 1) {
-    std.print_int(i);
+    std.print(i);
 }
 ```
 
@@ -195,7 +195,7 @@ Use `none` as the return type for functions that don't return a value:
 
 ```techlang
 function greet(string name) returns none {
-    std.print_string(name);
+    std.print(name);
 }
 ```
 
@@ -371,7 +371,7 @@ p.name = "Alice";
 
 ```techlang
 function greet(person p) returns none {
-    std.print_string(p.name);
+    std.print(p.name);
 }
 ```
 
@@ -409,7 +409,7 @@ Enum values are integers and can be used anywhere an int is expected:
 int d = NORTH;
 
 if (d == NORTH) {
-    std.print_string("Going north!");
+    std.print("Going north!");
 }
 ```
 
@@ -478,11 +478,7 @@ Import with `!import(std.tec) as std;`
 ### Printing
 
 ```techlang
-std.print_int(42);
-std.print_float(3.14);
-std.print_string("hello");
-std.print_char('a');
-std.print_bool(true);
+std.print(x);
 std.print_newline();
 ```
 
