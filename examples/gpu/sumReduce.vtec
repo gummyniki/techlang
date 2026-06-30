@@ -1,24 +1,25 @@
-kernel sumReduce(int[] data, int size) returns int {
+kernel sumReduce(int[] data, int size, int[] result) returns none {
     shared int[256] tile;
     int tid = threadId();
     int id = blockId() * threadCount() + tid;
- 
+
     if (id < size) {
         tile[tid] = data[id];
-    } 
-
+    } else {
+        tile[tid] = 0;
+    }
     syncThreads();
 
     int stride = threadCount() / 2;
-
     while (stride > 0) {
         if (tid < stride) {
-            tile[tid] = tile[tid] + tile[tid + stride];
+            tile[tid] += tile[tid + stride];
         }
         syncThreads();
         stride = stride / 2;
     }
 
-    return tile[0];
-
+    if (tid == 0) {
+        atomicAdd(result, 0, tile[0]);
+    }
 }

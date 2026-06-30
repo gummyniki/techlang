@@ -170,6 +170,14 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
   ss << "        0, 0, args, 0));\n";
   ss << "    CUDA_CHECK(cuCtxSynchronize());\n\n";
 
+  for (auto &[type, name] : kernel.params) {
+    if (type.substr(0, 7) == "ArrayOf") {
+      std::string inner = type.substr(8, type.size() - 9);
+      ss << "    cuMemcpyDtoH(" << name << ", d_" << name << ", " << name
+         << "_size * " << tecTypeToCUDA(inner) << ");\n";
+    }
+  }
+
   if (kernel.returnType != "none") {
     if (returnsArray) {
       ss << "    " << tecTypeToC(innerType) << "* result = ("

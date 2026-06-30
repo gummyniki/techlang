@@ -23,61 +23,70 @@ static const char* ptx_gpu =
     "	.param .u64 .ptr .align 1 sumReduce_param_2\n"
     ")\n"
     "{\n"
-    "	.reg .pred 	%p<4>;\n"
-    "	.reg .b32 	%r<20>;\n"
-    "	.reg .b64 	%rd<15>;\n"
+    "	.reg .pred 	%p<5>;\n"
+    "	.reg .b32 	%r<21>;\n"
+    "	.reg .b64 	%rd<19>;\n"
     "	// demoted variable\n"
     "	.shared .align 4 .b8 tile[1024];\n"
     "	ld.param.b64 	%rd5, [sumReduce_param_0];\n"
-    "	cvta.to.global.u64 	%rd6, %rd5;\n"
-    "	ld.param.b32 	%r5, [sumReduce_param_1];\n"
-    "	ld.param.b64 	%rd7, [sumReduce_param_2];\n"
-    "	cvta.to.global.u64 	%rd1, %rd7;\n"
-    "	mov.u32 	%r6, %tid.x;\n"
-    "	mov.u32 	%r7, %ctaid.x;\n"
-    "	mov.u32 	%r1, %ntid.x;\n"
-    "	mad.lo.s32 	%r8, %r7, %r1, %r6;\n"
-    "	setp.ge.s32 	%p1, %r8, %r5;\n"
-    "	cvt.u64.u32 	%rd3, %r6;\n"
-    "	mul.wide.u32 	%rd9, %r6, 4;\n"
-    "	mov.b64 	%rd10, tile;\n"
-    "	add.s64 	%rd4, %rd10, %rd9;\n"
+    "	cvta.to.global.u64 	%rd1, %rd5;\n"
+    "	ld.param.b32 	%r7, [sumReduce_param_1];\n"
+    "	ld.param.b64 	%rd6, [sumReduce_param_2];\n"
+    "	cvta.to.global.u64 	%rd2, %rd6;\n"
+    "	mov.u32 	%r1, %tid.x;\n"
+    "	mov.u32 	%r8, %ctaid.x;\n"
+    "	mov.u32 	%r2, %ntid.x;\n"
+    "	mad.lo.s32 	%r3, %r8, %r2, %r1;\n"
+    "	setp.ge.s32 	%p1, %r3, %r7;\n"
+    "	mul.wide.u32 	%rd18, %r1, 4;\n"
     "	@%p1 bra 	$L__BB0_2;\n"
-    "	mul.wide.s32 	%rd8, %r8, 4;\n"
-    "	add.s64 	%rd2, %rd6, %rd8;\n"
-    "	ld.global.b32 	%r9, [%rd2];\n"
-    "	st.shared.b32 	[%rd4], %r9;\n"
-    "$L__BB0_2:\n"
-    "	bar.warp.sync 	0;\n"
-    "	shr.u32 	%r10, %r1, 31;\n"
-    "	add.s32 	%r11, %r1, %r10;\n"
-    "	shr.s32 	%r19, %r11, 1;\n"
-    "	cvt.u32.u64 	%r13, %rd3;\n"
+    "	mul.wide.s32 	%rd10, %r3, 4;\n"
+    "	add.s64 	%rd11, %rd1, %rd10;\n"
+    "	ld.global.b32 	%r9, [%rd11];\n"
+    "	mov.b64 	%rd13, tile;\n"
+    "	add.s64 	%rd14, %rd13, %rd18;\n"
+    "	st.shared.b32 	[%rd14], %r9;\n"
     "	bra.uni 	$L__BB0_3;\n"
-    "$L__BB0_6:\n"
-    "	bar.warp.sync 	0;\n"
-    "	shr.u32 	%r17, %r19, 31;\n"
-    "	add.s32 	%r18, %r19, %r17;\n"
-    "	shr.s32 	%r19, %r18, 1;\n"
+    "$L__BB0_2:\n"
+    "	mov.b64 	%rd8, tile;\n"
+    "	add.s64 	%rd9, %rd8, %rd18;\n"
+    "	st.shared.b32 	[%rd9], 0;\n"
     "$L__BB0_3:\n"
-    "	setp.lt.s32 	%p2, %r19, 1;\n"
-    "	@%p2 bra 	$L__BB0_7;\n"
-    "	setp.lt.s32 	%p3, %r13, %r19;\n"
-    "	@%p3 bra 	$L__BB0_5;\n"
-    "	bra.uni 	$L__BB0_6;\n"
-    "$L__BB0_5:\n"
-    "	ld.shared.b32 	%r14, [%rd4];\n"
-    "	mul.wide.s32 	%rd13, %r19, 4;\n"
-    "	add.s64 	%rd14, %rd4, %rd13;\n"
-    "	ld.shared.b32 	%r15, [%rd14];\n"
-    "	add.s32 	%r16, %r14, %r15;\n"
-    "	st.shared.b32 	[%rd4], %r16;\n"
-    "	bra.uni 	$L__BB0_6;\n"
+    "	bar.warp.sync 	0;\n"
+    "	shr.u32 	%r10, %r2, 31;\n"
+    "	add.s32 	%r11, %r2, %r10;\n"
+    "	shr.s32 	%r20, %r11, 1;\n"
+    "	bra.uni 	$L__BB0_4;\n"
     "$L__BB0_7:\n"
+    "	bar.warp.sync 	0;\n"
+    "	shr.u32 	%r18, %r20, 31;\n"
+    "	add.s32 	%r19, %r20, %r18;\n"
+    "	shr.s32 	%r20, %r19, 1;\n"
+    "$L__BB0_4:\n"
+    "	setp.lt.s32 	%p2, %r20, 1;\n"
+    "	@%p2 bra 	$L__BB0_8;\n"
+    "	setp.lt.s32 	%p4, %r1, %r20;\n"
+    "	@%p4 bra 	$L__BB0_6;\n"
+    "	bra.uni 	$L__BB0_7;\n"
+    "$L__BB0_6:\n"
+    "	add.s32 	%r14, %r1, %r20;\n"
+    "	mul.wide.s32 	%rd15, %r14, 4;\n"
+    "	mov.b64 	%rd16, tile;\n"
+    "	add.s64 	%rd3, %rd16, %rd15;\n"
+    "	add.s64 	%rd4, %rd16, %rd18;\n"
+    "	ld.shared.b32 	%r15, [%rd3];\n"
+    "	ld.shared.b32 	%r16, [%rd4];\n"
+    "	add.s32 	%r17, %r16, %r15;\n"
+    "	st.shared.b32 	[%rd4], %r17;\n"
+    "	bra.uni 	$L__BB0_7;\n"
+    "$L__BB0_8:\n"
+    "	setp.eq.b32 	%p3, %r1, 0;\n"
+    "	@%p3 bra 	$L__BB0_9;\n"
+    "	bra.uni 	$L__BB0_10;\n"
+    "$L__BB0_9:\n"
     "	ld.shared.b32 	%r12, [tile];\n"
-    "	shl.b64 	%rd11, %rd3, 2;\n"
-    "	add.s64 	%rd12, %rd1, %rd11;\n"
-    "	st.global.b32 	[%rd12], %r12;\n"
+    "	atom.global.add.u32 	%r13, [%rd2], %r12;\n"
+    "$L__BB0_10:\n"
     "	ret;\n"
     "\n"
     "}\n"
@@ -97,7 +106,7 @@ void tec_gpu_init_gpu() {
     CUDA_CHECK(cuModuleGetFunction(&tec_gpu_kernel_gpu_sumReduce, tec_gpu_module_gpu, "sumReduce"));
 }
 
-int gpu_sumReduce(int* data, int data_size, int size) {
+void* gpu_sumReduce(int* data, int data_size, int size, int* result, int result_size) {
     CUdeviceptr d_data;
     CUDA_CHECK(cuMemAlloc(&d_data, data_size * sizeof(int)));
     CUDA_CHECK(cuMemcpyHtoD(d_data, data, data_size * sizeof(int)));
@@ -105,8 +114,9 @@ int gpu_sumReduce(int* data, int data_size, int size) {
     CUDA_CHECK(cuMemAlloc(&d_size, sizeof(int)));
     CUDA_CHECK(cuMemcpyHtoD(d_size, &size, sizeof(int)));
     CUdeviceptr d_result;
-    CUDA_CHECK(cuMemAlloc(&d_result, sizeof(int)));
-    void* args[] = {&d_data, &d_size, &d_result};
+    CUDA_CHECK(cuMemAlloc(&d_result, result_size * sizeof(int)));
+    CUDA_CHECK(cuMemcpyHtoD(d_result, result, result_size * sizeof(int)));
+    void* args[] = {&d_data, &d_size, &d_result, };
     int threadsPerBlock = data_size < 256 ? data_size : 256;
     int numBlocks = (data_size + threadsPerBlock - 1) / threadsPerBlock;
     CUDA_CHECK(cuLaunchKernel(tec_gpu_kernel_gpu_sumReduce,
@@ -115,11 +125,8 @@ int gpu_sumReduce(int* data, int data_size, int size) {
         0, 0, args, 0));
     CUDA_CHECK(cuCtxSynchronize());
 
-    int result;
-    CUDA_CHECK(cuMemcpyDtoH(&result, d_result, sizeof(int)));
     CUDA_CHECK(cuMemFree(d_data));
     CUDA_CHECK(cuMemFree(d_size));
     CUDA_CHECK(cuMemFree(d_result));
-    return result;
 }
 

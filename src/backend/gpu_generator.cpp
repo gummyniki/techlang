@@ -337,8 +337,11 @@ llvm::Value *GPUGenerator::generateFunctionCall(FunctionCallNode *node) {
     return generateBlockDim();
   if (node->name == "syncThreads") {
     generateSyncThreads();
-    return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
   }
+  if (node->name == "atomicAdd") {
+    return generateAtomicAdd(node);
+  }
+  return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
 
   throw std::runtime_error("Unknown function in GPU kernel: '" + node->name +
                            "'");
@@ -677,6 +680,57 @@ llvm::Value *GPUGenerator::generateSyncThreads() {
   builder.CreateCall(
       syncFunc, {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0)});
   return nullptr;
+}
+
+llvm::Value *GPUGenerator::generateAtomicAdd(FunctionCallNode *node) {
+  // atomicAdd(arr, index, value)
+  if (node->args.size() != 3) {
+    throw std::runtime_error(
+        "atomicAdd expects 3 arguments: array, index, value");
+  }
+
+  auto *arrNode = node->args[0].get();
+  llvm::Value *index = generateExpression(node->args[1].get());
+  llvm::Value *value = generateExpression(node->args[2].get());
+
+  llvm::Value *elemPtr;
+  llvm::Type *elementType;
+
+  if (arrNode->type == NodeType::Identifier) {
+    auto *ident = static_cast<IdentifierNode *>(arrNode);
+
+    auto sharedIt = sharedVariables.find(ident->name);
+    if (sharedIt != sharedVariables.end()) {
+      llvm::GlobalVariable *sharedVar = sharedIt->second;
+      llvm::Type *arrayType = sharedVar->getValueType();
+      elementType = static_cast<llvm::ArrayType *>(arrayType)->getElementType();
+      elemPtr = builder.CreateGEP(
+          arrayType, sharedVar,
+          {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), index},
+          "sharedelemptr");
+    } else {
+      llvm::AllocaInst *alloca = lookupVariable(ident->name);
+      llvm::Value *ptr =
+          builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
+      elementType = getPointeeType(ident->name);
+      elemPtr = builder.CreateGEP(elementType, ptr, index, "elemptr");
+    }
+  } else {
+    throw std::runtime_error(
+        "atomicAdd requires a simple array identifier as first argument");
+  }
+
+  if (elementType->isIntegerTy()) {
+    return builder.CreateAtomicRMW(
+        llvm::AtomicRMWInst::Add, elemPtr, value, llvm::MaybeAlign(4),
+        llvm::AtomicOrdering::SequentiallyConsistent);
+  } else if (elementType->isFloatingPointTy()) {
+    return builder.CreateAtomicRMW(
+        llvm::AtomicRMWInst::FAdd, elemPtr, value, llvm::MaybeAlign(4),
+        llvm::AtomicOrdering::SequentiallyConsistent);
+  }
+
+  throw std::runtime_error("atomicAdd only supports int and float arrays");
 }
 
 void GPUGenerator::print() { module->print(llvm::outs(), nullptr); }

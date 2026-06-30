@@ -68,6 +68,7 @@ private:
   // GPU built-ins
   void generateSharedDeclaration(SharedDeclarationNode *node);
   llvm::Value *generateSyncThreads();
+  llvm::Value *generateAtomicAdd(FunctionCallNode *node);
   llvm::Value *generateThreadId();
   llvm::Value *generateThreadCount();
   llvm::Value *generateBlockId();

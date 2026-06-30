@@ -15,61 +15,70 @@
 	.param .u64 .ptr .align 1 sumReduce_param_2
 )
 {
-	.reg .pred 	%p<4>;
-	.reg .b32 	%r<20>;
-	.reg .b64 	%rd<15>;
+	.reg .pred 	%p<5>;
+	.reg .b32 	%r<21>;
+	.reg .b64 	%rd<19>;
 	// demoted variable
 	.shared .align 4 .b8 tile[1024];
 	ld.param.b64 	%rd5, [sumReduce_param_0];
-	cvta.to.global.u64 	%rd6, %rd5;
-	ld.param.b32 	%r5, [sumReduce_param_1];
-	ld.param.b64 	%rd7, [sumReduce_param_2];
-	cvta.to.global.u64 	%rd1, %rd7;
-	mov.u32 	%r6, %tid.x;
-	mov.u32 	%r7, %ctaid.x;
-	mov.u32 	%r1, %ntid.x;
-	mad.lo.s32 	%r8, %r7, %r1, %r6;
-	setp.ge.s32 	%p1, %r8, %r5;
-	cvt.u64.u32 	%rd3, %r6;
-	mul.wide.u32 	%rd9, %r6, 4;
-	mov.b64 	%rd10, tile;
-	add.s64 	%rd4, %rd10, %rd9;
+	cvta.to.global.u64 	%rd1, %rd5;
+	ld.param.b32 	%r7, [sumReduce_param_1];
+	ld.param.b64 	%rd6, [sumReduce_param_2];
+	cvta.to.global.u64 	%rd2, %rd6;
+	mov.u32 	%r1, %tid.x;
+	mov.u32 	%r8, %ctaid.x;
+	mov.u32 	%r2, %ntid.x;
+	mad.lo.s32 	%r3, %r8, %r2, %r1;
+	setp.ge.s32 	%p1, %r3, %r7;
+	mul.wide.u32 	%rd18, %r1, 4;
 	@%p1 bra 	$L__BB0_2;
-	mul.wide.s32 	%rd8, %r8, 4;
-	add.s64 	%rd2, %rd6, %rd8;
-	ld.global.b32 	%r9, [%rd2];
-	st.shared.b32 	[%rd4], %r9;
-$L__BB0_2:
-	bar.warp.sync 	0;
-	shr.u32 	%r10, %r1, 31;
-	add.s32 	%r11, %r1, %r10;
-	shr.s32 	%r19, %r11, 1;
-	cvt.u32.u64 	%r13, %rd3;
+	mul.wide.s32 	%rd10, %r3, 4;
+	add.s64 	%rd11, %rd1, %rd10;
+	ld.global.b32 	%r9, [%rd11];
+	mov.b64 	%rd13, tile;
+	add.s64 	%rd14, %rd13, %rd18;
+	st.shared.b32 	[%rd14], %r9;
 	bra.uni 	$L__BB0_3;
-$L__BB0_6:
-	bar.warp.sync 	0;
-	shr.u32 	%r17, %r19, 31;
-	add.s32 	%r18, %r19, %r17;
-	shr.s32 	%r19, %r18, 1;
+$L__BB0_2:
+	mov.b64 	%rd8, tile;
+	add.s64 	%rd9, %rd8, %rd18;
+	st.shared.b32 	[%rd9], 0;
 $L__BB0_3:
-	setp.lt.s32 	%p2, %r19, 1;
-	@%p2 bra 	$L__BB0_7;
-	setp.lt.s32 	%p3, %r13, %r19;
-	@%p3 bra 	$L__BB0_5;
-	bra.uni 	$L__BB0_6;
-$L__BB0_5:
-	ld.shared.b32 	%r14, [%rd4];
-	mul.wide.s32 	%rd13, %r19, 4;
-	add.s64 	%rd14, %rd4, %rd13;
-	ld.shared.b32 	%r15, [%rd14];
-	add.s32 	%r16, %r14, %r15;
-	st.shared.b32 	[%rd4], %r16;
-	bra.uni 	$L__BB0_6;
+	bar.warp.sync 	0;
+	shr.u32 	%r10, %r2, 31;
+	add.s32 	%r11, %r2, %r10;
+	shr.s32 	%r20, %r11, 1;
+	bra.uni 	$L__BB0_4;
 $L__BB0_7:
+	bar.warp.sync 	0;
+	shr.u32 	%r18, %r20, 31;
+	add.s32 	%r19, %r20, %r18;
+	shr.s32 	%r20, %r19, 1;
+$L__BB0_4:
+	setp.lt.s32 	%p2, %r20, 1;
+	@%p2 bra 	$L__BB0_8;
+	setp.lt.s32 	%p4, %r1, %r20;
+	@%p4 bra 	$L__BB0_6;
+	bra.uni 	$L__BB0_7;
+$L__BB0_6:
+	add.s32 	%r14, %r1, %r20;
+	mul.wide.s32 	%rd15, %r14, 4;
+	mov.b64 	%rd16, tile;
+	add.s64 	%rd3, %rd16, %rd15;
+	add.s64 	%rd4, %rd16, %rd18;
+	ld.shared.b32 	%r15, [%rd3];
+	ld.shared.b32 	%r16, [%rd4];
+	add.s32 	%r17, %r16, %r15;
+	st.shared.b32 	[%rd4], %r17;
+	bra.uni 	$L__BB0_7;
+$L__BB0_8:
+	setp.eq.b32 	%p3, %r1, 0;
+	@%p3 bra 	$L__BB0_9;
+	bra.uni 	$L__BB0_10;
+$L__BB0_9:
 	ld.shared.b32 	%r12, [tile];
-	shl.b64 	%rd11, %rd3, 2;
-	add.s64 	%rd12, %rd1, %rd11;
-	st.global.b32 	[%rd12], %r12;
+	atom.global.add.u32 	%r13, [%rd2], %r12;
+$L__BB0_10:
 	ret;
 
 }
