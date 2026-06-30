@@ -442,6 +442,17 @@ void SemanticAnalyzer::analyzeMemberAssignment(MemberAssignmentNode *node) {
                        node->line);
   }
 
+  if (node->memberName == "value" && symbol->type.substr(0, 9) == "PointerOf") {
+    std::string innerType = symbol->type.substr(10, symbol->type.size() - 11);
+    std::string valueType = analyzeExpression(node->value.get());
+    if (!typesAreCompatible(innerType, valueType)) {
+      throw std::runtime_error("Line " + std::to_string(node->line) +
+                               ": cannot assign " + valueType +
+                               " to pointer value of type " + innerType);
+    }
+    return;
+  }
+
   if (!structTable.count(symbol->type)) {
     throw CompileError("'" + node->objectName + "' is not a struct",
                        node->line);

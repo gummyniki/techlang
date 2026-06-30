@@ -209,6 +209,39 @@ void IRGenerator::generateStructInstance(StructInstanceNode *node) {
 
 void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
   llvm::AllocaInst *alloca = lookupVariable(node->objectName);
+
+  if (node->memberName == "value" &&
+      alloca->getAllocatedType()->isPointerTy()) {
+    llvm::Value *ptr =
+        builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
+    llvm::Type *pointeeType = getPointeeType(node->objectName);
+    llvm::Value *newVal = generateExpression(node->value.get());
+
+    if (node->op != TokenType::EQUALS) {
+      // load current value through the pointer first
+      llvm::Value *current = builder.CreateLoad(pointeeType, ptr, "current");
+      switch (node->op) {
+      case TokenType::PLUS_EQUALS:
+        newVal = builder.CreateAdd(current, newVal, "addtmp");
+        break;
+      case TokenType::MINUS_EQUALS:
+        newVal = builder.CreateSub(current, newVal, "subtmp");
+        break;
+      case TokenType::STAR_EQUALS:
+        newVal = builder.CreateMul(current, newVal, "multmp");
+        break;
+      case TokenType::SLASH_EQUALS:
+        newVal = builder.CreateSDiv(current, newVal, "divtmp");
+        break;
+      default:
+        break;
+      }
+    }
+
+    builder.CreateStore(newVal, ptr);
+    return;
+  }
+
   llvm::StructType *structType =
       static_cast<llvm::StructType *>(alloca->getAllocatedType());
 

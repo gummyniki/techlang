@@ -1,7 +1,7 @@
 !import(std.tec) as std;
 
 function increment(int *p) returns none {
-    p.value += 1;
+   p.value += 1;
 }
 
 function swap(int *a, int *b) returns none {
@@ -13,14 +13,14 @@ function swap(int *a, int *b) returns none {
 function main() returns none {
     int x = 5;
     increment(x.address);
-    std.print_int(x); // 6
+    std.print(x); // 6
     std.print_newline();
 
     int a = 10;
     int b = 20;
     swap(a.address, b.address);
-    std.print_int(a); // 20
+    std.print(a); // 20
     std.print_newline();
-    std.print_int(b); // 10
+    std.print(b); // 10
     
 }
