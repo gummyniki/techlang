@@ -515,17 +515,160 @@ std.file_close(f2);
 ```
 
 
-### Pointers
-
-```techlang
-PointerOf(int) p = std.addressOf(x);
-int val = std.deref(p);
-std.storeAt(p, 10);
-```
-
 ### Program Control
 
 ```techlang
 std.exit(0);  // exit with code 0 (success)
 std.exit(1);  // exit with code 1 (error)
 ```
+
+
+
+
+
+## VecTec — GPU Compute
+
+VecTec is a companion language to Techlang that runs code on the GPU.
+VecTec kernels are written in `.vtec` files and called from Techlang
+with zero boilerplate — the compiler handles all CUDA memory
+management automatically.
+
+### Requirements
+
+VecTec requires an NVIDIA GPU and the CUDA toolkit installed.
+
+```bash
+# Arch Linux
+sudo pacman -S cuda
+
+# Ubuntu
+sudo apt install nvidia-cuda-toolkit
+```
+
+### Writing a Kernel
+
+Kernels are functions that run on the GPU. Every thread runs the
+kernel simultaneously — use `threadId()` to know which element to
+process.
+
+```vtec
+kernel addArrays(int[] a, int[] b) returns int[] {
+    int id = threadId();
+    return a[id] + b[id];
+}
+```
+
+### Calling from Techlang
+
+Import a `.vtec` file just like any other Techlang module. The
+compiler automatically compiles the kernel to PTX, generates the
+CUDA runtime wrapper, and links everything together.
+
+```techlang
+!import(std.tec) as std;
+!import(arrays.vtec) as gpu;
+
+function main() returns none {
+    int[] a = {1, 2, 3, 4};
+    int[] b = {5, 6, 7, 8};
+
+    int[] result = gpu.addArrays(a, b);
+
+    std.print(result[0]); // 6
+    std.print(result[1]); // 8
+}
+```
+
+### Built-in Functions
+
+| Function | Description |
+|---|---|
+| `threadId()` | Returns the current thread's ID within its block (0 to N-1) |
+| `threadCount()` | Returns the number of threads per block |
+| `blockId()` | Returns the current block's ID within the grid |
+| `gridDim()` | Returns the total number of blocks in the grid |
+| `syncThreads()` | Blocks until every thread in the block reaches this point |
+| `atomicAdd(arr, index, value)` | Atomically adds `value` into `arr[index]`, safe across threads/blocks |
+
+### Shared Memory
+
+Shared memory is fast, per-block memory used to share data between
+threads in the same block. Declare it with the `shared` keyword,
+with a fixed compile-time size:
+
+```vtec
+shared int[256] tile;
+```
+
+Shared memory must always be synchronized with `syncThreads()`
+before being read by other threads, to ensure every thread has
+finished writing first:
+
+```vtec
+kernel sumReduce(int[] data, int size, int[] result) returns none {
+    shared int[256] tile;
+    int tid = threadId();
+    int id = blockId() * threadCount() + tid;
+
+    if (id < size) {
+        tile[tid] = data[id];
+    } else {
+        tile[tid] = 0;
+    }
+    syncThreads();
+
+    int stride = threadCount() / 2;
+    while (stride > 0) {
+        if (tid < stride) {
+            tile[tid] += tile[tid + stride];
+        }
+        syncThreads();
+        stride = stride / 2;
+    }
+
+    if (tid == 0) {
+        atomicAdd(result, 0, tile[0]);
+    }
+}
+```
+
+This pattern — load into shared memory, sync, reduce in a tree
+pattern, sync between each step — is the standard approach for
+parallel reductions (sums, mins, maxes) across a block.
+
+### Multi-Block Reductions
+
+A single kernel call only reduces within each block — with
+multiple blocks, you get one partial result per block. To combine
+partial results across the whole grid, use `atomicAdd` to safely
+accumulate each block's result into a single shared output:
+
+```techlang
+int[] data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+int[] result = {0}; // must be pre-zeroed
+
+gpu.sumReduce(data, 10, result);
+
+std.print(result[0]); // 55
+```
+
+### Supported Types in Kernels
+
+| Type | Notes |
+|---|---|
+| `int` | 32-bit integer |
+| `float` | 32-bit float |
+| `double` | 64-bit float |
+| `bool` | 1-bit integer |
+| `int[]`, `float[]`, etc | Passed as a pointer — one element per thread is typical |
+
+
+### Kernel Rules
+
+A few things to keep in mind when writing VecTec kernels:
+
+- One thread typically processes one element — use `threadId()` and `blockId()` to compute a global index
+- The number of threads/blocks launched is automatically computed from the size of the first array parameter
+- Kernels cannot call Techlang functions
+- No string or file I/O inside kernels
+- Use `atomicAdd` rather than plain writes when multiple threads or blocks might write to the same memory location
