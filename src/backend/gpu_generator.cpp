@@ -244,12 +244,43 @@ llvm::Value *GPUGenerator::generateThreadCount() {
   return builder.CreateCall(ntidFunc, {}, "threadCount");
 }
 
+llvm::Value *GPUGenerator::generateBlockId() {
+  std::string intrinsicName = "llvm.nvvm.read.ptx.sreg.ctaid.x";
+
+  llvm::Function *bidFunc = module->getFunction(intrinsicName);
+  if (!bidFunc) {
+    llvm::FunctionType *bidType =
+        llvm::FunctionType::get(llvm::Type::getInt32Ty(context), {}, false);
+    bidFunc = llvm::Function::Create(bidType, llvm::Function::ExternalLinkage,
+                                     intrinsicName, module.get());
+  }
+
+  return builder.CreateCall(bidFunc, {}, "blockId");
+}
+
+llvm::Value *GPUGenerator::generateBlockDim() {
+  std::string intrinsicName = "llvm.nvvm.read.ptx.sreg.nctaid.x";
+
+  llvm::Function *bdimFunc = module->getFunction(intrinsicName);
+  if (!bdimFunc) {
+    llvm::FunctionType *bdimType =
+        llvm::FunctionType::get(llvm::Type::getInt32Ty(context), {}, false);
+    bdimFunc = llvm::Function::Create(bdimType, llvm::Function::ExternalLinkage,
+                                      intrinsicName, module.get());
+  }
+
+  return builder.CreateCall(bdimFunc, {}, "blockDim");
+}
+
 llvm::Value *GPUGenerator::generateFunctionCall(FunctionCallNode *node) {
-  // GPU built-ins
   if (node->name == "threadId")
     return generateThreadId();
   if (node->name == "threadCount")
     return generateThreadCount();
+  if (node->name == "blockId")
+    return generateBlockId();
+  if (node->name == "gridDim")
+    return generateBlockDim();
 
   throw std::runtime_error("Unknown function in GPU kernel: '" + node->name +
                            "'");

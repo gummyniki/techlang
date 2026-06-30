@@ -1,0 +1,4 @@
+kernel matrixThing(int[] a) returns int[] {
+    int id = threadId() + blockId() * threadCount();
+    return a[id] * 2;
+}

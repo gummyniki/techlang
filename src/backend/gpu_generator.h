@@ -65,4 +65,6 @@ private:
   // GPU built-ins
   llvm::Value *generateThreadId();
   llvm::Value *generateThreadCount();
+  llvm::Value *generateBlockId();
+  llvm::Value *generateBlockDim();
 };

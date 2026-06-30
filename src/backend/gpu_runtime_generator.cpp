@@ -73,12 +73,13 @@ std::string GPURuntimeGenerator::generateInitFunction() {
   ss << "    CUDA_CHECK(cuDevicePrimaryCtxRetain(&ctx, device));\n";
   ss << "    CUDA_CHECK(cuCtxSetCurrent(ctx));\n";
 
-  ss << "    CUDA_CHECK(cuModuleLoadData(&tec_gpu_module_" << alias << ", ptx_" << alias
-     << "));\n";
+  ss << "    CUDA_CHECK(cuModuleLoadData(&tec_gpu_module_" << alias << ", ptx_"
+     << alias << "));\n";
 
   for (auto &k : kernels) {
-    ss << "    CUDA_CHECK(cuModuleGetFunction(&tec_gpu_kernel_" << alias << "_" << k.name
-       << ", tec_gpu_module_" << alias << ", \"" << k.name << "\"));\n";
+    ss << "    CUDA_CHECK(cuModuleGetFunction(&tec_gpu_kernel_" << alias << "_"
+       << k.name << ", tec_gpu_module_" << alias << ", \"" << k.name
+       << "\"));\n";
   }
 
   ss << "}\n\n";
@@ -125,13 +126,13 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
 
     ss << "    CUdeviceptr d_" << name << ";\n";
     if (isArray) {
-      ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", " << name << "_size * "
-         << tecTypeToCUDA(inner) << "));\n";
-      ss << "    CUDA_CHECK(cuMemcpyHtoD(d_" << name << ", " << name << ", " << name
+      ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", " << name
          << "_size * " << tecTypeToCUDA(inner) << "));\n";
+      ss << "    CUDA_CHECK(cuMemcpyHtoD(d_" << name << ", " << name << ", "
+         << name << "_size * " << tecTypeToCUDA(inner) << "));\n";
     } else {
-      ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", " << tecTypeToCUDA(type)
-         << "));\n";
+      ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", "
+         << tecTypeToCUDA(type) << "));\n";
       ss << "    CUDA_CHECK(cuMemcpyHtoD(d_" << name << ", &" << name << ", "
          << tecTypeToCUDA(type) << "));\n";
     }
@@ -143,8 +144,8 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
       ss << "    CUDA_CHECK(cuMemAlloc(&d_result, " << sizeVar << " * "
          << tecTypeToCUDA(innerType) << "));\n";
     } else {
-      ss << "    CUDA_CHECK(cuMemAlloc(&d_result, " << tecTypeToCUDA(kernel.returnType)
-         << "));\n";
+      ss << "    CUDA_CHECK(cuMemAlloc(&d_result, "
+         << tecTypeToCUDA(kernel.returnType) << "));\n";
     }
   }
 
@@ -157,10 +158,15 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
   }
   ss << "};\n";
 
-  ss << "    CUDA_CHECK(cuLaunchKernel(tec_gpu_kernel_" << alias << "_" << kernel.name
-     << ",\n";
-  ss << "        1, 1, 1,\n";
-  ss << "        " << sizeVar << ", 1, 1,\n";
+  ss << "    int threadsPerBlock = " << sizeVar << " < 256 ? " << sizeVar
+     << " : 256;\n";
+  ss << "    int numBlocks = (" << sizeVar
+     << " + threadsPerBlock - 1) / threadsPerBlock;\n";
+
+  ss << "    CUDA_CHECK(cuLaunchKernel(tec_gpu_kernel_" << alias << "_"
+     << kernel.name << ",\n";
+  ss << "        numBlocks, 1, 1,\n";
+  ss << "        threadsPerBlock, 1, 1,\n";
   ss << "        0, 0, args, 0));\n";
   ss << "    CUDA_CHECK(cuCtxSynchronize());\n\n";
 
@@ -200,7 +206,9 @@ std::string GPURuntimeGenerator::generate() {
   ss << "#include <stdlib.h>\n";
   ss << "#include <string.h>\n";
   ss << "#include <stdio.h>\n\n";
-  ss << "#define CUDA_CHECK(x) do { CUresult _r = (x); if (_r != CUDA_SUCCESS) { const char* _s; cuGetErrorString(_r, &_s); fprintf(stderr, \"CUDA error at %s:%d: %s\\n\", __FILE__, __LINE__, _s); } } while(0)\n\n";
+  ss << "#define CUDA_CHECK(x) do { CUresult _r = (x); if (_r != CUDA_SUCCESS) "
+        "{ const char* _s; cuGetErrorString(_r, &_s); fprintf(stderr, \"CUDA "
+        "error at %s:%d: %s\\n\", __FILE__, __LINE__, _s); } } while(0)\n\n";
 
   ss << generatePTXString();
 

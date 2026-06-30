@@ -1,4 +1,7 @@
-kernel addArrays(ArrayOf(float) a, ArrayOf(float) b) returns ArrayOf(float) {
-    int id = threadId();
-    return a[id] + b[id];
+kernel addArrays(int[] a, int[] b, int size) returns int[] {
+    int id = blockId() * threadCount() + threadId();
+    if (id < size) {
+        return a[id] + b[id];
+    }
+    return 0;
 }
