@@ -197,6 +197,19 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
         return "int";
     }
 
+    if (n->member == "value") {
+      if (objectType.substr(0, 9) != "PointerOf") {
+        throw std::runtime_error("Line " + std::to_string(n->line) +
+                                 ": '.value' is only valid on pointers, got " +
+                                 objectType);
+      }
+      return objectType.substr(10, objectType.size() - 11); // inner type
+    }
+
+    if (n->member == "address") {
+      return "PointerOf(" + objectType + ")";
+    }
+
     if (!structTable.count(objectType)) {
       throw CompileError("'" + objectType + "' is not a struct type", n->line);
     }

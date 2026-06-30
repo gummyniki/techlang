@@ -1,25 +1,24 @@
 !import(std.tec) as std;
 
-function increment(PointerOf(int) p) returns none {
-    int current = std.deref(p);
-    std.storeAt(p, current + 1);
+function increment(int *p) returns none {
+    p.value += 1;
 }
 
-function swap(PointerOf(int) a, PointerOf(int) b) returns none {
-    int temp = std.deref(a);
-    std.storeAt(a, std.deref(b));
-    std.storeAt(b, temp);
+function swap(int *a, int *b) returns none {
+    int temp = a.value;
+    a.value = b.value;
+    b.value = temp;
 }
 
 function main() returns none {
     int x = 5;
-    increment(std.addressOf(x));
+    increment(x.address);
     std.print_int(x); // 6
     std.print_newline();
 
     int a = 10;
     int b = 20;
-    swap(std.addressOf(a), std.addressOf(b));
+    swap(a.address, b.address);
     std.print_int(a); // 20
     std.print_newline();
     std.print_int(b); // 10

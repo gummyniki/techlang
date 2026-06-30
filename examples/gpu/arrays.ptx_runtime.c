@@ -79,7 +79,7 @@ float* gpu_addArrays(float* a, int a_size, float* b, int b_size) {
     CUDA_CHECK(cuMemcpyDtoH(result, d_result, a_size * sizeof(float)));
     CUDA_CHECK(cuMemFree(d_a));
     CUDA_CHECK(cuMemFree(d_b));
-    cuMemFree(d_result);
+    CUDA_CHECK(cuMemFree(d_result));
     return result;
 }
 

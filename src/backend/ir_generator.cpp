@@ -265,7 +265,8 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
     }
     llvm::FunctionType *expandedFuncType =
         llvm::FunctionType::get(returnType, expandedParamTypes, false);
-    auto callee = module->getOrInsertFunction(node->externSymbol, expandedFuncType);
+    auto callee =
+        module->getOrInsertFunction(node->externSymbol, expandedFuncType);
     externFunctions[node->name] =
         llvm::cast<llvm::Function>(callee.getCallee());
     return;
@@ -364,7 +365,8 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
   }
 
   if (node->dataType.substr(0, 7) == "ArrayOf") {
-    std::string innerTypeStr = node->dataType.substr(8, node->dataType.size() - 9);
+    std::string innerTypeStr =
+        node->dataType.substr(8, node->dataType.size() - 9);
     llvm::Type *elementType = getLLVMType(innerTypeStr);
 
     if (node->value->type == NodeType::ArrayLiteral) {
@@ -373,7 +375,8 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
         throw std::runtime_error("Cannot declare empty array");
       }
 
-      llvm::Value *firstVal = generateExpression(literalNode->elements[0].get());
+      llvm::Value *firstVal =
+          generateExpression(literalNode->elements[0].get());
       int size = literalNode->elements.size();
 
       llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, size);
@@ -558,9 +561,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   if (!node) {
     throw std::runtime_error("generateExpression received null node!");
   }
-
-  std::cerr << "DEBUG generateExpression type: " << static_cast<int>(node->type)
-            << "\n";
 
   switch (node->type) {
   case NodeType::IntLiteral: {
@@ -751,9 +751,25 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
               strlenType, llvm::Function::ExternalLinkage, "tec_string_length",
               module.get());
         }
+
         llvm::Value *strPtr =
             builder.CreateLoad(alloca->getAllocatedType(), alloca, "strptr");
         return builder.CreateCall(strlenFunc, {strPtr}, "strlen");
+      }
+
+      if (n->member == "value" && alloca->getAllocatedType()->isPointerTy()) {
+        llvm::AllocaInst *alloca = lookupVariable(ident->name);
+        llvm::Value *ptr =
+            builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
+        llvm::Type *pointeeType = getPointeeType(ident->name);
+        return builder.CreateLoad(pointeeType, ptr, "derefval");
+      }
+
+      if (n->member == "address") {
+
+        llvm::AllocaInst *alloca = lookupVariable(ident->name);
+
+        return alloca;
       }
 
       llvm::StructType *structType =
@@ -864,32 +880,6 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
 }
 
 llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
-  std::cerr << "DEBUG generateFunctionCall: " << node->name << "\n";
-  std::cerr << "DEBUG arg count: " << node->args.size() << "\n";
-
-  for (size_t i = 0; i < node->args.size(); i++) {
-    std::cerr << "DEBUG processing arg " << i << "\n";
-    if (!node->args[i]) {
-      std::cerr << "DEBUG arg " << i << " is NULL!\n";
-      continue;
-    }
-    std::cerr << "DEBUG arg " << i
-              << " type: " << static_cast<int>(node->args[i]->type) << "\n";
-  }
-
-  // check if it's a GPU function
-  if (node->name.find('.') != std::string::npos) {
-    std::cerr << "DEBUG qualified call: " << node->name << "\n";
-
-    // check extern functions map
-    auto it = externFunctions.find(node->name);
-    std::cerr << "DEBUG in externFunctions: "
-              << (it != externFunctions.end() ? "yes" : "no") << "\n";
-
-    // check module
-    llvm::Function *f = module->getFunction(node->name);
-    std::cerr << "DEBUG in module: " << (f ? "yes" : "no") << "\n";
-  }
 
   // hardcoded std functions for now
   // TODO: find a way to connect the std.tec functions to C implementations
@@ -990,17 +980,22 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     // If the next expected param is an i32 immediately after a pointer arg,
     // it's the array-size slot injected by the GPU runtime wrapper — fill it
     // automatically from the stack array's compile-time known element count.
-    if (i < (int)func->getFunctionType()->getNumParams() &&
+
+    std::string alias = node->name.substr(0, node->name.find('.'));
+    bool isGPUCall = std::find(gpuAliases.begin(), gpuAliases.end(), alias) !=
+                     gpuAliases.end();
+
+    if (isGPUCall && i < (int)func->getFunctionType()->getNumParams() &&
         func->getFunctionType()->getParamType(i)->isIntegerTy(32) &&
-        val->getType()->isPointerTy() &&
-        arg->type == NodeType::Identifier) {
+        val->getType()->isPointerTy() && arg->type == NodeType::Identifier) {
       auto *ident = static_cast<IdentifierNode *>(arg.get());
       llvm::AllocaInst *arrAlloca = lookupVariable(ident->name);
       if (arrAlloca->getAllocatedType()->isArrayTy()) {
         uint64_t sz =
             static_cast<llvm::ArrayType *>(arrAlloca->getAllocatedType())
                 ->getNumElements();
-        args.push_back(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), sz));
+        args.push_back(
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), sz));
         i++;
       }
     }

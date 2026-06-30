@@ -38,8 +38,8 @@ A complete reference for the Techlang programming language.
 | `char` | Single character | `'a'` |
 | `string` | String of characters | `"hello"` |
 | `bool` | Boolean value | `true` or `false` |
-| `ArrayOf(T)` | Array of type T | `{1, 2, 3}` |
-| `PointerOf(T)` | Pointer to type T | `std.addressOf(x)` |
+| `T[]` | Array of type T | `{1, 2, 3}` |
+| `T*` | Pointer to type T | `x.address` |
 | `any` | Pointer to an integer, can cast to any type | `42, 42.1, 'a', "hello", etc.` |
 
 ### Base Values
@@ -225,9 +225,9 @@ function my_func(int x) returns int extern "c_function_name" {}
 ### Declaration
 
 ```techlang
-ArrayOf(int) nums = {1, 2, 3, 4, 5};
-ArrayOf(float) floats = {1.1, 2.2, 3.3};
-ArrayOf(string) words = {"hello", "world"};
+int[] nums = {1, 2, 3, 4, 5};
+float[] floats = {1.1, 2.2, 3.3};
+strin[] words = {"hello", "world"};
 ```
 
 ### Access
@@ -247,7 +247,7 @@ print(x.length); // 4
 ### Passing to Functions
 
 ```techlang
-function sum(ArrayOf(int) arr, int size) returns int {
+function sum(int[] arr, int size) returns int {
     int total = 0;
     for (int i = 0, i < size, i += 1) {
         total += arr[i];
@@ -312,31 +312,30 @@ std.print(s.length); // 5
 
 ```techlang
 int x = 5;
-PointerOf(int) p = std.addressOf(x);
+int *p = x.address;
 ```
 
 ### Dereferencing
 
 ```techlang
-int value = std.deref(p);
+int value = p.value;
 ```
 
 ### Writing Through a Pointer
 
 ```techlang
-std.storeAt(p, 10); // x is now 10
+p.value = 10;
 ```
 
 ### Pass by Reference
 
 ```techlang
-function increment(PointerOf(int) p) returns none {
-    int current = std.deref(p);
-    std.storeAt(p, current + 1);
+function increment(int *p) returns none {
+    p.value += 1;
 }
 
 int x = 5;
-increment(std.addressOf(x));
+increment(x.address());
 // x is now 6
 ```
 

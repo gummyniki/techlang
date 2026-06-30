@@ -46,18 +46,21 @@ Token Parser::expect(TokenType type, std::string errorMsg) {
 }
 
 std::string Parser::parseType() {
-  // handle ArrayOf and PointerOf
-  if (current().type == TokenType::KW_ARRAYOF ||
-      current().type == TokenType::KW_POINTEROF) {
-    std::string typeName = advance().value;
-    expect(TokenType::LPAREN, "expected '(' after " + typeName);
-    std::string innerType = advance().value;
-    expect(TokenType::RPAREN, "expected ')' after inner type");
-    return typeName + "(" + innerType + ")";
+  std::string baseType = advance().value;
+
+  if (current().type == TokenType::LBRACKET) {
+    advance();
+    expect(TokenType::RBRACKET, "Expected ']' after '['");
+    return "ArrayOf(" + baseType + ")";
+  }
+
+  if (current().type == TokenType::STAR) {
+    advance();
+    return "PointerOf(" + baseType + ")";
   }
 
   // simple type: int, float, string, etc
-  return advance().value;
+  return baseType;
 }
 
 // parsing methods - one per language construct
@@ -204,9 +207,7 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       current().type == TokenType::KW_STRING ||
       current().type == TokenType::KW_BOOL ||
       current().type == TokenType::KW_CHAR ||
-      current().type == TokenType::KW_ANY ||
-      current().type == TokenType::KW_ARRAYOF ||
-      current().type == TokenType::KW_POINTEROF) {
+      current().type == TokenType::KW_ANY) {
     std::string dataType = parseType();
     return parseVarDeclaration(dataType, TokenType::SEMICOLON);
   }
@@ -248,23 +249,9 @@ std::vector<std::pair<std::string, std::string>> Parser::parseParameterList() {
 }
 
 std::pair<std::string, std::string> Parser::parseParameter() {
-  std::string type;
-
-  if (current().type == TokenType::KW_ARRAYOF ||
-      current().type == TokenType::KW_POINTEROF) {
-    type += advance().value;
-
-    expect(TokenType::LPAREN, "expected '(' after ArrayOf/PointerOf");
-    type += "(" + advance().value + ")";
-    expect(TokenType::RPAREN, "expected ')' after inner type");
-  } else {
-
-    type = advance().value;
-  }
-
+  std::string type = parseType();
   std::string name =
       expect(TokenType::IDENTIFIER, "expected parameter name").value;
-
   return {type, name};
 }
 

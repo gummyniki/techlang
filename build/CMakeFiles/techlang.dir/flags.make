@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/gummy/projects/techlang/src -I/home/gummy/projects/techlang/src/frontend -I/home/gummy/projects/techlang/src/analysis -I/home/gummy/projects/techlang/src/backend
 
-CXX_FLAGS = -std=gnu++17 -I/usr/include -std=c++17 -D_GNU_SOURCE -D_GLIBCXX_USE_CXX11_ABI=1 -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fno-exceptions -fexceptions
+CXX_FLAGS = -std=gnu++17 -I/usr/lib/llvm/21/include -std=c++17 -D_GNU_SOURCE -DEXPERIMENTAL_KEY_INSTRUCTIONS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fexceptions
 
