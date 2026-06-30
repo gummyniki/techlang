@@ -35,6 +35,7 @@ private:
   // scope management — same as IRGenerator
   std::vector<std::unordered_map<std::string, llvm::AllocaInst *>> scopes;
   std::vector<std::unordered_map<std::string, llvm::Type *>> pointerTypeScopes;
+  std::unordered_map<std::string, llvm::GlobalVariable *> sharedVariables;
   void pushScope();
   void popScope();
   void declareVariable(const std::string &name, llvm::AllocaInst *alloca);
@@ -62,7 +63,11 @@ private:
   llvm::Value *generateBinaryExpression(BinaryExpressionNode *node);
   llvm::Value *generateFunctionCall(FunctionCallNode *node);
 
+  void generateArrayAssignment(ArrayAssignmentNode *node);
+
   // GPU built-ins
+  void generateSharedDeclaration(SharedDeclarationNode *node);
+  llvm::Value *generateSyncThreads();
   llvm::Value *generateThreadId();
   llvm::Value *generateThreadCount();
   llvm::Value *generateBlockId();

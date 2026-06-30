@@ -1,0 +1,8 @@
+!import(std.tec) as std;
+!import(sumReduce.vtec) as gpu;
+
+function main() returns none {
+    int[] data = {1, 2, 3, 4, 5, 6, 7, 8};
+    int result = gpu.sumReduce(data, 8);
+    std.print(result); // 36
+}

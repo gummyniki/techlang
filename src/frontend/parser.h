@@ -40,6 +40,7 @@ public:
   std::unique_ptr<ASTNode> parseImport();
 
   std::unique_ptr<ASTNode> parseKernelDeclaration();
+  std::unique_ptr<ASTNode> parseSharedDeclaration();
 
   // expressions - broken into levels for operator precedence
   std::unique_ptr<ASTNode> parseExpression();

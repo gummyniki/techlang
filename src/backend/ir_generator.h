@@ -81,6 +81,9 @@ private:
   llvm::AllocaInst *createEntryAlloca(llvm::Function *func,
                                       const std::string &name,
                                       llvm::Type *type);
+
+  void generateArrayAssignment(ArrayAssignmentNode *node);
+
   // this is unused im pretty sure
   void declarePrintf();
   llvm::Value *generatePrint(FunctionCallNode *node);

@@ -1,0 +1,24 @@
+kernel sumReduce(int[] data, int size) returns int {
+    shared int[256] tile;
+    int tid = threadId();
+    int id = blockId() * threadCount() + tid;
+ 
+    if (id < size) {
+        tile[tid] = data[id];
+    } 
+
+    syncThreads();
+
+    int stride = threadCount() / 2;
+
+    while (stride > 0) {
+        if (tid < stride) {
+            tile[tid] = tile[tid] + tile[tid + stride];
+        }
+        syncThreads();
+        stride = stride / 2;
+    }
+
+    return tile[0];
+
+}

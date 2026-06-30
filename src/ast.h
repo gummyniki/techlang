@@ -32,13 +32,15 @@ enum class NodeType {
   CharLiteral,
   BoolLiteral,
   ArrayLiteral,
+  SharedDeclaration,
   MemberAccess,
   ArrayAccess,
+  ArrayAssignment,
   Cast,
   Import,
 };
 
-// base node - every AST node inherits from this
+// base node, every AST node inherits from this
 struct ASTNode {
   NodeType type;
   int line;
@@ -50,6 +52,14 @@ struct CastNode : ASTNode {
   std::unique_ptr<ASTNode> value;
   std::string targetType;
   CastNode(int line) : ASTNode(NodeType::Cast, line) {}
+};
+
+struct SharedDeclarationNode : ASTNode {
+  std::string elementType;
+  std::string name;
+  int size; // fixed size, must be a compile-time constant
+  SharedDeclarationNode(int line)
+      : ASTNode(NodeType::SharedDeclaration, line) {}
 };
 
 // the root of the whole program
@@ -224,6 +234,16 @@ struct MemberAccessNode : ASTNode {
   std::unique_ptr<ASTNode> object;
   std::string member;
   MemberAccessNode(int line) : ASTNode(NodeType::MemberAccess, line) {}
+};
+
+struct ArrayAssignmentNode : ASTNode {
+  std::string arrayName;
+  std::string memberName;
+  std::unique_ptr<ASTNode> index;
+  std::unique_ptr<ASTNode> value;
+  TokenType op;
+
+  ArrayAssignmentNode(int line) : ASTNode(NodeType::ArrayAssignment, line) {}
 };
 
 struct ArrayAccessNode : ASTNode {

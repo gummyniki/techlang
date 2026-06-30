@@ -159,6 +159,9 @@ void IRGenerator::generateStatement(ASTNode *node) {
   case NodeType::ForStatement:
     generateForStatement(static_cast<ForStatementNode *>(node));
     break;
+  case NodeType::ArrayAssignment:
+    generateArrayAssignment(static_cast<ArrayAssignmentNode *>(node));
+    break;
   case NodeType::Import:
     // for now empty
     break;
@@ -910,6 +913,52 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   default:
     throw std::runtime_error("Unknown binary operator in IR generation");
   }
+}
+
+void IRGenerator::generateArrayAssignment(ArrayAssignmentNode *node) {
+  llvm::AllocaInst *alloca = lookupVariable(node->arrayName);
+  llvm::Value *index = generateExpression(node->index.get());
+  llvm::Value *newVal = generateExpression(node->value.get());
+
+  llvm::Value *elemPtr;
+  llvm::Type *elementType;
+
+  if (alloca->getAllocatedType()->isArrayTy()) {
+    llvm::ArrayType *arrayType =
+        static_cast<llvm::ArrayType *>(alloca->getAllocatedType());
+    elementType = arrayType->getElementType();
+    elemPtr = builder.CreateGEP(
+        arrayType, alloca,
+        {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), index},
+        "elemptr");
+  } else {
+    llvm::Value *ptr =
+        builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
+    elementType = getPointeeType(node->arrayName);
+    elemPtr = builder.CreateGEP(elementType, ptr, index, "elemptr");
+  }
+
+  if (node->op != TokenType::EQUALS) {
+    llvm::Value *current = builder.CreateLoad(elementType, elemPtr, "current");
+    switch (node->op) {
+    case TokenType::PLUS_EQUALS:
+      newVal = builder.CreateAdd(current, newVal, "addtmp");
+      break;
+    case TokenType::MINUS_EQUALS:
+      newVal = builder.CreateSub(current, newVal, "subtmp");
+      break;
+    case TokenType::STAR_EQUALS:
+      newVal = builder.CreateMul(current, newVal, "multmp");
+      break;
+    case TokenType::SLASH_EQUALS:
+      newVal = builder.CreateSDiv(current, newVal, "divtmp");
+      break;
+    default:
+      break;
+    }
+  }
+
+  builder.CreateStore(newVal, elemPtr);
 }
 
 llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {

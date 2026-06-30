@@ -77,6 +77,10 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     return parseEnumDeclaration();
   }
 
+  if (current().type == TokenType::KW_SHARED) {
+    return parseSharedDeclaration();
+  }
+
   if (current().type == TokenType::IDENTIFIER) {
     std::string name = advance().value;
 
@@ -125,6 +129,23 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       throw CompileError("unexpected token after member access '" +
                              current().value + "'",
                          current().line, current().column);
+    }
+
+    if (current().type == TokenType::LBRACKET) {
+      advance(); // consume [
+      auto index = parseExpression();
+      expect(TokenType::RBRACKET, "expected ']'");
+
+      TokenType op = advance().type;
+      auto value = parseExpression();
+      expect(TokenType::SEMICOLON, "expected ';'");
+
+      auto node = std::make_unique<ArrayAssignmentNode>(current().line);
+      node->arrayName = name;
+      node->index = std::move(index);
+      node->op = op;
+      node->value = std::move(value);
+      return node;
     }
 
     // regular assignment: x = 5;
@@ -815,6 +836,26 @@ std::unique_ptr<ASTNode> Parser::parseKernelDeclaration() {
   expect(TokenType::KW_RETURNS, "expected 'returns'");
   node->returnType = parseType();
   node->body = parseBlock();
+
+  return node;
+}
+
+std::unique_ptr<ASTNode> Parser::parseSharedDeclaration() {
+  auto node = std::make_unique<SharedDeclarationNode>(current().line);
+
+  advance(); // consume 'shared'
+
+  node->elementType = advance().value; // base type, e.g. "int"
+
+  expect(TokenType::LBRACKET, "expected '[' after shared type");
+  std::string sizeStr =
+      expect(TokenType::INT_LITERAL, "expected array size").value;
+  node->size = std::stoi(sizeStr);
+  expect(TokenType::RBRACKET, "expected ']' after array size");
+
+  node->name =
+      expect(TokenType::IDENTIFIER, "expected shared variable name").value;
+  expect(TokenType::SEMICOLON, "expected ';'");
 
   return node;
 }

@@ -133,6 +133,12 @@ void GPUGenerator::generateStatement(ASTNode *node) {
   case NodeType::FunctionCall:
     generateExpression(node);
     break;
+  case NodeType::SharedDeclaration:
+    generateSharedDeclaration(static_cast<SharedDeclarationNode *>(node));
+    break;
+  case NodeType::ArrayAssignment:
+    generateArrayAssignment(static_cast<ArrayAssignmentNode *>(node));
+    break;
   default:
     throw std::runtime_error("Unknown statement in GPU IR generation");
   }
@@ -146,7 +152,7 @@ void GPUGenerator::generateKernel(KernelDeclarationNode *node) {
 
   llvm::Type *returnType = getLLVMType(node->returnType);
   if (node->returnType != "none") {
-    paramTypes.push_back(returnType);
+    paramTypes.push_back(llvm::PointerType::get(returnType, 0));
   }
 
   llvm::FunctionType *funcType = llvm::FunctionType::get(
@@ -215,6 +221,54 @@ void GPUGenerator::generateKernel(KernelDeclarationNode *node) {
   }
 }
 
+void GPUGenerator::generateArrayAssignment(ArrayAssignmentNode *node) {
+  llvm::Value *index = generateExpression(node->index.get());
+  llvm::Value *newVal = generateExpression(node->value.get());
+
+  llvm::Value *elemPtr;
+  llvm::Type *elementType;
+
+  auto sharedIt = sharedVariables.find(node->arrayName);
+  if (sharedIt != sharedVariables.end()) {
+    llvm::GlobalVariable *sharedVar = sharedIt->second;
+    llvm::Type *arrayType = sharedVar->getValueType();
+    elementType = static_cast<llvm::ArrayType *>(arrayType)->getElementType();
+
+    elemPtr = builder.CreateGEP(
+        arrayType, sharedVar,
+        {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), index},
+        "sharedelemptr");
+  } else {
+    llvm::AllocaInst *alloca = lookupVariable(node->arrayName);
+    llvm::Value *ptr =
+        builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
+    elementType = getPointeeType(node->arrayName);
+    elemPtr = builder.CreateGEP(elementType, ptr, index, "elemptr");
+  }
+
+  if (node->op != TokenType::EQUALS) {
+    llvm::Value *current = builder.CreateLoad(elementType, elemPtr, "current");
+    switch (node->op) {
+    case TokenType::PLUS_EQUALS:
+      newVal = builder.CreateAdd(current, newVal, "addtmp");
+      break;
+    case TokenType::MINUS_EQUALS:
+      newVal = builder.CreateSub(current, newVal, "subtmp");
+      break;
+    case TokenType::STAR_EQUALS:
+      newVal = builder.CreateMul(current, newVal, "multmp");
+      break;
+    case TokenType::SLASH_EQUALS:
+      newVal = builder.CreateSDiv(current, newVal, "divtmp");
+      break;
+    default:
+      break;
+    }
+  }
+
+  builder.CreateStore(newVal, elemPtr);
+}
+
 llvm::Value *GPUGenerator::generateThreadId() {
   // declare the NVPTX thread ID intrinsic as external function
   std::string intrinsicName = "llvm.nvvm.read.ptx.sreg.tid.x";
@@ -281,6 +335,10 @@ llvm::Value *GPUGenerator::generateFunctionCall(FunctionCallNode *node) {
     return generateBlockId();
   if (node->name == "gridDim")
     return generateBlockDim();
+  if (node->name == "syncThreads") {
+    generateSyncThreads();
+    return llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
+  }
 
   throw std::runtime_error("Unknown function in GPU kernel: '" + node->name +
                            "'");
@@ -502,6 +560,21 @@ llvm::Value *GPUGenerator::generateExpression(ASTNode *node) {
 
     if (n->array->type == NodeType::Identifier) {
       auto *ident = static_cast<IdentifierNode *>(n->array.get());
+
+      auto sharedIt = sharedVariables.find(ident->name);
+      if (sharedIt != sharedVariables.end()) {
+        llvm::GlobalVariable *sharedVar = sharedIt->second;
+        llvm::Type *arrayType = sharedVar->getValueType();
+        llvm::Type *elementType =
+            static_cast<llvm::ArrayType *>(arrayType)->getElementType();
+
+        llvm::Value *elemPtr = builder.CreateGEP(
+            arrayType, sharedVar,
+            {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), index},
+            "sharedelemptr");
+        return builder.CreateLoad(elementType, elemPtr, "sharedval");
+      }
+
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
       llvm::Value *ptr =
           builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
@@ -512,9 +585,11 @@ llvm::Value *GPUGenerator::generateExpression(ASTNode *node) {
         return builder.CreateLoad(elementType, elemPtr, "elemval");
       }
     }
+
     throw std::runtime_error(
         "Complex array access not supported in GPU kernels");
   }
+
   case NodeType::UnaryExpression: {
     auto *n = static_cast<UnaryExpressionNode *>(node);
     llvm::Value *val = generateExpression(n->operand.get());
@@ -579,6 +654,29 @@ GPUGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   default:
     throw std::runtime_error("Unknown binary operator in GPU IR generation");
   }
+}
+
+void GPUGenerator::generateSharedDeclaration(SharedDeclarationNode *node) {
+  llvm::Type *elementType = getLLVMType(node->elementType);
+  llvm::ArrayType *arrayType = llvm::ArrayType::get(elementType, node->size);
+
+  llvm::GlobalVariable *sharedVar = new llvm::GlobalVariable(
+      *module, arrayType, false, llvm::GlobalValue::InternalLinkage,
+      llvm::UndefValue::get(arrayType), node->name, nullptr,
+      llvm::GlobalValue::NotThreadLocal, 3);
+
+  sharedVar->setAlignment(llvm::Align(4));
+
+  sharedVariables[node->name] = sharedVar;
+}
+
+llvm::Value *GPUGenerator::generateSyncThreads() {
+  llvm::Function *syncFunc = llvm::Intrinsic::getDeclaration(
+      module.get(), llvm::Intrinsic::nvvm_bar_warp_sync);
+
+  builder.CreateCall(
+      syncFunc, {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0)});
+  return nullptr;
 }
 
 void GPUGenerator::print() { module->print(llvm::outs(), nullptr); }
