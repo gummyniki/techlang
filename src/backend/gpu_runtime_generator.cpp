@@ -124,18 +124,14 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
     bool isArray = type.substr(0, 7) == "ArrayOf";
     std::string inner = isArray ? type.substr(8, type.size() - 9) : type;
 
-    ss << "    CUdeviceptr d_" << name << ";\n";
     if (isArray) {
+      ss << "    CUdeviceptr d_" << name << ";\n";
       ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", " << name
          << "_size * " << tecTypeToCUDA(inner) << "));\n";
       ss << "    CUDA_CHECK(cuMemcpyHtoD(d_" << name << ", " << name << ", "
          << name << "_size * " << tecTypeToCUDA(inner) << "));\n";
-    } else {
-      ss << "    CUDA_CHECK(cuMemAlloc(&d_" << name << ", "
-         << tecTypeToCUDA(type) << "));\n";
-      ss << "    CUDA_CHECK(cuMemcpyHtoD(d_" << name << ", &" << name << ", "
-         << tecTypeToCUDA(type) << "));\n";
     }
+    // scalars are passed by host pointer directly — no device allocation needed
   }
 
   if (kernel.returnType != "none") {
@@ -151,15 +147,19 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
 
   ss << "    void* args[] = {";
   for (auto &[type, name] : kernel.params) {
-    ss << "&d_" << name << ", ";
+    if (type.substr(0, 7) == "ArrayOf")
+      ss << "&d_" << name << ", ";
+    else
+      ss << "&" << name << ", ";
   }
   if (kernel.returnType != "none") {
     ss << "&d_result";
   }
   ss << "};\n";
 
-  ss << "    int threadsPerBlock = " << sizeVar << " < 256 ? " << sizeVar
-     << " : 256;\n";
+  ss << "    int threadsPerBlock = 1;\n";
+  ss << "    while (threadsPerBlock < " << sizeVar
+     << " && threadsPerBlock < 256) threadsPerBlock *= 2;\n";
   ss << "    int numBlocks = (" << sizeVar
      << " + threadsPerBlock - 1) / threadsPerBlock;\n";
 
@@ -193,7 +193,8 @@ GPURuntimeGenerator::generateKernelWrapper(const KernelInfo &kernel) {
   }
 
   for (auto &[type, name] : kernel.params) {
-    ss << "    CUDA_CHECK(cuMemFree(d_" << name << "));\n";
+    if (type.substr(0, 7) == "ArrayOf")
+      ss << "    CUDA_CHECK(cuMemFree(d_" << name << "));\n";
   }
   if (kernel.returnType != "none") {
     ss << "    CUDA_CHECK(cuMemFree(d_result));\n";

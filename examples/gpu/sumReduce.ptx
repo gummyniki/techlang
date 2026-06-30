@@ -44,13 +44,13 @@ $L__BB0_2:
 	add.s64 	%rd9, %rd8, %rd18;
 	st.shared.b32 	[%rd9], 0;
 $L__BB0_3:
-	bar.warp.sync 	0;
+	bar.sync 	0;
 	shr.u32 	%r10, %r2, 31;
 	add.s32 	%r11, %r2, %r10;
 	shr.s32 	%r20, %r11, 1;
 	bra.uni 	$L__BB0_4;
 $L__BB0_7:
-	bar.warp.sync 	0;
+	bar.sync 	0;
 	shr.u32 	%r18, %r20, 31;
 	add.s32 	%r19, %r20, %r18;
 	shr.s32 	%r20, %r19, 1;

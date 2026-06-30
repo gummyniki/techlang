@@ -675,7 +675,7 @@ void GPUGenerator::generateSharedDeclaration(SharedDeclarationNode *node) {
 
 llvm::Value *GPUGenerator::generateSyncThreads() {
   llvm::Function *syncFunc = llvm::Intrinsic::getDeclaration(
-      module.get(), llvm::Intrinsic::nvvm_bar_warp_sync);
+      module.get(), llvm::Intrinsic::nvvm_barrier_cta_sync_aligned_all);
 
   builder.CreateCall(
       syncFunc, {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0)});

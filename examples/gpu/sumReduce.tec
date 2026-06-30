@@ -7,5 +7,5 @@ function main() returns none {
 
     gpu.sumReduce(data, 10, result);
 
-    std.print(result[5]); // 55
+    std.print(result[0]); // 55
 }

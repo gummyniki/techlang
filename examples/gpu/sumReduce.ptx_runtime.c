@@ -52,13 +52,13 @@ static const char* ptx_gpu =
     "	add.s64 	%rd9, %rd8, %rd18;\n"
     "	st.shared.b32 	[%rd9], 0;\n"
     "$L__BB0_3:\n"
-    "	bar.warp.sync 	0;\n"
+    "	bar.sync 	0;\n"
     "	shr.u32 	%r10, %r2, 31;\n"
     "	add.s32 	%r11, %r2, %r10;\n"
     "	shr.s32 	%r20, %r11, 1;\n"
     "	bra.uni 	$L__BB0_4;\n"
     "$L__BB0_7:\n"
-    "	bar.warp.sync 	0;\n"
+    "	bar.sync 	0;\n"
     "	shr.u32 	%r18, %r20, 31;\n"
     "	add.s32 	%r19, %r20, %r18;\n"
     "	shr.s32 	%r20, %r19, 1;\n"
@@ -110,14 +110,12 @@ void* gpu_sumReduce(int* data, int data_size, int size, int* result, int result_
     CUdeviceptr d_data;
     CUDA_CHECK(cuMemAlloc(&d_data, data_size * sizeof(int)));
     CUDA_CHECK(cuMemcpyHtoD(d_data, data, data_size * sizeof(int)));
-    CUdeviceptr d_size;
-    CUDA_CHECK(cuMemAlloc(&d_size, sizeof(int)));
-    CUDA_CHECK(cuMemcpyHtoD(d_size, &size, sizeof(int)));
     CUdeviceptr d_result;
     CUDA_CHECK(cuMemAlloc(&d_result, result_size * sizeof(int)));
     CUDA_CHECK(cuMemcpyHtoD(d_result, result, result_size * sizeof(int)));
-    void* args[] = {&d_data, &d_size, &d_result, };
-    int threadsPerBlock = data_size < 256 ? data_size : 256;
+    void* args[] = {&d_data, &size, &d_result, };
+    int threadsPerBlock = 1;
+    while (threadsPerBlock < data_size && threadsPerBlock < 256) threadsPerBlock *= 2;
     int numBlocks = (data_size + threadsPerBlock - 1) / threadsPerBlock;
     CUDA_CHECK(cuLaunchKernel(tec_gpu_kernel_gpu_sumReduce,
         numBlocks, 1, 1,
@@ -125,8 +123,9 @@ void* gpu_sumReduce(int* data, int data_size, int size, int* result, int result_
         0, 0, args, 0));
     CUDA_CHECK(cuCtxSynchronize());
 
+    cuMemcpyDtoH(data, d_data, data_size * sizeof(int));
+    cuMemcpyDtoH(result, d_result, result_size * sizeof(int));
     CUDA_CHECK(cuMemFree(d_data));
-    CUDA_CHECK(cuMemFree(d_size));
     CUDA_CHECK(cuMemFree(d_result));
 }
 
