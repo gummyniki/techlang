@@ -18,6 +18,7 @@ public:
   std::string compilerDir;
   std::unordered_set<std::string> alreadyImported;
   std::vector<std::string> gpuWrapperFiles;
+  std::vector<std::string> gpuAliases;
   void resolveVecTecImport(ImportNode *node);
 
   std::vector<KernelInfo> extractKernelInfo(ProgramNode *ast);

@@ -14,12 +14,15 @@ function perimeter(rectangle r) returns float {
 }
 
 function set_dimensions(rectangle *r, float width, float height) returns none {
-	r.value.width = width;
-	r.value.height = height;
+    r.value.width = width;
+    r.value.height = height;
 }
+
 
 function main() returns none {
     rectangle r;
+    rectangle r2;
+    rectangle[] rects = {r, r2};
     r.width = 5.0;
     r.height = 3.0;
     std.print("Area:\n");
@@ -31,4 +34,6 @@ function main() returns none {
     std.print(r.width);
     std.print("\nHeight:\n");
     std.print(r.height);
+
+
 }

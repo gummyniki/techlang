@@ -20,6 +20,115 @@
 #include <sstream>
 #include <string>
 
+struct CompilerOptions {
+  std::string inputFile;
+  std::string outputFile;
+  std::vector<std::string> cFiles;
+  std::vector<std::string> linkLibs;
+  std::vector<std::string> linkDirs;
+  bool emitLLVM = false;
+  bool verbose = false;
+};
+
+std::string getOutputName(const std::string &inputPath) {
+  size_t dotPos = inputPath.rfind(".tec");
+  if (dotPos != std::string::npos) {
+    return inputPath.substr(0, dotPos);
+  }
+  return inputPath + "_out";
+}
+
+CompilerOptions parseArgs(int argc, char *argv[]) {
+  CompilerOptions opts;
+
+  if (argc < 2) {
+    std::cerr << "Usage: techlang <file.tec> [options]\n";
+    std::cerr << "Options:\n";
+    std::cerr << "  -o <file>       output binary name\n";
+    std::cerr << "  -c <file.c>     compile and link a C file\n";
+    std::cerr << "  -l <lib>        link a library (e.g. -l vulkan)\n";
+    std::cerr << "  -L <dir>        add library search directory\n";
+    std::cerr << "  --emit-llvm     save .ll file alongside binary\n";
+    std::cerr << "  --verbose       print compilation steps\n";
+    exit(1);
+  }
+
+  opts.inputFile = argv[1];
+
+  for (int i = 2; i < argc; i++) {
+    std::string arg = argv[i];
+
+    if (arg == "-o" && i + 1 < argc) {
+      opts.outputFile = argv[++i];
+    } else if (arg == "-c" && i + 1 < argc) {
+      opts.cFiles.push_back(argv[++i]);
+    } else if (arg == "-l" && i + 1 < argc) {
+      opts.linkLibs.push_back(argv[++i]);
+    } else if (arg == "-L" && i + 1 < argc) {
+      opts.linkDirs.push_back(argv[++i]);
+    } else if (arg == "--emit-llvm") {
+      opts.emitLLVM = true;
+    } else if (arg == "--verbose") {
+      opts.verbose = true;
+    } else {
+      std::cerr << "Unknown option: " << arg << "\n";
+      exit(1);
+    }
+  }
+
+  if (opts.outputFile.empty()) {
+    opts.outputFile = getOutputName(opts.inputFile);
+  }
+
+  return opts;
+}
+
+std::string getCompilerDir(const char *argv0) {
+  std::filesystem::path execPath;
+
+  if (std::string(argv0).find('/') != std::string::npos) {
+    execPath = std::filesystem::canonical(argv0);
+  } else {
+    // search PATH for the executable
+    const char *pathEnv = std::getenv("PATH");
+    if (pathEnv) {
+      std::stringstream ss(pathEnv);
+      std::string dir;
+      while (std::getline(ss, dir, ':')) {
+        std::filesystem::path candidate = std::filesystem::path(dir) / argv0;
+        if (std::filesystem::exists(candidate)) {
+          execPath = std::filesystem::canonical(candidate);
+          break;
+        }
+      }
+    }
+  }
+
+  if (execPath.empty()) {
+    return std::filesystem::current_path().string();
+  }
+
+  return execPath.parent_path().string();
+}
+
+std::string compileCFile(const std::string &cFile, const std::string &buildDir,
+                         bool verbose) {
+  std::string objFile =
+      buildDir + "/" + std::filesystem::path(cFile).stem().string() + ".o";
+
+  std::string cmd = "gcc -c " + cFile + " -o " + objFile;
+
+  if (verbose)
+    std::cout << "Compiling C: " << cmd << "\n";
+
+  int result = std::system(cmd.c_str());
+  if (result != 0) {
+    throw std::runtime_error("Failed to compile C file: " + cFile);
+  }
+
+  return objFile;
+}
+
 std::string readFile(const std::string &path) {
   std::ifstream file(path);
   if (!file.is_open()) {
@@ -59,14 +168,33 @@ std::string findStdLib(const std::string &compilerDir,
 
 void linkToExecutable(const std::string &objPath, const std::string &exePath,
                       const std::string &compilerDir,
-                      const std::vector<std::string> &gpuWrappers) {
+                      const std::vector<std::string> &extraObjs,
+                      const std::vector<std::string> &linkLibs,
+                      const std::vector<std::string> &linkDirs,
+                      const std::vector<std::string> &gpuWrappers,
+                      bool verbose) {
 
-  std::string stdLib = findStdLib(compilerDir, "stdlib.o");
+  std::string stdLib = compilerDir + "/stdlib.o";
+  if (!std::filesystem::exists(stdLib)) {
+    stdLib = "/usr/local/lib/stdlib.o";
+  }
 
   std::string cmd = "gcc " + objPath + " " + stdLib;
 
+  for (auto &obj : extraObjs) {
+    cmd += " " + obj;
+  }
+
   for (auto &wrapper : gpuWrappers) {
     cmd += " " + wrapper;
+  }
+
+  for (auto &dir : linkDirs) {
+    cmd += " -L" + dir;
+  }
+
+  for (auto &lib : linkLibs) {
+    cmd += " -l" + lib;
   }
 
   if (!gpuWrappers.empty()) {
@@ -75,21 +203,15 @@ void linkToExecutable(const std::string &objPath, const std::string &exePath,
 
   cmd += " -o " + exePath + " -lm";
 
+  if (verbose)
+    std::cout << "Linking: " << cmd << "\n";
+
   int result = std::system(cmd.c_str());
   if (result != 0) {
     throw std::runtime_error("Linking failed!");
   }
 
   std::remove(objPath.c_str());
-}
-
-std::string getOutputName(const std::string &inputPath) {
-  // strip the .tec extension to get the output name
-  size_t dotPos = inputPath.rfind(".tec");
-  if (dotPos != std::string::npos) {
-    return inputPath.substr(0, dotPos);
-  }
-  return inputPath + "_out";
 }
 
 void compileToObject(llvm::Module *module, const std::string &outputPath) {
@@ -144,79 +266,83 @@ void compileToObject(llvm::Module *module, const std::string &outputPath) {
 }
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    std::cerr << "Usage: techlang <file.tec>\n";
-    return 1;
-  }
+  CompilerOptions opts = parseArgs(argc, argv);
 
-  // get the directory the compiler binary lives in
-  std::string compilerDir =
-      std::filesystem::canonical(std::filesystem::path(argv[0]).parent_path())
-          .string();
+  std::string compilerDir = getCompilerDir(argv[0]);
 
-  std::string inputPath = argv[1];
-  std::string outputPath = getOutputName(inputPath);
+  // temp build directory for intermediate files
+  std::string buildDir = "/tmp/techlang_build";
+  std::filesystem::create_directories(buildDir);
 
-  std::string source;
   try {
-    // 1. read source file
-    std::cout << "Reading " << inputPath << "...\n";
-    source = readFile(inputPath);
+    if (opts.verbose)
+      std::cout << "Reading " << opts.inputFile << "...\n";
+    std::string source = readFile(opts.inputFile);
 
-    // 2. lex
-    std::cout << "Lexing...\n";
+    if (opts.verbose)
+      std::cout << "Lexing...\n";
     Lexers::Lexer lexer(source);
     auto tokens = lexer.tokenize();
 
-    // 3. parse
-    std::cout << "Parsing...\n";
+    if (opts.verbose)
+      std::cout << "Parsing...\n";
     Parser parser(tokens);
     auto ast = parser.parse();
 
-    ImportResolver resolver(
-        std::filesystem::path(inputPath).parent_path().string(), compilerDir);
+    if (opts.verbose)
+      std::cout << "Resolving imports...\n";
+
+    std::string inputDir =
+        std::filesystem::path(opts.inputFile).parent_path().string();
+
+    if (inputDir.empty()) {
+      inputDir = std::filesystem::current_path().string();
+    }
+
+    ImportResolver resolver(inputDir, compilerDir);
     resolver.resolve(ast.get());
 
-    // 4. semantic analysis
-    std::cout << "Analyzing...\n";
+    if (opts.verbose)
+      std::cout << "Analyzing...\n";
     SemanticAnalyzer analyzer;
     analyzer.analyze(ast.get());
 
-    // 5. IR generation
-    std::cout << "Generating IR...\n";
+    if (opts.verbose)
+      std::cout << "Generating IR...\n";
     IRGenerator irGen;
-
-    for (auto &statement : ast->statements) {
-      if (statement->type == NodeType::Import) {
-        auto *importNode = static_cast<ImportNode *>(statement.get());
-        if (importNode->filename.size() > 5 &&
-            importNode->filename.substr(importNode->filename.size() - 5) ==
-                ".vtec") {
-          irGen.registerGPUAlias(importNode->alias);
-        }
-      }
+    for (auto &alias : resolver.gpuAliases) {
+      irGen.registerGPUAlias(alias);
     }
-
     irGen.generate(ast.get());
 
-    // optional: save the .ll file for debugging
-    irGen.saveToFile(outputPath + ".ll");
+    if (opts.emitLLVM) {
+      irGen.saveToFile(opts.outputFile + ".ll");
+    }
 
-    // 6. compile to object file
-    std::cout << "Compiling...\n";
-    compileToObject(irGen.getModule(), outputPath);
+    if (opts.verbose)
+      std::cout << "Compiling...\n";
+    compileToObject(irGen.getModule(), buildDir + "/output");
 
-    // 7. link to executable
-    std::cout << "Linking...\n";
-    linkToExecutable(outputPath + ".o", outputPath, compilerDir,
-                     resolver.gpuWrapperFiles);
+    // compile any -c C files
+    std::vector<std::string> extraObjs;
+    for (auto &cFile : opts.cFiles) {
+      extraObjs.push_back(compileCFile(cFile, buildDir, opts.verbose));
+    }
 
-    std::cout << "Done! Binary: ./" << outputPath << "\n";
+    if (opts.verbose)
+      std::cout << "Linking...\n";
+    linkToExecutable(buildDir + "/output.o", opts.outputFile, compilerDir,
+                     extraObjs, opts.linkLibs, opts.linkDirs,
+                     resolver.gpuWrapperFiles, opts.verbose);
+
+    if (opts.verbose)
+      std::cout << "Done! Binary: ./" << opts.outputFile << "\n";
 
   } catch (CompileError &e) {
     std::cerr << "Error on line " << e.line << ": " << e.message << "\n";
 
     // split source into lines and show the offending line with a pointer
+    std::string source = readFile(opts.inputFile);
     std::vector<std::string> lines;
     std::istringstream stream(source);
     std::string ln;

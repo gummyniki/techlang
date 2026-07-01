@@ -151,6 +151,7 @@ void ImportResolver::resolveVecTecImport(ImportNode *node) {
   }
 
   gpuWrapperFiles.push_back(ptxPath + "_runtime.o");
+  gpuAliases.push_back(node->alias);
 
   // register kernel functions in the import node
   // so the semantic analyzer and IR generator know about them

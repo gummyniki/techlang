@@ -41,8 +41,14 @@ llvm::AllocaInst *IRGenerator::lookupVariable(const std::string &name) {
 }
 
 llvm::Type *IRGenerator::getLLVMType(const std::string &type) {
-  if (type == "int")
+  if (type == "int" || type == "int32")
     return llvm::Type::getInt32Ty(context);
+  if (type == "int8" || type == "uint8")
+    return llvm::Type::getInt8Ty(context);
+  if (type == "int16" || type == "uint16")
+    return llvm::Type::getInt16Ty(context);
+  if (type == "int64" || type == "uint64")
+    return llvm::Type::getInt64Ty(context);
   if (type == "float")
     return llvm::Type::getFloatTy(context);
   if (type == "double")
@@ -266,8 +272,30 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
       {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
        llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), fieldIndex)},
       "fieldptr");
+  llvm::Type *fieldType = structType->getElementType(fieldIndex);
 
   llvm::Value *value = generateExpression(node->value.get());
+
+  if (node->op != TokenType::EQUALS) {
+    llvm::Value *current = builder.CreateLoad(fieldType, fieldPtr, "current");
+    switch (node->op) {
+    case TokenType::PLUS_EQUALS:
+      value = builder.CreateAdd(current, value, "addtmp");
+      break;
+    case TokenType::MINUS_EQUALS:
+      value = builder.CreateSub(current, value, "subtmp");
+      break;
+    case TokenType::STAR_EQUALS:
+      value = builder.CreateMul(current, value, "multmp");
+      break;
+    case TokenType::SLASH_EQUALS:
+      value = builder.CreateSDiv(current, value, "divtmp");
+      break;
+    default:
+      break;
+    }
+  }
+
   builder.CreateStore(value, fieldPtr);
 }
 
@@ -360,6 +388,39 @@ LValueResult IRGenerator::resolveLValue(ASTNode *node) {
     return {fieldPtr, fieldType, fieldPointeeType};
   }
 
+  if (node->type == NodeType::ArrayAccess) {
+    auto *n = static_cast<ArrayAccessNode *>(node);
+    llvm::Value *index = generateExpression(n->index.get());
+
+    if (n->array->type != NodeType::Identifier) {
+      throw std::runtime_error("Line " + std::to_string(n->line) +
+                               ": complex array access not supported yet");
+    }
+
+    auto *ident = static_cast<IdentifierNode *>(n->array.get());
+    llvm::AllocaInst *alloca = lookupVariable(ident->name);
+
+    if (alloca->getAllocatedType()->isArrayTy()) {
+      llvm::ArrayType *arrayType =
+          static_cast<llvm::ArrayType *>(alloca->getAllocatedType());
+      llvm::Type *elementType = arrayType->getElementType();
+
+      llvm::Value *elemPtr = builder.CreateGEP(
+          arrayType, alloca,
+          {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0), index},
+          "elemptr");
+      return {elemPtr, elementType, nullptr};
+    }
+
+    llvm::Value *ptr =
+        builder.CreateLoad(alloca->getAllocatedType(), alloca, "arrptr");
+    llvm::Type *elementType = getPointeeType(ident->name);
+
+    llvm::Value *elemPtr =
+        builder.CreateGEP(elementType, ptr, index, "elemptr");
+    return {elemPtr, elementType, nullptr};
+  }
+
   throw std::runtime_error("Cannot resolve address of this expression");
 }
 
@@ -374,8 +435,6 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
       llvm::FunctionType::get(returnType, paramTypes, false);
 
   if (node->body.empty() && !node->externSymbol.empty()) {
-    // The GPU runtime wrapper appends an int size parameter after each array
-    // argument, so expand the LLVM type to match the actual C signature.
     std::vector<llvm::Type *> expandedParamTypes;
     for (auto &[type, name] : node->params) {
       expandedParamTypes.push_back(getLLVMType(type));
@@ -426,7 +485,6 @@ void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
     }
   }
 
-  // Inject GPU context init at the top of main before any body statements.
   if (node->name == "main" && !gpuAliases.empty()) {
     for (auto &alias : gpuAliases) {
       std::string initName = "tec_gpu_init_" + alias;
@@ -524,7 +582,6 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
       return;
     }
 
-    // non-literal initializer (e.g. function call returning a pointer)
     llvm::Type *ptrType = llvm::PointerType::get(elementType, 0);
     llvm::AllocaInst *alloca =
         createEntryAlloca(currentFunction, node->name, ptrType);
@@ -878,7 +935,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
       }
     }
 
-    // `.address` yields the storage address itself, not a loaded value
     if (n->member == "address") {
       LValueResult base = resolveLValue(n->object.get());
       return base.addr;
@@ -918,6 +974,20 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
 llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
   llvm::Value *left = generateExpression(node->left.get());
   llvm::Value *right = generateExpression(node->right.get());
+
+  bool isComparison =
+      node->op == TokenType::EQUALS_EQUALS ||
+      node->op == TokenType::BANG_EQUALS || node->op == TokenType::LESS ||
+      node->op == TokenType::GREATER || node->op == TokenType::LESS_EQUALS ||
+      node->op == TokenType::GREATER_EQUALS;
+
+  if (isComparison && left->getType()->isPointerTy() &&
+      right->getType()->isIntegerTy()) {
+    right = builder.CreateIntToPtr(right, left->getType(), "inttoptrtmp");
+  } else if (isComparison && right->getType()->isPointerTy() &&
+             left->getType()->isIntegerTy()) {
+    left = builder.CreateIntToPtr(left, right->getType(), "inttoptrtmp");
+  }
 
   bool isFloat = left->getType()->isFloatingPointTy();
 
@@ -1032,7 +1102,6 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     llvm::Value *arg = generateExpression(node->args[0].get());
     llvm::Type *argType = arg->getType();
 
-    // pick the right print function based on type
     std::string printFunc;
     if (argType->isIntegerTy(32))
       printFunc = "tec_print_int";
@@ -1107,12 +1176,18 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
       llvm::Type *actualType = val->getType();
 
       if (expectedType->isPointerTy() && !actualType->isPointerTy()) {
-        llvm::AllocaInst *alloca =
-            createEntryAlloca(currentFunction, "anybox", actualType);
-        builder.CreateStore(val, alloca);
-        val = builder.CreateBitCast(
-            alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
-            "anyptr");
+        auto *constInt = llvm::dyn_cast<llvm::ConstantInt>(val);
+        if (constInt && constInt->isZero()) {
+          val = llvm::ConstantPointerNull::get(
+              llvm::cast<llvm::PointerType>(expectedType));
+        } else {
+          llvm::AllocaInst *alloca =
+              createEntryAlloca(currentFunction, "anybox", actualType);
+          builder.CreateStore(val, alloca);
+          val = builder.CreateBitCast(
+              alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
+              "anyptr");
+        }
       }
     }
 
@@ -1123,9 +1198,8 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
     bool isGPUCall = std::find(gpuAliases.begin(), gpuAliases.end(), alias) !=
                      gpuAliases.end();
 
-    if (isGPUCall && i < (int)func->getFunctionType()->getNumParams() &&
-        func->getFunctionType()->getParamType(i)->isIntegerTy(32) &&
-        val->getType()->isPointerTy() && arg->type == NodeType::Identifier) {
+    if (isGPUCall && val->getType()->isPointerTy() &&
+        arg->type == NodeType::Identifier) {
       auto *ident = static_cast<IdentifierNode *>(arg.get());
       llvm::AllocaInst *arrAlloca = lookupVariable(ident->name);
       if (arrAlloca->getAllocatedType()->isArrayTy()) {

@@ -7,6 +7,16 @@
 #include <stdexcept>
 #include <string>
 
+// std::stoi defaults to base 10 and silently stops at the first non-decimal
+// digit, so "0x00022001" parses as just "0". Detect the 0x/0X prefix and
+// parse as hex so hex integer literals aren't truncated to 0.
+static int parseIntLiteral(const std::string &s) {
+  if (s.size() > 2 && s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+    return static_cast<int>(std::stoll(s, nullptr, 16));
+  }
+  return std::stoi(s);
+}
+
 std::unique_ptr<ProgramNode> Parser::parse() {
   auto program = std::make_unique<ProgramNode>();
 
@@ -49,9 +59,11 @@ std::string Parser::parseType() {
   std::string baseType = advance().value;
 
   if (current().type == TokenType::LBRACKET) {
-    advance();
-    expect(TokenType::RBRACKET, "Expected ']' after '['");
-    return "ArrayOf(" + baseType + ")";
+    if (peek(1).type == TokenType::RBRACKET) {
+      advance();
+      advance();
+      return "ArrayOf(" + baseType + ")";
+    }
   }
 
   if (current().type == TokenType::STAR) {
@@ -63,7 +75,6 @@ std::string Parser::parseType() {
   return baseType;
 }
 
-// parsing methods - one per language construct
 std::unique_ptr<ASTNode> Parser::parseStatement() {
   if (current().type == TokenType::EXCLAIM) {
     return parseImport();
@@ -84,14 +95,94 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
   if (current().type == TokenType::IDENTIFIER) {
     std::string name = advance().value;
 
+    if (current().type == TokenType::LBRACKET &&
+        peek(1).type == TokenType::RBRACKET) {
+      advance();
+      advance();
+      std::string dataType = "ArrayOf(" + name + ")";
+      return parseVarDeclaration(dataType, TokenType::SEMICOLON);
+    }
+
+    if (current().type == TokenType::STAR) {
+      advance();
+      std::string dataType = "PointerOf(" + name + ")";
+      return parseVarDeclaration(dataType, TokenType::SEMICOLON);
+    }
+
+    if (current().type == TokenType::LBRACKET) {
+      int arrLine = current().line;
+      advance(); // consume [
+      auto index = parseExpression();
+      expect(TokenType::RBRACKET, "expected ']'");
+
+      // arr[idx].field = value; (and chained arr[idx].a.b = value;)
+      if (current().type == TokenType::DOT) {
+        auto arrayAccess = std::make_unique<ArrayAccessNode>(arrLine);
+        arrayAccess->array = std::make_unique<IdentifierNode>(name, arrLine);
+        arrayAccess->index = std::move(index);
+        std::unique_ptr<ASTNode> object = std::move(arrayAccess);
+
+        advance(); // consume .
+        std::string finalMember =
+            expect(TokenType::IDENTIFIER, "expected member name").value;
+
+        while (current().type == TokenType::DOT) {
+          auto access = std::make_unique<MemberAccessNode>(current().line);
+          access->object = std::move(object);
+          access->member = finalMember;
+          object = std::move(access);
+
+          advance(); // consume .
+          finalMember =
+              expect(TokenType::IDENTIFIER, "expected member name").value;
+        }
+
+        if (current().type == TokenType::EQUALS ||
+            current().type == TokenType::PLUS_EQUALS ||
+            current().type == TokenType::MINUS_EQUALS ||
+            current().type == TokenType::STAR_EQUALS ||
+            current().type == TokenType::SLASH_EQUALS) {
+
+          TokenType op = advance().type;
+          auto value = parseExpression();
+          expect(TokenType::SEMICOLON, "expected ';'");
+
+          auto node = std::make_unique<MemberAssignmentNode>(arrLine);
+          node->object = std::move(object);
+          node->memberName = finalMember;
+          node->op = op;
+          node->value = std::move(value);
+          return node;
+        }
+
+        throw CompileError("unexpected token after member access '" +
+                               current().value + "'",
+                           current().line, current().column);
+      }
+
+      TokenType op = advance().type;
+      auto value = parseExpression();
+      expect(TokenType::SEMICOLON, "expected ';'");
+      auto node = std::make_unique<ArrayAssignmentNode>(current().line);
+      node->arrayName = name;
+      node->index = std::move(index);
+      node->op = op;
+      node->value = std::move(value);
+      return node;
+    }
+
+    if (current().type == TokenType::STAR) {
+      advance();
+      std::string dataType = "PointerOf(" + name + ")";
+      return parseVarDeclaration(dataType, TokenType::SEMICOLON);
+    }
+
     if (current().type == TokenType::DOT) {
       int line = current().line;
       advance(); // consume .
       std::string member =
           expect(TokenType::IDENTIFIER, "expected member name").value;
 
-      // qualified call, e.g. std.print(...): only recognized one dot deep,
-      // matching the existing (non-chained) qualified-call convention.
       if (current().type == TokenType::LPAREN) {
         advance(); // consume (
         std::string fullName = name + "." + member;
@@ -111,10 +202,8 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
         return node;
       }
 
-      // build up the chain of member accesses before the final field,
-      // e.g. `p.value.width = 5;` -> object = MemberAccess(p, "value"),
-      // memberName = "width"
-      std::unique_ptr<ASTNode> object = std::make_unique<IdentifierNode>(name, line);
+      std::unique_ptr<ASTNode> object =
+          std::make_unique<IdentifierNode>(name, line);
       std::string finalMember = member;
 
       while (current().type == TokenType::DOT) {
@@ -242,7 +331,14 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
   }
 
   // variable declaration
-  if (current().type == TokenType::KW_INT ||
+  if (current().type == TokenType::KW_INT8 ||
+      current().type == TokenType::KW_INT16 ||
+      current().type == TokenType::KW_INT32 ||
+      current().type == TokenType::KW_INT64 ||
+      current().type == TokenType::KW_UINT8 ||
+      current().type == TokenType::KW_UINT16 ||
+      current().type == TokenType::KW_UINT32 ||
+      current().type == TokenType::KW_UINT64 ||
       current().type == TokenType::KW_FLOAT ||
       current().type == TokenType::KW_DOUBLE ||
       current().type == TokenType::KW_STRING ||
@@ -273,11 +369,9 @@ std::vector<std::pair<std::string, std::string>> Parser::parseParameterList() {
   // parse first parameter
   params.push_back(parseParameter());
 
-  // parse remaining parameters, each preceded by a comma
   while (current().type == TokenType::COMMA) {
-    advance(); // consume the comma
+    advance();
 
-    // trailing comma guard: function foo(int a,) is invalid
     if (current().type == TokenType::RPAREN) {
       throw CompileError("trailing comma in parameter list", current().line,
                          current().column);
@@ -298,7 +392,7 @@ std::pair<std::string, std::string> Parser::parseParameter() {
 
 std::unique_ptr<ASTNode> Parser::parseEnumDeclaration() {
   auto node = std::make_unique<EnumDeclarationNode>(current().line);
-  advance(); // consume enum
+  advance();
   node->name = expect(TokenType::IDENTIFIER, "expected enum name").value;
   expect(TokenType::EQUALS, "expected '='");
   expect(TokenType::LBRACE, "expected '{'");
@@ -312,7 +406,7 @@ std::unique_ptr<ASTNode> Parser::parseEnumDeclaration() {
     // check for hard coded value
     if (current().type == TokenType::EQUALS) {
       advance(); // consume =
-      value = std::stoi(
+      value = parseIntLiteral(
           expect(TokenType::INT_LITERAL, "expected integer value").value);
     }
 
@@ -340,7 +434,7 @@ Parser::parseVarDeclaration(std::string dataType,
 
   node->value = parseExpression();
 
-  // check for optional params like [const] or [fixed]
+  // check for optional params like [const]
   if (current().type == TokenType::LBRACKET) {
     advance(); // consume [
     std::string modifier =
@@ -733,7 +827,7 @@ std::unique_ptr<ASTNode> Parser::parsePrimary() {
 
   // integer literal
   if (current().type == TokenType::INT_LITERAL) {
-    int value = std::stoi(current().value);
+    int value = parseIntLiteral(current().value);
     int line = current().line;
     advance();
     return std::make_unique<IntLiteralNode>(value, line);
@@ -870,7 +964,7 @@ std::unique_ptr<ASTNode> Parser::parseSharedDeclaration() {
   expect(TokenType::LBRACKET, "expected '[' after shared type");
   std::string sizeStr =
       expect(TokenType::INT_LITERAL, "expected array size").value;
-  node->size = std::stoi(sizeStr);
+  node->size = parseIntLiteral(sizeStr);
   expect(TokenType::RBRACKET, "expected ']' after array size");
 
   node->name =

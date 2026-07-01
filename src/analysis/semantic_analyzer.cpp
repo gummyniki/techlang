@@ -9,6 +9,25 @@ void SemanticAnalyzer::analyze(ProgramNode *program) {
   symbols.pushScope();
 
   for (auto &statement : program->statements) {
+    if (statement->type == NodeType::FunctionDeclaration) {
+      auto *func = static_cast<FunctionDeclarationNode *>(statement.get());
+
+      if (func->name == "main")
+        continue;
+
+      Symbol funcSymbol;
+      funcSymbol.name = func->name;
+      funcSymbol.type = func->returnType;
+      funcSymbol.isFunction = true;
+      funcSymbol.returnType = func->returnType;
+      for (auto &param : func->params) {
+        funcSymbol.paramTypes.push_back(param.first);
+      }
+      symbols.declare(funcSymbol);
+    }
+  }
+
+  for (auto &statement : program->statements) {
     analyzeStatement(statement.get());
   }
 
@@ -117,15 +136,22 @@ void SemanticAnalyzer::analyzeVarDeclaration(VarDeclarationNode *node) {
 
 void SemanticAnalyzer::analyzeFunctionDeclaration(
     FunctionDeclarationNode *node) {
-  Symbol funcSymbol;
-  funcSymbol.name = node->name;
-  funcSymbol.type = node->returnType;
-  funcSymbol.isFunction = true;
-  funcSymbol.returnType = node->returnType;
-  for (auto &param : node->params) {
-    funcSymbol.paramTypes.push_back(param.first);
+
+  if (!symbols.lookup(node->name)) {
+    Symbol funcSymbol;
+    funcSymbol.name = node->name;
+    funcSymbol.type = node->returnType;
+    funcSymbol.isFunction = true;
+    funcSymbol.returnType = node->returnType;
+    for (auto &param : node->params) {
+      funcSymbol.paramTypes.push_back(param.first);
+    }
+    symbols.declare(funcSymbol);
   }
-  symbols.declare(funcSymbol);
+
+  // only analyze body if it exists
+  if (node->body.empty())
+    return;
 
   symbols.pushScope();
 
@@ -145,7 +171,6 @@ void SemanticAnalyzer::analyzeFunctionDeclaration(
 
   symbols.popScope();
 }
-
 std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
   switch (node->type) {
   case NodeType::IntLiteral:
@@ -390,8 +415,15 @@ bool SemanticAnalyzer::typesAreCompatible(const std::string &a,
   if (a == "any" || b == "any")
     return true;
 
-  bool aIsNumeric = (a == "int" || a == "float" || a == "double");
-  bool bIsNumeric = (b == "int" || b == "float" || b == "double");
+  bool aIsNumeric =
+      (a == "int" || a == "int8" || a == "int16" || a == "int32" ||
+       a == "int64" || a == "uint8" || a == "uint16" || a == "uint32" ||
+       a == "uint64" || a == "float" || a == "double");
+  bool bIsNumeric =
+      (b == "int" || b == "int8" || b == "int16" || b == "int32" ||
+       b == "int64" || b == "uint8" || b == "uint16" || b == "uint32" ||
+       b == "uint64" || b == "float" || b == "double");
+
   if (aIsNumeric && bIsNumeric)
     return true;
 

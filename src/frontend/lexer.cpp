@@ -79,8 +79,8 @@ std::vector<Token> Lexer::tokenize() {
     else if (isalpha(c) || c == '_') {
       tokens.push_back(readIdentifierOrKeyword());
     }
-    // ! for !import
-    else if (c == '!') {
+    // ! for !import, but don't shadow the '!=' operator
+    else if (c == '!' && peek() != '=') {
       tokens.push_back(makeToken(TokenType::EXCLAIM, "!"));
       advance();
     } else {
