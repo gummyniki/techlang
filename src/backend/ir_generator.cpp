@@ -40,7 +40,6 @@ llvm::AllocaInst *IRGenerator::lookupVariable(const std::string &name) {
   throw std::runtime_error("Undefined variable '" + name + "'");
 }
 
-// convert Techlang type strings to LLVM types
 llvm::Type *IRGenerator::getLLVMType(const std::string &type) {
   if (type == "int")
     return llvm::Type::getInt32Ty(context);
@@ -89,7 +88,7 @@ llvm::AllocaInst *IRGenerator::createEntryAlloca(llvm::Function *func,
 
 void IRGenerator::declarePrintf() {
   llvm::FunctionType *printfType = llvm::FunctionType::get(
-      llvm::Type::getInt32Ty(context), // returns int
+      llvm::Type::getInt32Ty(context),
       {llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0)}, true);
 
   module->getOrInsertFunction("printf", printfType);
@@ -211,17 +210,19 @@ void IRGenerator::generateStructInstance(StructInstanceNode *node) {
 }
 
 void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
-  llvm::AllocaInst *alloca = lookupVariable(node->objectName);
+  LValueResult base = resolveLValue(node->object.get());
 
-  if (node->memberName == "value" &&
-      alloca->getAllocatedType()->isPointerTy()) {
-    llvm::Value *ptr =
-        builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
-    llvm::Type *pointeeType = getPointeeType(node->objectName);
+  if (node->memberName == "value") {
+    if (!base.type->isPointerTy() || !base.pointeeType) {
+      throw std::runtime_error("Line " + std::to_string(node->line) +
+                               ": '.value' is only valid on pointers");
+    }
+
+    llvm::Value *ptr = builder.CreateLoad(base.type, base.addr, "ptrval");
+    llvm::Type *pointeeType = base.pointeeType;
     llvm::Value *newVal = generateExpression(node->value.get());
 
     if (node->op != TokenType::EQUALS) {
-      // load current value through the pointer first
       llvm::Value *current = builder.CreateLoad(pointeeType, ptr, "current");
       switch (node->op) {
       case TokenType::PLUS_EQUALS:
@@ -245,9 +246,13 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
     return;
   }
 
-  llvm::StructType *structType =
-      static_cast<llvm::StructType *>(alloca->getAllocatedType());
+  if (!base.type->isStructTy()) {
+    throw std::runtime_error("Line " + std::to_string(node->line) +
+                             ": cannot assign to member '" + node->memberName +
+                             "' of a non-struct type");
+  }
 
+  llvm::StructType *structType = static_cast<llvm::StructType *>(base.type);
   std::string structTypeName = structType->getName().str();
   auto &info = structTypes[structTypeName];
   int fieldIndex = info.getFieldIndex(node->memberName);
@@ -257,7 +262,7 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
   }
 
   llvm::Value *fieldPtr = builder.CreateGEP(
-      structType, alloca,
+      structType, base.addr,
       {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
        llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), fieldIndex)},
       "fieldptr");
@@ -278,6 +283,84 @@ llvm::Type *IRGenerator::getPointeeType(const std::string &name) {
       return it->second;
   }
   throw std::runtime_error("Cannot determine pointee type for '" + name + "'");
+}
+
+llvm::Type *IRGenerator::tryGetPointeeType(const std::string &name) {
+  for (int i = pointerTypeScopes.size() - 1; i >= 0; i--) {
+    auto it = pointerTypeScopes[i].find(name);
+    if (it != pointerTypeScopes[i].end())
+      return it->second;
+  }
+  return nullptr;
+}
+
+LValueResult IRGenerator::resolveLValue(ASTNode *node) {
+  if (node->type == NodeType::Identifier) {
+    auto *ident = static_cast<IdentifierNode *>(node);
+    llvm::AllocaInst *alloca = lookupVariable(ident->name);
+    llvm::Type *type = alloca->getAllocatedType();
+    llvm::Type *pointeeType =
+        type->isPointerTy() ? tryGetPointeeType(ident->name) : nullptr;
+    return {alloca, type, pointeeType};
+  }
+
+  if (node->type == NodeType::MemberAccess) {
+    auto *n = static_cast<MemberAccessNode *>(node);
+    LValueResult base = resolveLValue(n->object.get());
+
+    if (n->member == "value") {
+      if (!base.type->isPointerTy() || !base.pointeeType) {
+        throw std::runtime_error("Line " + std::to_string(n->line) +
+                                 ": '.value' is only valid on pointers");
+      }
+      llvm::Value *ptr = builder.CreateLoad(base.type, base.addr, "ptrval");
+      return {ptr, base.pointeeType, nullptr};
+    }
+
+    if (!base.type->isStructTy()) {
+      throw std::runtime_error("Line " + std::to_string(n->line) +
+                               ": cannot access member '" + n->member +
+                               "' on a non-struct type");
+    }
+
+    llvm::StructType *structType = static_cast<llvm::StructType *>(base.type);
+    std::string structTypeName = structType->getName().str();
+    if (!structTypes.count(structTypeName)) {
+      throw std::runtime_error("Line " + std::to_string(n->line) + ": '" +
+                               structTypeName + "' is not a registered struct");
+    }
+
+    auto &info = structTypes[structTypeName];
+    int fieldIndex = info.getFieldIndex(n->member);
+    if (fieldIndex < 0) {
+      throw std::runtime_error("Line " + std::to_string(n->line) +
+                               ": struct '" + structTypeName +
+                               "' has no field '" + n->member + "'");
+    }
+
+    llvm::Value *fieldPtr = builder.CreateGEP(
+        structType, base.addr,
+        {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
+         llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), fieldIndex)},
+        "fieldptr");
+    llvm::Type *fieldType = structType->getElementType(fieldIndex);
+
+    llvm::Type *fieldPointeeType = nullptr;
+    if (fieldType->isPointerTy()) {
+      const std::string &fieldTecType = info.fields[fieldIndex].first;
+      if (fieldTecType.substr(0, 9) == "PointerOf") {
+        fieldPointeeType =
+            getLLVMType(fieldTecType.substr(10, fieldTecType.size() - 11));
+      } else if (fieldTecType.substr(0, 7) == "ArrayOf") {
+        fieldPointeeType =
+            getLLVMType(fieldTecType.substr(8, fieldTecType.size() - 9));
+      }
+    }
+
+    return {fieldPtr, fieldType, fieldPointeeType};
+  }
+
+  throw std::runtime_error("Cannot resolve address of this expression");
 }
 
 void IRGenerator::generateFunctionDeclaration(FunctionDeclarationNode *node) {
@@ -764,11 +847,12 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   case NodeType::MemberAccess: {
     auto *n = static_cast<MemberAccessNode *>(node);
 
-    if (n->object->type == NodeType::Identifier) {
+    // .length only applies to a directly-named array/string; not chainable
+    if (n->object->type == NodeType::Identifier && n->member == "length") {
       auto *ident = static_cast<IdentifierNode *>(n->object.get());
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
 
-      if (n->member == "length" && alloca->getAllocatedType()->isArrayTy()) {
+      if (alloca->getAllocatedType()->isArrayTy()) {
         uint64_t size =
             static_cast<llvm::ArrayType *>(alloca->getAllocatedType())
                 ->getNumElements();
@@ -776,7 +860,7 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
                                       true);
       }
 
-      if (n->member == "length" && alloca->getAllocatedType()->isPointerTy()) {
+      if (alloca->getAllocatedType()->isPointerTy()) {
         llvm::Function *strlenFunc = module->getFunction("tec_string_length");
         if (!strlenFunc) {
           llvm::FunctionType *strlenType = llvm::FunctionType::get(
@@ -792,40 +876,16 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
             builder.CreateLoad(alloca->getAllocatedType(), alloca, "strptr");
         return builder.CreateCall(strlenFunc, {strPtr}, "strlen");
       }
-
-      if (n->member == "value" && alloca->getAllocatedType()->isPointerTy()) {
-        llvm::AllocaInst *alloca = lookupVariable(ident->name);
-        llvm::Value *ptr =
-            builder.CreateLoad(alloca->getAllocatedType(), alloca, "ptrval");
-        llvm::Type *pointeeType = getPointeeType(ident->name);
-        return builder.CreateLoad(pointeeType, ptr, "derefval");
-      }
-
-      if (n->member == "address") {
-
-        llvm::AllocaInst *alloca = lookupVariable(ident->name);
-
-        return alloca;
-      }
-
-      llvm::StructType *structType =
-          static_cast<llvm::StructType *>(alloca->getAllocatedType());
-
-      std::string structTypeName = structType->getName().str();
-      auto &info = structTypes[structTypeName];
-      int fieldIndex = info.getFieldIndex(n->member);
-
-      llvm::Value *fieldPtr = builder.CreateGEP(
-          structType, alloca,
-          {llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
-           llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), fieldIndex)},
-          "fieldptr");
-
-      llvm::Type *fieldType = structType->getElementType(fieldIndex);
-      return builder.CreateLoad(fieldType, fieldPtr, "fieldval");
     }
 
-    throw std::runtime_error("Complex member access not supported yet");
+    // `.address` yields the storage address itself, not a loaded value
+    if (n->member == "address") {
+      LValueResult base = resolveLValue(n->object.get());
+      return base.addr;
+    }
+
+    LValueResult result = resolveLValue(node);
+    return builder.CreateLoad(result.type, result.addr, "memval");
   }
 
   case NodeType::UnaryExpression: {
@@ -1058,10 +1118,6 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
 
     args.push_back(val);
     i++;
-
-    // If the next expected param is an i32 immediately after a pointer arg,
-    // it's the array-size slot injected by the GPU runtime wrapper — fill it
-    // automatically from the stack array's compile-time known element count.
 
     std::string alias = node->name.substr(0, node->name.find('.'));
     bool isGPUCall = std::find(gpuAliases.begin(), gpuAliases.end(), alias) !=

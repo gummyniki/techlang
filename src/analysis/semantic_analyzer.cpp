@@ -436,14 +436,15 @@ void SemanticAnalyzer::analyzeStructInstance(StructInstanceNode *node) {
 }
 
 void SemanticAnalyzer::analyzeMemberAssignment(MemberAssignmentNode *node) {
-  auto symbol = symbols.lookup(node->objectName);
-  if (!symbol) {
-    throw CompileError("undefined variable '" + node->objectName + "'",
-                       node->line);
-  }
+  std::string objectType = analyzeExpression(node->object.get());
 
-  if (node->memberName == "value" && symbol->type.substr(0, 9) == "PointerOf") {
-    std::string innerType = symbol->type.substr(10, symbol->type.size() - 11);
+  if (node->memberName == "value") {
+    if (objectType.substr(0, 9) != "PointerOf") {
+      throw std::runtime_error("Line " + std::to_string(node->line) +
+                               ": '.value' is only valid on pointers, got " +
+                               objectType);
+    }
+    std::string innerType = objectType.substr(10, objectType.size() - 11);
     std::string valueType = analyzeExpression(node->value.get());
     if (!typesAreCompatible(innerType, valueType)) {
       throw std::runtime_error("Line " + std::to_string(node->line) +
@@ -453,15 +454,14 @@ void SemanticAnalyzer::analyzeMemberAssignment(MemberAssignmentNode *node) {
     return;
   }
 
-  if (!structTable.count(symbol->type)) {
-    throw CompileError("'" + node->objectName + "' is not a struct",
-                       node->line);
+  if (!structTable.count(objectType)) {
+    throw CompileError("'" + objectType + "' is not a struct type", node->line);
   }
 
-  auto &def = structTable[symbol->type];
+  auto &def = structTable[objectType];
   auto fieldType = def.getFieldType(node->memberName);
   if (!fieldType) {
-    throw CompileError("struct '" + symbol->type + "' has no field '" +
+    throw CompileError("struct '" + objectType + "' has no field '" +
                            node->memberName + "'",
                        node->line);
   }

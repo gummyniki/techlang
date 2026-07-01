@@ -85,28 +85,13 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
     std::string name = advance().value;
 
     if (current().type == TokenType::DOT) {
+      int line = current().line;
       advance(); // consume .
       std::string member =
           expect(TokenType::IDENTIFIER, "expected member name").value;
 
-      if (current().type == TokenType::EQUALS ||
-          current().type == TokenType::PLUS_EQUALS ||
-          current().type == TokenType::MINUS_EQUALS ||
-          current().type == TokenType::STAR_EQUALS ||
-          current().type == TokenType::SLASH_EQUALS) {
-
-        TokenType op = advance().type;
-        auto value = parseExpression();
-        expect(TokenType::SEMICOLON, "expected ';'");
-
-        auto node = std::make_unique<MemberAssignmentNode>(current().line);
-        node->objectName = name;
-        node->memberName = member;
-        node->op = op;
-        node->value = std::move(value);
-        return node;
-      }
-
+      // qualified call, e.g. std.print(...): only recognized one dot deep,
+      // matching the existing (non-chained) qualified-call convention.
       if (current().type == TokenType::LPAREN) {
         advance(); // consume (
         std::string fullName = name + "." + member;
@@ -123,6 +108,41 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
 
         expect(TokenType::RPAREN, "expected ')'");
         expect(TokenType::SEMICOLON, "expected ';'");
+        return node;
+      }
+
+      // build up the chain of member accesses before the final field,
+      // e.g. `p.value.width = 5;` -> object = MemberAccess(p, "value"),
+      // memberName = "width"
+      std::unique_ptr<ASTNode> object = std::make_unique<IdentifierNode>(name, line);
+      std::string finalMember = member;
+
+      while (current().type == TokenType::DOT) {
+        auto access = std::make_unique<MemberAccessNode>(current().line);
+        access->object = std::move(object);
+        access->member = finalMember;
+        object = std::move(access);
+
+        advance(); // consume .
+        finalMember =
+            expect(TokenType::IDENTIFIER, "expected member name").value;
+      }
+
+      if (current().type == TokenType::EQUALS ||
+          current().type == TokenType::PLUS_EQUALS ||
+          current().type == TokenType::MINUS_EQUALS ||
+          current().type == TokenType::STAR_EQUALS ||
+          current().type == TokenType::SLASH_EQUALS) {
+
+        TokenType op = advance().type;
+        auto value = parseExpression();
+        expect(TokenType::SEMICOLON, "expected ';'");
+
+        auto node = std::make_unique<MemberAssignmentNode>(line);
+        node->object = std::move(object);
+        node->memberName = finalMember;
+        node->op = op;
+        node->value = std::move(value);
         return node;
       }
 

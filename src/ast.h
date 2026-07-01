@@ -173,7 +173,8 @@ struct StructInstanceNode : ASTNode {
 };
 
 struct MemberAssignmentNode : ASTNode {
-  std::string objectName;
+  std::unique_ptr<ASTNode> object; // everything before the final member, e.g.
+                                    // `p.value` in `p.value.width = 5;`
   std::string memberName;
   TokenType op;
   std::unique_ptr<ASTNode> value;

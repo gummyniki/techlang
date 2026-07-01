@@ -23,6 +23,16 @@ struct StructInfo {
   }
 };
 
+// address of an lvalue expression, plus enough type info to keep resolving
+// a member-access chain through it (structs are concrete LLVM types, but
+// pointer/array fields are opaque `ptr` at the LLVM level, so pointeeType
+// carries what a `.value` on this slot would point to, if applicable)
+struct LValueResult {
+  llvm::Value *addr;
+  llvm::Type *type;
+  llvm::Type *pointeeType = nullptr;
+};
+
 class IRGenerator {
 public:
   IRGenerator();
@@ -56,8 +66,13 @@ private:
   // type conversion
   llvm::Type *getLLVMType(const std::string &type);
   llvm::Type *getPointeeType(const std::string &name);
+  llvm::Type *tryGetPointeeType(const std::string &name);
 
   void declarePointerType(const std::string &name, llvm::Type *type);
+
+  // resolves the storage address of an (possibly chained) lvalue expression,
+  // e.g. `p.value.width` or `a.b.c` — walks Identifier/MemberAccess nodes
+  LValueResult resolveLValue(ASTNode *node);
 
   // generation methods
   void generateStatement(ASTNode *node);
