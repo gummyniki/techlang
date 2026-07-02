@@ -95,7 +95,7 @@ Hello, Alice
 **Quick install (Linux x64):**
 
 ```
-wget https://github.com/gummyniki/techlang/releases/download/v0.1.0-alpha/techlang-linux-x64.tar.gz
+wget https://github.com/gummyniki/techlang/releases/download/v0.3.0-alpha/techlang-linux-x64.tar.gz
 tar -xzf techlang-linux-x64.tar.gz
 cd techlang-linux-x64 && ./install.sh
 ```
