@@ -115,7 +115,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       auto index = parseExpression();
       expect(TokenType::RBRACKET, "expected ']'");
 
-      // arr[idx].field = value; (and chained arr[idx].a.b = value;)
       if (current().type == TokenType::DOT) {
         auto arrayAccess = std::make_unique<ArrayAccessNode>(arrLine);
         arrayAccess->array = std::make_unique<IdentifierNode>(name, arrLine);
@@ -257,7 +256,6 @@ std::unique_ptr<ASTNode> Parser::parseStatement() {
       return node;
     }
 
-    // regular assignment: x = 5;
     if (current().type == TokenType::EQUALS ||
         current().type == TokenType::PLUS_EQUALS ||
         current().type == TokenType::MINUS_EQUALS ||
@@ -366,7 +364,6 @@ std::vector<std::pair<std::string, std::string>> Parser::parseParameterList() {
     return params;
   }
 
-  // parse first parameter
   params.push_back(parseParameter());
 
   while (current().type == TokenType::COMMA) {
@@ -434,7 +431,6 @@ Parser::parseVarDeclaration(std::string dataType,
 
   node->value = parseExpression();
 
-  // check for optional params like [const]
   if (current().type == TokenType::LBRACKET) {
     advance(); // consume [
     std::string modifier =

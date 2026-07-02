@@ -82,7 +82,6 @@ llvm::Type *IRGenerator::getLLVMType(const std::string &type) {
   throw std::runtime_error("Unknown type '" + type + "'");
 }
 
-// always allocate variables in the entry block of the function
 // this makes LLVM's optimizer much happier
 llvm::AllocaInst *IRGenerator::createEntryAlloca(llvm::Function *func,
                                                  const std::string &name,
@@ -97,9 +96,6 @@ llvm::Value *IRGenerator::coerceIntWidth(llvm::Value *val,
   if (val->getType() == targetType)
     return val;
 
-  // storing an integer literal (almost always 0) into a pointer-typed slot -
-  // without this, "store i32 0, ptr %x" only zeroes the low 4 bytes of an
-  // 8-byte pointer, leaving the top half as uninitialized stack garbage.
   if (targetType->isPointerTy() && val->getType()->isIntegerTy()) {
     if (auto *constInt = llvm::dyn_cast<llvm::ConstantInt>(val)) {
       if (constInt->isZero())
@@ -255,7 +251,8 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
 
     llvm::Value *ptr = builder.CreateLoad(base.type, base.addr, "ptrval");
     llvm::Type *pointeeType = base.pointeeType;
-    llvm::Value *newVal = coerceIntWidth(generateExpression(node->value.get()), pointeeType);
+    llvm::Value *newVal =
+        coerceIntWidth(generateExpression(node->value.get()), pointeeType);
 
     if (node->op != TokenType::EQUALS) {
       llvm::Value *current = builder.CreateLoad(pointeeType, ptr, "current");
@@ -303,7 +300,8 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
       "fieldptr");
   llvm::Type *fieldType = structType->getElementType(fieldIndex);
 
-  llvm::Value *value = coerceIntWidth(generateExpression(node->value.get()), fieldType);
+  llvm::Value *value =
+      coerceIntWidth(generateExpression(node->value.get()), fieldType);
 
   if (node->op != TokenType::EQUALS) {
     llvm::Value *current = builder.CreateLoad(fieldType, fieldPtr, "current");
@@ -565,7 +563,6 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
     builder.CreateStore(value, alloca);
     declareVariable(node->name, alloca);
 
-    //  remember what this pointer points to
     declarePointerType(node->name, pointeeType);
     return;
   }
@@ -632,11 +629,11 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
 void IRGenerator::generateAssignment(AssignmentNode *node) {
   llvm::AllocaInst *alloca = lookupVariable(node->name);
   llvm::Type *targetType = alloca->getAllocatedType();
-  llvm::Value *value = coerceIntWidth(generateExpression(node->value.get()), targetType);
+  llvm::Value *value =
+      coerceIntWidth(generateExpression(node->value.get()), targetType);
 
   if (node->op != TokenType::EQUALS) {
-    llvm::Value *current =
-        builder.CreateLoad(targetType, alloca, node->name);
+    llvm::Value *current = builder.CreateLoad(targetType, alloca, node->name);
     switch (node->op) {
     case TokenType::PLUS_EQUALS:
       value = builder.CreateAdd(current, value, "addtmp");
@@ -909,7 +906,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   case NodeType::Identifier: {
     auto *n = static_cast<IdentifierNode *>(node);
 
-    // check enum constants first
     auto it = enumConstants.find(n->name);
     if (it != enumConstants.end()) {
       return it->second;
@@ -934,7 +930,6 @@ llvm::Value *IRGenerator::generateExpression(ASTNode *node) {
   case NodeType::MemberAccess: {
     auto *n = static_cast<MemberAccessNode *>(node);
 
-    // .length only applies to a directly-named array/string; not chainable
     if (n->object->type == NodeType::Identifier && n->member == "length") {
       auto *ident = static_cast<IdentifierNode *>(n->object.get());
       llvm::AllocaInst *alloca = lookupVariable(ident->name);
@@ -1019,8 +1014,6 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
     left = builder.CreateIntToPtr(left, right->getType(), "inttoptrtmp");
   }
 
-  // widen mismatched integer widths (e.g. int64 var op int32 literal) to a
-  // common type before handing them to LLVM, which requires exact matches
   if (left->getType()->isIntegerTy() && right->getType()->isIntegerTy() &&
       left->getType() != right->getType()) {
     if (left->getType()->getIntegerBitWidth() <
