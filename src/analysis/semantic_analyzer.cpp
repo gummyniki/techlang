@@ -67,6 +67,9 @@ void SemanticAnalyzer::analyzeStatement(ASTNode *node) {
   case NodeType::MemberAssignment:
     analyzeMemberAssignment(static_cast<MemberAssignmentNode *>(node));
     break;
+  case NodeType::ArrayAssignment:
+    analyzeArrayAssignment(static_cast<ArrayAssignmentNode *>(node));
+    break;
   case NodeType::EnumDeclaration:
     analyzeEnumDeclaration(static_cast<EnumDeclarationNode *>(node));
     break;
@@ -274,11 +277,22 @@ std::string SemanticAnalyzer::analyzeExpression(ASTNode *node) {
     auto *n = static_cast<ArrayAccessNode *>(node);
     std::string arrayType = analyzeExpression(n->array.get());
     std::string indexType = analyzeExpression(n->index.get());
-    if (indexType != "int") {
+    bool indexIsInt = indexType == "int" || indexType == "int8" ||
+                      indexType == "int16" || indexType == "int32" ||
+                      indexType == "int64" || indexType == "uint8" ||
+                      indexType == "uint16" || indexType == "uint32" ||
+                      indexType == "uint64";
+    if (!indexIsInt) {
       throw CompileError("array index must be int, got " + indexType, n->line);
     }
     if (arrayType.substr(0, 7) == "ArrayOf") {
       return arrayType.substr(8, arrayType.size() - 9);
+    }
+    // indexing through a raw pointer (e.g. a malloc'd buffer) behaves like
+    // indexing an array of its pointee type - matches the IR generator,
+    // which already walks pointer-typed variables the same way as arrays
+    if (arrayType.substr(0, 9) == "PointerOf") {
+      return arrayType.substr(10, arrayType.size() - 11);
     }
     return "unknown";
   }
@@ -506,18 +520,70 @@ void SemanticAnalyzer::analyzeMemberAssignment(MemberAssignmentNode *node) {
   }
 }
 
+void SemanticAnalyzer::analyzeArrayAssignment(ArrayAssignmentNode *node) {
+  auto symbol = symbols.lookup(node->arrayName);
+  if (!symbol) {
+    throw CompileError("undefined variable '" + node->arrayName + "'",
+                       node->line);
+  }
+
+  const std::string &arrayType = symbol->type;
+  std::string elementType;
+  if (arrayType.substr(0, 7) == "ArrayOf") {
+    elementType = arrayType.substr(8, arrayType.size() - 9);
+  } else if (arrayType.substr(0, 9) == "PointerOf") {
+    elementType = arrayType.substr(10, arrayType.size() - 11);
+  } else {
+    throw CompileError("'" + node->arrayName + "' is not an array or pointer",
+                       node->line);
+  }
+
+  std::string indexType = analyzeExpression(node->index.get());
+  bool indexIsInt = indexType == "int" || indexType == "int8" ||
+                    indexType == "int16" || indexType == "int32" ||
+                    indexType == "int64" || indexType == "uint8" ||
+                    indexType == "uint16" || indexType == "uint32" ||
+                    indexType == "uint64";
+  if (!indexIsInt) {
+    throw CompileError("array index must be int, got " + indexType,
+                       node->line);
+  }
+
+  std::string valueType = analyzeExpression(node->value.get());
+  if (!typesAreCompatible(elementType, valueType)) {
+    throw CompileError("cannot assign " + valueType +
+                           " to array element of type " + elementType,
+                       node->line);
+  }
+}
+
 std::string SemanticAnalyzer::binaryResultType(const std::string &left,
                                                const std::string &right,
                                                TokenType op) {
-  bool leftIsNumeric = (left == "int" || left == "float" || left == "double");
+  auto isIntType = [](const std::string &t) {
+    return t == "int" || t == "int8" || t == "int16" || t == "int32" ||
+           t == "int64" || t == "uint8" || t == "uint16" || t == "uint32" ||
+           t == "uint64";
+  };
+  bool leftIsNumeric = isIntType(left) || left == "float" || left == "double";
   bool rightIsNumeric =
-      (right == "int" || right == "float" || right == "double");
+      isIntType(right) || right == "float" || right == "double";
 
   if (leftIsNumeric && rightIsNumeric) {
     if (left == "double" || right == "double")
       return "double";
     if (left == "float" || right == "float")
       return "float";
+    // widest integer type wins (matches the implicit widening IR
+    // generation performs when the two sides' bit widths differ)
+    if (left == "int64" || left == "uint64")
+      return left;
+    if (right == "int64" || right == "uint64")
+      return right;
+    if (left != "int" && isIntType(left))
+      return left;
+    if (right != "int" && isIntType(right))
+      return right;
     return "int";
   }
 

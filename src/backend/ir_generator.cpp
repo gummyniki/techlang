@@ -92,6 +92,35 @@ llvm::AllocaInst *IRGenerator::createEntryAlloca(llvm::Function *func,
   return tmpBuilder.CreateAlloca(type, nullptr, name);
 }
 
+llvm::Value *IRGenerator::coerceIntWidth(llvm::Value *val,
+                                         llvm::Type *targetType) {
+  if (val->getType() == targetType)
+    return val;
+
+  // storing an integer literal (almost always 0) into a pointer-typed slot -
+  // without this, "store i32 0, ptr %x" only zeroes the low 4 bytes of an
+  // 8-byte pointer, leaving the top half as uninitialized stack garbage.
+  if (targetType->isPointerTy() && val->getType()->isIntegerTy()) {
+    if (auto *constInt = llvm::dyn_cast<llvm::ConstantInt>(val)) {
+      if (constInt->isZero())
+        return llvm::ConstantPointerNull::get(
+            llvm::cast<llvm::PointerType>(targetType));
+    }
+    return builder.CreateIntToPtr(val, targetType, "inttoptr");
+  }
+
+  if (!val->getType()->isIntegerTy() || !targetType->isIntegerTy())
+    return val;
+
+  unsigned fromBits = val->getType()->getIntegerBitWidth();
+  unsigned toBits = targetType->getIntegerBitWidth();
+  if (fromBits < toBits)
+    return builder.CreateSExt(val, targetType, "widen");
+  if (fromBits > toBits)
+    return builder.CreateTrunc(val, targetType, "narrow");
+  return val;
+}
+
 void IRGenerator::declarePrintf() {
   llvm::FunctionType *printfType = llvm::FunctionType::get(
       llvm::Type::getInt32Ty(context),
@@ -226,7 +255,7 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
 
     llvm::Value *ptr = builder.CreateLoad(base.type, base.addr, "ptrval");
     llvm::Type *pointeeType = base.pointeeType;
-    llvm::Value *newVal = generateExpression(node->value.get());
+    llvm::Value *newVal = coerceIntWidth(generateExpression(node->value.get()), pointeeType);
 
     if (node->op != TokenType::EQUALS) {
       llvm::Value *current = builder.CreateLoad(pointeeType, ptr, "current");
@@ -274,7 +303,7 @@ void IRGenerator::generateMemberAssignment(MemberAssignmentNode *node) {
       "fieldptr");
   llvm::Type *fieldType = structType->getElementType(fieldIndex);
 
-  llvm::Value *value = generateExpression(node->value.get());
+  llvm::Value *value = coerceIntWidth(generateExpression(node->value.get()), fieldType);
 
   if (node->op != TokenType::EQUALS) {
     llvm::Value *current = builder.CreateLoad(fieldType, fieldPtr, "current");
@@ -596,17 +625,18 @@ void IRGenerator::generateVarDeclaration(VarDeclarationNode *node) {
   llvm::AllocaInst *alloca =
       createEntryAlloca(currentFunction, node->name, type);
   llvm::Value *value = generateExpression(node->value.get());
-  builder.CreateStore(value, alloca);
+  builder.CreateStore(coerceIntWidth(value, type), alloca);
   declareVariable(node->name, alloca);
 }
 
 void IRGenerator::generateAssignment(AssignmentNode *node) {
   llvm::AllocaInst *alloca = lookupVariable(node->name);
-  llvm::Value *value = generateExpression(node->value.get());
+  llvm::Type *targetType = alloca->getAllocatedType();
+  llvm::Value *value = coerceIntWidth(generateExpression(node->value.get()), targetType);
 
   if (node->op != TokenType::EQUALS) {
     llvm::Value *current =
-        builder.CreateLoad(alloca->getAllocatedType(), alloca, node->name);
+        builder.CreateLoad(targetType, alloca, node->name);
     switch (node->op) {
     case TokenType::PLUS_EQUALS:
       value = builder.CreateAdd(current, value, "addtmp");
@@ -989,6 +1019,18 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
     left = builder.CreateIntToPtr(left, right->getType(), "inttoptrtmp");
   }
 
+  // widen mismatched integer widths (e.g. int64 var op int32 literal) to a
+  // common type before handing them to LLVM, which requires exact matches
+  if (left->getType()->isIntegerTy() && right->getType()->isIntegerTy() &&
+      left->getType() != right->getType()) {
+    if (left->getType()->getIntegerBitWidth() <
+        right->getType()->getIntegerBitWidth()) {
+      left = coerceIntWidth(left, right->getType());
+    } else {
+      right = coerceIntWidth(right, left->getType());
+    }
+  }
+
   bool isFloat = left->getType()->isFloatingPointTy();
 
   switch (node->op) {
@@ -1039,6 +1081,10 @@ llvm::Value *IRGenerator::generateBinaryExpression(BinaryExpressionNode *node) {
     return builder.CreateAnd(left, right, "andtmp");
   case TokenType::PIPE_PIPE:
     return builder.CreateOr(left, right, "ortmp");
+  case TokenType::AMPERSAND:
+    return builder.CreateAnd(left, right, "bitandtmp");
+  case TokenType::PIPE:
+    return builder.CreateOr(left, right, "bitortmp");
 
   default:
     throw std::runtime_error("Unknown binary operator in IR generation");
@@ -1188,6 +1234,8 @@ llvm::Value *IRGenerator::generateFunctionCall(FunctionCallNode *node) {
               alloca, llvm::PointerType::get(llvm::Type::getInt8Ty(context), 0),
               "anyptr");
         }
+      } else if (expectedType->isIntegerTy() && actualType->isIntegerTy()) {
+        val = coerceIntWidth(val, expectedType);
       }
     }
 

@@ -272,6 +272,10 @@ Token Lexer::readOperator() {
     return makeToken(TokenType::LBRACKET, word);
   case ']':
     return makeToken(TokenType::RBRACKET, word);
+  case '&':
+    return makeToken(TokenType::AMPERSAND, word);
+  case '|':
+    return makeToken(TokenType::PIPE, word);
   default:
     throw CompileError("unknown character '" + std::string(1, word[0]) + "'",
                        line, column);

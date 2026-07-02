@@ -97,6 +97,11 @@ private:
                                       const std::string &name,
                                       llvm::Type *type);
 
+  // widen/truncate an integer value to match a differently-sized integer
+  // target type (e.g. an int32 literal passed where int64 is expected) —
+  // leaves non-integer or already-matching types untouched
+  llvm::Value *coerceIntWidth(llvm::Value *val, llvm::Type *targetType);
+
   void generateArrayAssignment(ArrayAssignmentNode *node);
 
   // this is unused im pretty sure

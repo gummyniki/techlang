@@ -45,6 +45,7 @@ public:
   // expressions - broken into levels for operator precedence
   std::unique_ptr<ASTNode> parseExpression();
   std::unique_ptr<ASTNode> parseComparison();
+  std::unique_ptr<ASTNode> parseBitwise();
   std::unique_ptr<ASTNode> parseAddSub();
   std::unique_ptr<ASTNode> parseAnd();
   std::unique_ptr<ASTNode> parsePostfix(std::unique_ptr<ASTNode> left);

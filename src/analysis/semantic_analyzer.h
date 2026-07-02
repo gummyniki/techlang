@@ -48,6 +48,7 @@ public:
   void analyzeStructDeclaration(StructDeclarationNode *node);
   void analyzeStructInstance(StructInstanceNode *node);
   void analyzeMemberAssignment(MemberAssignmentNode *node);
+  void analyzeArrayAssignment(ArrayAssignmentNode *node);
   void analyzeBlock(std::vector<std::unique_ptr<ASTNode>> &statements);
   void analyzeEnumDeclaration(EnumDeclarationNode *node);
 

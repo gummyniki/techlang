@@ -19,27 +19,41 @@ static const char* ptx_gpu =
     ".visible .entry addArrays(\n"
     "	.param .u64 .ptr .align 1 addArrays_param_0,\n"
     "	.param .u64 .ptr .align 1 addArrays_param_1,\n"
-    "	.param .u64 .ptr .align 1 addArrays_param_2\n"
+    "	.param .u32 addArrays_param_2,\n"
+    "	.param .u64 .ptr .align 1 addArrays_param_3\n"
     ")\n"
     "{\n"
-    "	.reg .b32 	%r<5>;\n"
-    "	.reg .b64 	%rd<11>;\n"
+    "	.reg .pred 	%p<2>;\n"
+    "	.reg .b32 	%r<9>;\n"
+    "	.reg .b64 	%rd<14>;\n"
     "\n"
-    "	ld.param.b64 	%rd1, [addArrays_param_0];\n"
-    "	cvta.to.global.u64 	%rd2, %rd1;\n"
-    "	ld.param.b64 	%rd3, [addArrays_param_1];\n"
-    "	cvta.to.global.u64 	%rd4, %rd3;\n"
-    "	ld.param.b64 	%rd5, [addArrays_param_2];\n"
-    "	cvta.to.global.u64 	%rd6, %rd5;\n"
+    "	ld.param.b64 	%rd4, [addArrays_param_0];\n"
+    "	cvta.to.global.u64 	%rd1, %rd4;\n"
+    "	ld.param.b64 	%rd5, [addArrays_param_1];\n"
+    "	cvta.to.global.u64 	%rd2, %rd5;\n"
+    "	ld.param.b32 	%r3, [addArrays_param_2];\n"
+    "	ld.param.b64 	%rd6, [addArrays_param_3];\n"
+    "	cvta.to.global.u64 	%rd3, %rd6;\n"
+    "	mov.u32 	%r4, %ctaid.x;\n"
+    "	mov.u32 	%r5, %ntid.x;\n"
     "	mov.u32 	%r1, %tid.x;\n"
+    "	mad.lo.s32 	%r2, %r4, %r5, %r1;\n"
+    "	setp.ge.s32 	%p1, %r2, %r3;\n"
+    "	@%p1 bra 	$L__BB0_2;\n"
+    "	mul.wide.s32 	%rd9, %r2, 4;\n"
+    "	add.s64 	%rd10, %rd1, %rd9;\n"
+    "	ld.global.b32 	%r6, [%rd10];\n"
+    "	add.s64 	%rd11, %rd2, %rd9;\n"
+    "	ld.global.b32 	%r7, [%rd11];\n"
+    "	add.s32 	%r8, %r6, %r7;\n"
+    "	mul.wide.u32 	%rd12, %r1, 4;\n"
+    "	add.s64 	%rd13, %rd3, %rd12;\n"
+    "	st.global.b32 	[%rd13], %r8;\n"
+    "	ret;\n"
+    "$L__BB0_2:\n"
     "	mul.wide.u32 	%rd7, %r1, 4;\n"
-    "	add.s64 	%rd8, %rd2, %rd7;\n"
-    "	ld.global.b32 	%r2, [%rd8];\n"
-    "	add.s64 	%rd9, %rd4, %rd7;\n"
-    "	ld.global.b32 	%r3, [%rd9];\n"
-    "	add.rn.f32 	%r4, %r2, %r3;\n"
-    "	add.s64 	%rd10, %rd6, %rd7;\n"
-    "	st.global.b32 	[%rd10], %r4;\n"
+    "	add.s64 	%rd8, %rd3, %rd7;\n"
+    "	st.global.b32 	[%rd8], 0;\n"
     "	ret;\n"
     "\n"
     "}\n"
@@ -59,24 +73,29 @@ void tec_gpu_init_gpu() {
     CUDA_CHECK(cuModuleGetFunction(&tec_gpu_kernel_gpu_addArrays, tec_gpu_module_gpu, "addArrays"));
 }
 
-float* gpu_addArrays(float* a, int a_size, float* b, int b_size) {
+int* gpu_addArrays(int* a, int a_size, int* b, int b_size, int size) {
     CUdeviceptr d_a;
-    CUDA_CHECK(cuMemAlloc(&d_a, a_size * sizeof(float)));
-    CUDA_CHECK(cuMemcpyHtoD(d_a, a, a_size * sizeof(float)));
+    CUDA_CHECK(cuMemAlloc(&d_a, a_size * sizeof(int)));
+    CUDA_CHECK(cuMemcpyHtoD(d_a, a, a_size * sizeof(int)));
     CUdeviceptr d_b;
-    CUDA_CHECK(cuMemAlloc(&d_b, b_size * sizeof(float)));
-    CUDA_CHECK(cuMemcpyHtoD(d_b, b, b_size * sizeof(float)));
+    CUDA_CHECK(cuMemAlloc(&d_b, b_size * sizeof(int)));
+    CUDA_CHECK(cuMemcpyHtoD(d_b, b, b_size * sizeof(int)));
     CUdeviceptr d_result;
-    CUDA_CHECK(cuMemAlloc(&d_result, a_size * sizeof(float)));
-    void* args[] = {&d_a, &d_b, &d_result};
+    CUDA_CHECK(cuMemAlloc(&d_result, a_size * sizeof(int)));
+    void* args[] = {&d_a, &d_b, &size, &d_result};
+    int threadsPerBlock = 1;
+    while (threadsPerBlock < a_size && threadsPerBlock < 256) threadsPerBlock *= 2;
+    int numBlocks = (a_size + threadsPerBlock - 1) / threadsPerBlock;
     CUDA_CHECK(cuLaunchKernel(tec_gpu_kernel_gpu_addArrays,
-        1, 1, 1,
-        a_size, 1, 1,
+        numBlocks, 1, 1,
+        threadsPerBlock, 1, 1,
         0, 0, args, 0));
     CUDA_CHECK(cuCtxSynchronize());
 
-    float* result = (float*)malloc(a_size * sizeof(float));
-    CUDA_CHECK(cuMemcpyDtoH(result, d_result, a_size * sizeof(float)));
+    cuMemcpyDtoH(a, d_a, a_size * sizeof(int));
+    cuMemcpyDtoH(b, d_b, b_size * sizeof(int));
+    int* result = (int*)malloc(a_size * sizeof(int));
+    CUDA_CHECK(cuMemcpyDtoH(result, d_result, a_size * sizeof(int)));
     CUDA_CHECK(cuMemFree(d_a));
     CUDA_CHECK(cuMemFree(d_b));
     CUDA_CHECK(cuMemFree(d_result));

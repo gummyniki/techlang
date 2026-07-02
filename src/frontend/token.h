@@ -73,6 +73,8 @@ enum class TokenType {
   GREATER_EQUALS,
   AND_AND,
   PIPE_PIPE,
+  AMPERSAND,
+  PIPE,
   BANG,
 
   // Punctuation

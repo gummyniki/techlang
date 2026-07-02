@@ -486,7 +486,7 @@ std::unique_ptr<ASTNode> Parser::parseIfStatement() {
   expect(TokenType::KW_IF, "expected 'if' keyword");
 
   expect(TokenType::LPAREN, "expected '(' after if keyword");
-  node->condition = parseComparison();
+  node->condition = parseExpression();
   expect(TokenType::RPAREN, "expected ')' after condition");
   node->thenBlock = parseBlock();
 
@@ -523,7 +523,7 @@ std::unique_ptr<ASTNode> Parser::parseWhileStatement() {
 
   expect(TokenType::KW_WHILE, "expected 'while' keyword");
   expect(TokenType::LPAREN, "expected '(' after loop declaration");
-  node->condition = parseComparison();
+  node->condition = parseExpression();
   expect(TokenType::RPAREN, "expected ')' after condition");
   node->body = parseBlock();
   return node;
@@ -628,7 +628,7 @@ std::unique_ptr<ASTNode> Parser::parseAnd() {
 
 // == != < > <= >=
 std::unique_ptr<ASTNode> Parser::parseComparison() {
-  auto left = parseCast();
+  auto left = parseBitwise();
 
   while (current().type == TokenType::EQUALS_EQUALS ||
          current().type == TokenType::BANG_EQUALS ||
@@ -636,6 +636,27 @@ std::unique_ptr<ASTNode> Parser::parseComparison() {
          current().type == TokenType::GREATER ||
          current().type == TokenType::LESS_EQUALS ||
          current().type == TokenType::GREATER_EQUALS) {
+
+    TokenType op = advance().type;
+    auto right = parseBitwise();
+
+    auto node = std::make_unique<BinaryExpressionNode>(current().line);
+    node->left = std::move(left);
+    node->op = op;
+    node->right = std::move(right);
+    left = std::move(node);
+  }
+
+  return left;
+}
+
+// & |  (bitwise, binds tighter than comparison so `flags & BIT == 0` reads
+// naturally as `(flags & BIT) == 0`)
+std::unique_ptr<ASTNode> Parser::parseBitwise() {
+  auto left = parseCast();
+
+  while (current().type == TokenType::AMPERSAND ||
+         current().type == TokenType::PIPE) {
 
     TokenType op = advance().type;
     auto right = parseCast();
