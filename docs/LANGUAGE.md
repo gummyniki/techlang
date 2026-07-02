@@ -131,7 +131,7 @@ bool b = !true; // logical not
 ## Casting
 ```
  float x = 3.14;
- int y = x as int // 3
+ int y = x as int; // 3
 
  // variable of type 'any' can cast to all types
 ```
@@ -227,7 +227,7 @@ function my_func(int x) returns int extern "c_function_name" {}
 ```techlang
 int[] nums = {1, 2, 3, 4, 5};
 float[] floats = {1.1, 2.2, 3.3};
-strin[] words = {"hello", "world"};
+string[] words = {"hello", "world"};
 ```
 
 ### Access
@@ -239,7 +239,7 @@ nums[0] = 10;
 
 ### Methods
 ```
-ArrayOf(int) x = {1, 2, 3, 4};
+int[] x = {1, 2, 3, 4};
 
 print(x.length); // 4
 ```

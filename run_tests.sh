@@ -76,7 +76,7 @@ run_test "$EXAMPLES_DIR/imports/main.tec"   		    "$EXAMPLES_DIR/imports/main.ex
 run_test "$EXAMPLES_DIR/casting.tec" 	    		    "$EXAMPLES_DIR/casting.expected"        	       "Casting"
 run_test "$EXAMPLES_DIR/file_editing/files.tec" 	    "$EXAMPLES_DIR/file_editing/files.expected"        "Files"
 run_test "$EXAMPLES_DIR/strings.tec" 	    		    "$EXAMPLES_DIR/strings.expected"        	       "Strings"
-run_test "$EXAMPLES_DIR/gpu/arrays.tec" 	            "$EXAMPLES_DIR/arrays.expected"        	       "Add Arrays"
+run_test "$EXAMPLES_DIR/gpu/arrays.tec" 	            "$EXAMPLES_DIR/gpu/arrays.expected"        	       "Add Arrays"
 run_test "$EXAMPLES_DIR/gpu/sumReduce.tec" 	            "$EXAMPLES_DIR/gpu/sumReduce.expected"             "Sum Reduce"
 
 # summary

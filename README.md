@@ -199,7 +199,7 @@ Imported with:
 
 
 ## Examples
-Examples are available in the examples/ directory, for more complex ones, using different libraries check out github.com/gummyniki/techlang-libs
+Examples are available in the examples/ directory, for more complex ones, using different libraries check out *[this repo](github.com/gummyniki/techlang-libs)*
 
 ## Contributing
 
