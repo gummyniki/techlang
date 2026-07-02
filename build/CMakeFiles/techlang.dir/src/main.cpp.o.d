@@ -29,7 +29,8 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/include/bits/types/mbstate_t.h \
  /usr/include/bits/types/__mbstate_t.h /usr/include/bits/types/__FILE.h \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/locale_t.h \
- /usr/include/bits/types/__locale_t.h \
+ /usr/include/bits/types/__locale_t.h /usr/include/bits/wchar2-decl.h \
+ /usr/include/bits/wchar2.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/exception \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/exception.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/version.h \
@@ -123,15 +124,18 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/include/bits/stdint-intn.h /usr/include/endian.h \
  /usr/include/bits/byteswap.h /usr/include/bits/uintn-identity.h \
  /usr/include/sys/select.h /usr/include/bits/select.h \
- /usr/include/bits/types/sigset_t.h /usr/include/alloca.h \
- /usr/include/bits/stdlib-float.h \
+ /usr/include/bits/types/sigset_t.h /usr/include/bits/select2.h \
+ /usr/include/bits/select-decl.h /usr/include/alloca.h \
+ /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
+ /usr/include/bits/stdlib.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/std_abs.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cstdio \
  /usr/include/stdio.h /usr/include/bits/types/__fpos_t.h \
  /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
- /usr/include/bits/stdio_lim.h \
+ /usr/include/bits/stdio_lim.h /usr/include/bits/stdio2-decl.h \
+ /usr/include/bits/stdio.h /usr/include/bits/stdio2.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/cerrno \
  /usr/include/errno.h /usr/include/bits/errno.h \
  /usr/include/linux/errno.h /usr/include/asm/errno.h \
@@ -187,6 +191,8 @@ CMakeFiles/techlang.dir/src/main.cpp.o: \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/glue_memory_defs.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/pstl/execution_defs.h \
  /usr/include/string.h /usr/include/strings.h \
+ /usr/include/bits/strings_fortified.h \
+ /usr/include/bits/string_fortified.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/vector \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_vector.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15/bits/stl_bvector.h \
